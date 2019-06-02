@@ -75,21 +75,22 @@ Conductive Rubber - can be similiar feel to membrane, but easier to fix "in fiel
 
 ## Brands
 
-Cherry - Gold standard in mechanical switches (linear, tactile, clicky).
-Topre - see Topre type.
-Greetech and Kailh - Cherry imitation.
+- Cherry - Gold standard in mechanical switches (linear, tactile, clicky).
+- Topre - see Topre type.
+- Greetech and Kailh: Cherry imitation.
 
 ## Key Characterisitcs
 
-Key Travel Distance: Membrane typically is 3.5-4.0mm, or short down to 2.5mm
-Noise Level: Membrane are quiter than anything else.
-Durability: 1 million to 10 million, but other parts can wear out quicker.
-Key Activation Force: membrane tends to be in the 60-80 grams range.
-Tactility ('Feel'): membrane keys feel mushy.
+- Key Travel Distance: Membrane typically is 3.5-4.0mm, or short down to 2.5mm
+- Noise Level: Membrane are quiter than anything else.
+- Durability: 1 million to 10 million, but other parts can wear out quicker.
+- Key Activation Force: membrane tends to be in the 60-80 grams range.
+- Tactility ('Feel'): membrane keys feel mushy.
 
 ## Typical Key Switch Sizes
 
 |Param|Value  |Description|
+|-----|-------|-----------|
 |L    |18 mm  |Length|
 |W    |18 mm  |Width|
 |s    |30 mm  |Radius|
