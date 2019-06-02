@@ -1,0 +1,2 @@
+# ergo-code
+This is for exploring and creating an ergonomic and efficient setup for user input, with a focus on improving the input interface when computer programming. This includes notes on custom keyboards and other user input devices. When writing code, there are some characters that are far more common than typical writing, as well as room for improvements for layout for typical english punctuation and access to useful characters. There is a special attention paid to to general navigation and modifer keys and how they can be set up for more efficient user interface. 
