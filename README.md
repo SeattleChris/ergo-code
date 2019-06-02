@@ -53,16 +53,17 @@ What are the most popular characters and keys used in writing computer programs?
 
 - [Key Switches](/key-switches.md)
 - Key Caps
+- [Sound Dampening - O-Rings](/sound-dampen.md)
 - Keyboard base
-- Cable
+- [Cable](/cable.md)
 - Wrist pads
 - Tool: Key cap puller
 
 ## Additional Resources and Forums
 
-[Approach to Optimizing Keyboard Layouts](https://www.allthingsergo.com/case-study-one-approach-optimizing-ergonomic-keyboard-layouts/)
-[Keyboard Layout Editor](http://www.keyboard-layout-editor.com/)
-[keyboard enthusiasts](http://geekhack.org)
+- [Approach to Optimizing Keyboard Layouts](https://www.allthingsergo.com/case-study-one-approach-optimizing-ergonomic-keyboard-layouts/)
+- [Keyboard Layout Editor](http://www.keyboard-layout-editor.com/)
+- [keyboard enthusiasts](http://geekhack.org)
 
 ## Build Notes
 
