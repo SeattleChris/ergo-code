@@ -5,7 +5,7 @@
 Due to my interests, this is mostly focused on Tactile type switches. So less focus on clicky and linear. However, it is good to know some of these other general key switches.
 
 |Name            |Type    |Actuat  |Act-Travel  |Sound | Notes  |
-________________________________________________________
+|----------------|--------|--------|------------|------|--------|
 |Cherry MX Red   |Linear  |45g     |2mm-4mm     |Quiet | |
 |" " Silent Red      same as above, more quiet |
 |Cherry MX Black |Linear  |60g     |2mm-4mm     |Quiet | |
@@ -27,8 +27,8 @@ ________________________________________________________
 
 ### Tactile, not Clicky, Types
 
-|Name                |Act |Tac Act-Travel  Usage |
-________________________________________________________
+|Name                |Act |Tac |Act-Travel |Usage |
+|--------------------|----|----|-----------|------|
 |Cherry MX Brown     |45g |55g |2mm-4mm     Normal keys |
 |Cherry MX Clear     |55g |65g |            Larger Keys |
 |Cherry Tac Grey     |80g |80g |            Larger Keys |
