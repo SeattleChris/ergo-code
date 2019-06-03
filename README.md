@@ -13,8 +13,8 @@ parameterized, split-hand, concave, columnar, ergonomic keyboard.
 - Thumb section: Most common characters/letters or no No letters?
 - Arrow Keys:
   - Seperate keys or HJKL (vim style) or IJKL (inverted T)
-    - Sepeate Arrow Keys is not compatible with m(inimum key keyboard, unless maybe if Maltron thumb keys
-    - IJKL seems slighty better according to http://xahlee.info/kbd/vi_hjkl_vs_inverted_t_ijkl_arrow_keys.html
+    - Sepeate Arrow Keys is not compatible with minimum key keyboard, unless maybe if Maltron thumb keys
+    - IJKL seems slighty better [according to here](http://xahlee.info/kbd/vi_hjkl_vs_inverted_t_ijkl_arrow_keys.html)
 
 ### Layout: Modifiers and Possible Thumb Keys
 
@@ -52,12 +52,12 @@ What are the most popular characters and keys used in writing computer programs?
 ## Keyboard Parts
 
 - [Key Switches](/key-switches.md)
-- Key Caps
+- [Key Caps](/keycaps.md)
 - [Sound Dampening - O-Rings](/sound-dampen.md)
 - Keyboard base
 - [Cable](/cable.md)
 - Wrist pads
-- Tool: Key cap puller
+- Tool: Key cap puller - The wire puller is better.
 
 ## Additional Resources and Forums
 

@@ -6,12 +6,14 @@ Most common approach seems to be O-rings (from braces) but also soft pads, GMK s
 
 ## O-Rings
 
-Most common are 40A-L, 40A-R, and 50A-L. This classification represents [hardness]A-[thickness]. A higher hardness number is harder and more resistant to indentation. For thickness, 'R' is twice as thick as 'L'. The thickness shortens the travel distance, with 'L' taking off about 0.2mm, and 'R' removing 0.4mm (in theory).
+Most common are 40A-L, 40A-R, and 50A-L. This classification represents [hardness]A-[thickness]. A higher hardness number is harder and more resistant to indentation. For thickness, 'R' is twice as thick as 'L'. The thickness shortens the travel distance, with 'L' taking off about 0.2mm, and 'R' removing 0.4mm (in theory). The thinnest o-rings found useful are 5mm x 1.5mm (diameter x thickness). To also reduce key travel, 5mm x 2.5mm or 5mm x 2.0mm.
 
 Sizes I've seen for sale:
 
-- 40A
-- 50A
+- 40A-R May be the best
+- 40A-L maybe more clack than 40A-R.
+- 50A-R maybe too stiff
+- 50A-?
 - 70A
 - 80A
 - 90A
