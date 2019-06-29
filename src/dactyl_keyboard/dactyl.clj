@@ -8,6 +8,10 @@
 
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
+; rad = pi * deg / 180
+; 180 * rad / pi = deg
+(defn rad2deg [radians]
+  (/ (* 180 radians) pi))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Shape parameters ;;
@@ -317,23 +321,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parameters for test thumb ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin (/ pi ra)) (Math/sin (/ pi rb)))))
-(defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos (/ pi ra)) (Math/cos (/ pi rb)))))
-(def base-offset (/ (+ mount-width (/ plate-thickness 2)) 2))    ; 14 or 15
-(def test-space 1)
+(defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin (/ pi ra)) (Math/sin (/ pi rb)))) )
+(defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos (/ pi ra)) (Math/cos (/ pi rb)))) )
+(def base-offset (/ (+ mount-width (/ plate-thickness 2)) 2) )    ; 14 or 15
+(def test-space 1 )
 ; sa-length 18.25
-(def sa-width sa-length)    ; 18.25
+(def sa-width sa-length )    ; 18.25
 ; (def place-init [0 -30 0])
 ;        (rotate (/ π (*  1 rollin)) [0 1 0])
 ; π / 5
-(def rollin-default (deg2rad 18))
-(def rollin-top (deg2rad 360))
-(def tilt-default 3)
-(def tilt-top 18)
-(def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2))
-(def y-mod (* -1 (+ (/ test-space 2) (coord-x larger-plate-height tilt-top tilt-default))))
-(def z-mod (* -1 (+ (/ test-space 2) (coord-y larger-plate-height tilt-top tilt-default))))
-(def place-init (map + [0 y-mod z-mod] [0 0 0]))
+(def rollin-default (deg2rad 18) )
+(def rollin-top (deg2rad 360) )
+(def tilt-default 3 )
+(def tilt-top 18 )
+(def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
+(def y-mod (* -1 (+ (/ test-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
+(def z-mod (* -1 (+ (/ test-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
+(def place-init (map + [0 y-mod z-mod] [0 0 0]) )
 ; cap-top-height
 ; keyswitch-height 14.4
 ; keyswitch-width 14.4
