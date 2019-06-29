@@ -326,8 +326,8 @@
 ; (def place-init [0 -30 0])
 ;        (rotate (/ π (*  1 rollin)) [0 1 0])
 ; π / 5
-(def rollin-default 10)
-(def rollin-top 0.5)    ; use 0.25 if we want 0
+(def rollin-default (deg2rad 18))
+(def rollin-top (deg2rad 360))
 (def tilt-default 3)
 (def tilt-top 18)
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2))
@@ -345,17 +345,17 @@
 (def key-ttl-height (+ key-base-lift key-depth))
 (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow (/ keyswitch-width 2) 2))))
 (defn displacement-edge [rollin]
-  (- (* key-place-hyp (Math/cos (- (Math/acos (/ keyswitch-width key-place-hyp)) (/ π (*  1 rollin)))) keyswitch-width) )
+  (- (* key-place-hyp (Math/cos (- (Math/acos (/ keyswitch-width key-place-hyp)) rollin)) keyswitch-width) )
 )
 (defn displacement [rollin] (* 0 rollin))
-(defn displacement-center [rollin] (* key-place-hyp (Math/sin (/ π (*  1 rollin)))))
+(defn displacement-center [rollin] (* key-place-hyp (Math/sin rollin )))
 ; key-height sine angle
 (def thumbtest
   (map + (key-position 0 0 [0 0 0])
          thumb-offsets))
 (defn test-tl-place [shape rollin tilt place]
   (->> shape
-        (rotate (/ π rollin) [0 1 0])
+        (rotate rollin [0 1 0])
         ; (rotate (/ π 2) [0 0 1])
         ; (rotate (/ π 10) [0 1 0])
         (rotate (/ π tilt) [1 0 0])
@@ -366,14 +366,14 @@
   (->> shape
         ; (rotate (/ π -2) [0 0 1])
         ; (rotate (/ π -10) [0 1 0])
-        (rotate (/ π rollin) [0 -1 0])
+        (rotate rollin [0 -1 0])
         (rotate (/ π tilt) [1 0 0])
         (translate thumbtest)
         (translate (map * [1 1 1] (map + [(+ base-offset (displacement-center rollin)) 0 0] place)))
         ))
 (defn test-ml-place [shape rollin tilt place]
   (->> shape
-        (rotate (/ π rollin) [0 1 0])
+        (rotate rollin [0 1 0])
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
         (translate thumbtest)
@@ -381,7 +381,7 @@
         ))
 (defn test-mr-place [shape rollin tilt place]
   (->> shape
-        (rotate (/ π rollin) [0 -1 0])
+        (rotate rollin [0 -1 0])
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
         (translate thumbtest)
@@ -389,7 +389,7 @@
         ))
 (defn test-bl-place [shape rollin tilt place]
   (->> shape
-        (rotate (/ π rollin) [0 1 0])
+        (rotate rollin [0 1 0])
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
         (translate thumbtest)
@@ -397,7 +397,7 @@
         ))
 (defn test-br-place [shape rollin tilt place]
   (->> shape
-        (rotate (/ π rollin) [0 -1 0])
+        (rotate rollin [0 -1 0])
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
         (translate thumbtest)
