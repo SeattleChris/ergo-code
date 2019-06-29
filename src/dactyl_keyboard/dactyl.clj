@@ -13,43 +13,44 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 4)
+(def nrows 5)
 (def ncols 5)
 
-(def α (/ π 12))                        ; curvature of the columns
-(def β (/ π 36))                        ; curvature of the rows
-(def centerrow (- nrows 3))             ; controls front-back tilt
-(def centercol 3)                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
-(def column-style 
-  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
+(def α (/ π 5))                        ; curvature of the columns - 5 or 6?
+(def β (/ π 30))                        ; curvature of the rows - 30 or 36?
+(def centerrow (- nrows 3))             ; controls front-back tilt - 3
+(def centercol 5)                       ; controls left-right tilt / tenting (higher number is more tenting) - 4
+(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control - 12
+(def column-style
+  (if (> nrows 4) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 ; (def column-style :fixed)
 
 (defn column-offset [column] (cond
-  (= column 2) [0 2.82 -4.5]
-  (>= column 4) [0 -12 5.64]            ; original [0 -5.8 5.64]
+  (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
+  (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
+  (>= column 4) [0 -5.18 3.39]             ; original [0 -5.8 5.64], [0 -12 5.64]
   :else [0 0 0]))
 
-(def thumb-offsets [6 -3 7])
+(def thumb-offsets [20 -1 7])            ; original [6 -3 7], [20 -3 7]
 
-(def keyboard-z-offset 9)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
+(def keyboard-z-offset 2)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
-(def extra-width 2.5)                   ; extra space between the base of keys; original= 2
+(def extra-width 2.5)                   ; extra space between the base of keys; original= 2, 2.5
 (def extra-height 1.0)                  ; original= 0.5
 
 (def wall-z-offset -15)                 ; length of the first downward-sloping part of the wall (negative)
-(def wall-xy-offset 5)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 2)                  ; wall thickness parameter; originally 5
+(def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+(def wall-thickness 2)                  ; wall thickness parameter; originally 5, 2
 
-;; Settings for column-style == :fixed 
+;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
 ;;   http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
 ;; Fixed-z overrides the z portion of the column ofsets above.
 ;; NOTE: THIS DOESN'T WORK QUITE LIKE I'D HOPED.
-(def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])  
+(def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])
 (def fixed-x [-41.5 -22.5 0 20.3 41.4 65.5 89.6])  ; relative to the middle finger
-(def fixed-z [12.1    8.3 0  5   10.7 14.5 17.5])  
-(def fixed-tenting (deg2rad 0))  
+(def fixed-z [12.1    8.3 0  5   10.7 14.5 17.5])
+(def fixed-tenting (deg2rad 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
@@ -63,8 +64,8 @@
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
 
-(def keyswitch-height 14.4) ;; Was 14.1, then 14.25
-(def keyswitch-width 14.4)
+(def keyswitch-height 14.4) ;; Was 14.1, then 14.25, 14.4 before clc
+(def keyswitch-width 14.4)  ; 14.4 before clc
 
 (def sa-profile-key-height 12.7)
 
@@ -73,11 +74,11 @@
 (def mount-height (+ keyswitch-height 3))
 
 (def single-plate
-  (let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
+  (let [top-wall (->> (cube mount-width 1.5 plate-thickness)
                       (translate [0
                                   (+ (/ 1.5 2) (/ keyswitch-height 2))
                                   (/ plate-thickness 2)]))
-        left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
+        left-wall (->> (cube 1.5 mount-height plate-thickness)
                        (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
                                    0
                                    (/ plate-thickness 2)]))
@@ -97,7 +98,8 @@
 ;;;;;;;;;;;;;;;;
 ;; SA Keycaps ;;
 ;;;;;;;;;;;;;;;;
-
+(def key-base-lift (+ 5 plate-thickness))
+(def key-depth 12)
 (def sa-length 18.25)
 (def sa-double-length 37.5)
 (def sa-cap {1 (let [bl2 (/ 18.5 2)
@@ -110,9 +112,9 @@
                                         (translate [0 0 6]))
                                    (->> (polygon [[6 6] [6 -6] [-6 -6] [-6 6]])
                                         (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 12])))]
+                                        (translate [0 0 key-depth])))]
                  (->> key-cap
-                      (translate [0 0 (+ 5 plate-thickness)])
+                      (translate [0 0 key-base-lift])
                       (color [220/255 163/255 163/255 1])))
              2 (let [bl2 (/ sa-double-length 2)
                      bw2 (/ 18.25 2)
@@ -121,10 +123,10 @@
                                         (translate [0 0 0.05]))
                                    (->> (polygon [[6 16] [6 -16] [-6 -16] [-6 16]])
                                         (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 12])))]
+                                        (translate [0 0 key-depth])))]
                  (->> key-cap
-                      (translate [0 0 (+ 5 plate-thickness)])
-                      (color [127/255 159/255 127/255 1])))
+                      (translate [0 0 key-base-lift])
+                      (color [230/255 193/255 169/255 1])))
              1.5 (let [bl2 (/ 18.25 2)
                        bw2 (/ 28 2)
                        key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
@@ -132,11 +134,23 @@
                                           (translate [0 0 0.05]))
                                      (->> (polygon [[11 6] [-11 6] [-11 -6] [11 -6]])
                                           (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                          (translate [0 0 12])))]
+                                          (translate [0 0 key-depth])))]
                    (->> key-cap
-                        (translate [0 0 (+ 5 plate-thickness)])
-                        (color [240/255 223/255 175/255 1])))})
-
+                        (translate [0 0 key-base-lift])
+                        (color [240/255 223/255 175/255 1])))
+             1.25 (let [bl2 (/ 18.25 2)
+                       bw2 (/ 45 4)
+                       key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
+                                          (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                                          (translate [0 0 0.05]))
+                                     (->> (polygon [[8.5 6] [-8.5 6] [-8.5 -6] [8.5 -6]])
+                                          (extrude-linear {:height 0.1 :twist 0 :convexity 0})
+                                          (translate [0 0 key-depth])))]
+                   (->> key-cap
+                        (translate [0 0 key-base-lift])
+                        (color [127/255 159/255 127/255 0.7])))
+              }
+)
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Placement Functions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -155,10 +169,10 @@
 (def column-base-angle (* β (- centercol 2)))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
-  (let [column-angle (* β (- centercol column))   
+  (let [column-angle (* β (- centercol column))
         placed-shape (->> shape
                           (translate-fn [0 0 (- row-radius)])
-                          (rotate-x-fn  (* α (- centerrow row)))      
+                          (rotate-x-fn  (* α (- centerrow row)))
                           (translate-fn [0 0 row-radius])
                           (translate-fn [0 0 (- column-radius)])
                           (rotate-y-fn  column-angle)
@@ -167,7 +181,7 @@
         column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
         placed-shape-ortho (->> shape
                                 (translate-fn [0 0 (- row-radius)])
-                                (rotate-x-fn  (* α (- centerrow row)))      
+                                (rotate-x-fn  (* α (- centerrow row)))
                                 (translate-fn [0 0 row-radius])
                                 (rotate-y-fn  column-angle)
                                 (translate-fn [(- (* (- column centercol) column-x-delta)) 0 column-z-delta])
@@ -176,33 +190,33 @@
                                 (rotate-y-fn  (nth fixed-angles column))
                                 (translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
                                 (translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
-                                (rotate-x-fn  (* α (- centerrow row)))      
+                                (rotate-x-fn  (* α (- centerrow row)))
                                 (translate-fn [0 0 (+ row-radius (nth fixed-z column))])
                                 (rotate-y-fn  fixed-tenting)
                                 (translate-fn [0 (second (column-offset column)) 0])
                                 )]
     (->> (case column-style
-          :orthographic placed-shape-ortho 
+          :orthographic placed-shape-ortho
           :fixed        placed-shape-fixed
                         placed-shape)
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))))
 
 (defn key-place [column row shape]
-  (apply-key-geometry translate 
-    (fn [angle obj] (rotate angle [1 0 0] obj)) 
-    (fn [angle obj] (rotate angle [0 1 0] obj)) 
+  (apply-key-geometry translate
+    (fn [angle obj] (rotate angle [1 0 0] obj))
+    (fn [angle obj] (rotate angle [0 1 0] obj))
     column row shape))
 
-(defn rotate-around-x [angle position] 
-  (mmul 
+(defn rotate-around-x [angle position]
+  (mmul
    [[1 0 0]
     [0 (Math/cos angle) (- (Math/sin angle))]
     [0 (Math/sin angle)    (Math/cos angle)]]
    position))
 
-(defn rotate-around-y [angle position] 
-  (mmul 
+(defn rotate-around-y [angle position]
+  (mmul
    [[(Math/cos angle)     0 (Math/sin angle)]
     [0                    1 0]
     [(- (Math/sin angle)) 0 (Math/cos angle)]]
@@ -288,76 +302,10 @@
 ;; Thumbs ;;
 ;;;;;;;;;;;;
 
-(def thumborigin 
+(def thumborigin
   (map + (key-position 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0])
          thumb-offsets))
 ; (pr thumborigin)
-
-(defn thumb-tr-place [shape]
-  (->> shape
-      ;  (rotate (deg2rad  10) [1 0 0])
-      ;  (rotate (deg2rad -23) [0 1 0])
-      ;  (rotate (deg2rad  -3) [0 0 1])
-       (rotate (deg2rad  10) [1 0 0])
-       (rotate (deg2rad -23) [0 1 0])
-       (rotate (deg2rad  10) [0 0 1])
-       (translate thumborigin)
-       (translate [-12 -16 3])
-       ))
-(defn thumb-tl-place [shape]
-  (->> shape
-      ;  (rotate (deg2rad  10) [1 0 0])
-      ;  (rotate (deg2rad -23) [0 1 0])
-      ;  (rotate (deg2rad  -3) [0 0 1])
-       (rotate (deg2rad  10) [1 0 0])
-       (rotate (deg2rad -23) [0 1 0])
-       (rotate (deg2rad  10) [0 0 1])
-       (translate thumborigin)
-       (translate [-32 -15 -2])))
-(defn thumb-mr-place [shape]
-  (->> shape
-       (rotate (deg2rad  -6) [1 0 0])
-       (rotate (deg2rad -34) [0 1 0])
-       (rotate (deg2rad  48) [0 0 1])
-       (translate thumborigin)
-       (translate [-29 -40 -13])
-       ))
-(defn thumb-ml-place [shape]
-  (->> shape
-       (rotate (deg2rad   6) [1 0 0])
-       (rotate (deg2rad -34) [0 1 0])
-       (rotate (deg2rad  40) [0 0 1])
-       (translate thumborigin)
-       (translate [-51 -25 -12])))
-(defn thumb-br-place [shape]
-  (->> shape
-       (rotate (deg2rad -16) [1 0 0])
-       (rotate (deg2rad -33) [0 1 0])
-       (rotate (deg2rad  54) [0 0 1])
-       (translate thumborigin)
-       (translate [-37.8 -55.3 -25.3])
-       ))
-(defn thumb-bl-place [shape]
-  (->> shape
-       (rotate (deg2rad  -4) [1 0 0])
-       (rotate (deg2rad -35) [0 1 0])
-       (rotate (deg2rad  52) [0 0 1])
-       (translate thumborigin)
-       (translate [-56.3 -43.3 -23.5])
-       ))
-
-(defn thumb-1x-layout [shape]
-  (union
-   (thumb-mr-place shape)
-   (thumb-ml-place shape)
-   (thumb-br-place shape)
-   (thumb-bl-place shape)))
-
-(defn thumb-15x-layout [shape]
-  (union
-   (thumb-tr-place shape)
-   (thumb-tl-place shape)))
-
 (def larger-plate
   (let [plate-height (/ (- sa-double-length mount-height) 3)
         top-plate (->> (cube mount-width plate-height web-thickness)
@@ -365,11 +313,219 @@
                                    (- plate-thickness (/ web-thickness 2))]))
         ]
     (union top-plate (mirror [0 1 0] top-plate))))
+; ================= Start Chris Test versions =====================
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Parameters for test thumb ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin (/ pi ra)) (Math/sin (/ pi rb)))))
+(defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos (/ pi ra)) (Math/cos (/ pi rb)))))
+(def base-offset (/ (+ mount-width (/ plate-thickness 2)) 2))    ; 14 or 15
+(def test-space 1)
+; sa-length 18.25
+(def sa-width sa-length)    ; 18.25
+; (def place-init [0 -30 0])
+(def rollin-default 5)
+(def rollin-top 0.25)    ; use 0.25 if we want 0
+(def tilt-default 3)
+(def tilt-top 18)
+(def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2))
+  (def y-mod (* -1 (+ (/ test-space 2) (coord-x larger-plate-height tilt-top tilt-default))))
+  (def z-mod (* -1 (+ (/ test-space 2) (coord-y larger-plate-height tilt-top tilt-default))))
+  (def place-init (map + [0 y-mod z-mod] [0 0 0]))
+; cap-top-height
+; keyswitch-height 14.4
+; keyswitch-width 14.4
+; mount-width 17.4
+; mount-height 17.4
+; key-base-lift (+ 5 plate-thickness) - (how high to lift the bottom of the keycap)
+; key-depth (from base to top of the key.)
+  ; π = 180 degrees  :: 5 2 2 3 3 || 12 15 || 9 20 || 6 30 || 4 45 || 18 10 ||
+(def key-place-hyp (Math/sqrt (+ (Math/pow (+ key-base-lift key-depth) 2) (Math/pow (/ mount-width 2) 2))))
+(def key-ttl-height (+ key-base-lift key-depth))
+; key-height sine angle
+(def thumbtest
+  (map + (key-position 0 0 [0 0 0])
+         thumb-offsets))
+(defn test-tl-place [shape rollin tilt place]
+  (->> shape
+        (rotate (/ π (*  2 rollin)) [0 1 0])
+        ; (rotate (/ π 2) [0 0 1])
+        ; (rotate (/ π 10) [0 1 0])
+        (rotate (/ π tilt) [1 0 0])
+        (translate thumbtest)
+        (translate (map * [-1 1 1] (map + [(+ base-offset (* key-ttl-height (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        ))
+(defn test-tr-place [shape rollin tilt place]
+  (->> shape
+        ; (rotate (/ π -2) [0 0 1])
+        ; (rotate (/ π -10) [0 1 0])
+        (rotate (/ π (*  -2 rollin)) [0 1 0])
+        (rotate (/ π tilt) [1 0 0])
+        (translate thumbtest)
+        (translate (map * [1 1 1] (map + [(+ base-offset (* key-ttl-height (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        ))
+(defn test-ml-place [shape rollin tilt place]
+  (->> shape
+        (rotate (/ π (* 2 rollin)) [0 1 0])
+        (rotate (/ π tilt) [1 0 0])
+        ; (rotate (/ π 18) [0 0 1])
+        (translate thumbtest)
+        (translate (map * [-1 1 1] (map + [(+ base-offset (* key-ttl-height (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        ))
+(defn test-mr-place [shape rollin tilt place]
+  (->> shape
+        (rotate (/ π (* -2 rollin)) [0 1 0])
+        (rotate (/ π tilt) [1 0 0])
+        ; (rotate (/ π 18) [0 0 1])
+        (translate thumbtest)
+        (translate (map * [1 1 1] (map + [(+ base-offset (* key-ttl-height (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        ))
+(defn test-bl-place [shape rollin tilt place]
+  (->> shape
+        (rotate (/ π (* 2 rollin)) [0 1 0])
+        (rotate (/ π tilt) [1 0 0])
+        ; (rotate (/ π 6) [0 0 1])
+        (translate thumbtest)
+        (translate (map * [-1 1 1] (map + [(+ base-offset (* key-place-hyp (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        ))
+(defn test-br-place [shape rollin tilt place]
+  (->> shape
+        (rotate (/ π (* -2 rollin)) [0 1 0])
+        (rotate (/ π tilt) [1 0 0])
+        ; (rotate (/ π 6) [0 0 1])
+        (translate thumbtest)
+        (translate (map * [1 1 1] (map + [(+ base-offset (* key-place-hyp (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        ))
+(defn test-mid-place [shape rollin tilt place]
+  (union
+   (test-ml-place shape rollin tilt place)
+   (test-mr-place shape rollin tilt place)
+  ))
+(defn test-bottom-place [shape rollin tilt place]
+  (union
+   (test-bl-place shape rollin tilt place)
+   (test-br-place shape rollin tilt place)
+  ))
+(defn test-1x-layout [shape rollin tilt place]
+  (def tilt-m tilt)
+  (def tilt-b (- tilt 1))
+  (def y-mod (* -1 (+ (/ test-space 2) (coord-x sa-length tilt-m tilt-b))))
+  (def z-mod (* -1 (+ (/ test-space 2) (coord-y sa-length tilt-m tilt-b))))
+  (def bottom-place (map + [0 y-mod z-mod] place))
+  ; (def bottom-place [0 -50 0])
+  (union
+    (test-ml-place shape rollin tilt-m place)
+    (test-mr-place shape rollin tilt-m place)
+    (test-bl-place shape rollin tilt-b bottom-place)
+    (test-br-place shape rollin tilt-b bottom-place)
+    ; (test-mid-place shape rollin tilt [15 20 0])
+    ; (test-bottom-place shape rollin (- tilt 1) [15 0 0])
+   ))
+
+(defn test-15x-layout [shape rollin tilt place]
+  (union
+   (test-tl-place shape rollin tilt place)
+   (test-tr-place shape rollin tilt place) ; (rotate (/ π (* -2 rollin)) [0 1 0] shape))
+   ))
+(def testcaps
+  (union
+   (test-1x-layout (sa-cap 1) rollin-default tilt-default place-init)
+   (test-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)) rollin-top tilt-top [0 0 0])
+   )) ; (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
+(def testthumb
+  (union
+    (test-1x-layout single-plate rollin-default tilt-default place-init)
+    (test-15x-layout single-plate rollin-top tilt-top [0 0 0])
+    (test-15x-layout larger-plate rollin-top tilt-top [0 0 0])
+  ))
+
+; =========== Chris Test Sections End ====================
+(defn thumb-tr-place [shape]      ; Top Right Thumb
+  (->> shape
+       (rotate (deg2rad  10) [1 0 0])     ;  (rotate (deg2rad  10) [1 0 0])
+       (rotate (deg2rad -23) [0 1 0])     ;  (rotate (deg2rad -23) [0 1 0])
+       (rotate (deg2rad  10) [0 0 1])     ;  (rotate (deg2rad  -3) [0 0 1])
+       (translate thumborigin)
+       (translate [-12 -16 3])            ; (translate [-12 -16 3])
+       ))
+(defn thumb-tl-place [shape]    ; Top Left Thumb
+  (->> shape
+       (rotate (deg2rad  10) [1 0 0])     ;  (rotate (deg2rad  10) [1 0 0])
+       (rotate (deg2rad -23) [0 1 0])     ;  (rotate (deg2rad -23) [0 1 0])
+       (rotate (deg2rad  10) [0 0 1])     ;  (rotate (deg2rad  -3) [0 0 1])
+       (translate thumborigin)
+       (translate [-32 -15 -2])))         ; (translate [-32 -15 -2])))
+; Upper Thumb Buttons above. Lower Thumb Buttons below
+  ; Rotate X: Roll concave convex
+  ; Rotate Y: Angle away from facing up?
+  ; Rotate Z: pivot around origin corner?
+  ; pi / 5 is 36 degress
+(defn thumb-mr-place [shape]
+  (->> shape
+       (rotate (deg2rad -18) [1 0 0])     ; (rotate (deg2rad  -6) [1 0 0])
+       (rotate (deg2rad -49) [0 1 0])     ; (rotate (deg2rad -34) [0 1 0])
+       (rotate (deg2rad  48) [0 0 1])     ; (rotate (deg2rad  48) [0 0 1])
+       (translate thumborigin)
+       (translate [-38 -40 -13])          ; (translate [-29 -40 -13])
+       ))
+(defn thumb-ml-place [shape]
+  (->> shape
+       (rotate (deg2rad  18) [1 0 0])     ; (rotate (deg2rad   6) [1 0 0])
+       (rotate (deg2rad -54) [0 1 0])     ; (rotate (deg2rad -34) [0 1 0])
+       (rotate (deg2rad  40) [0 0 1])     ; (rotate (deg2rad  40) [0 0 1])
+       (translate thumborigin)
+       (translate [-51 -25 -12])))        ; (translate [-51 -25 -12])))
+(defn thumb-ma-place [shape]
+  (->> shape
+       (rotate (deg2rad   6) [1 0 0])     ; (rotate (deg2rad   6) [1 0 0])
+       (rotate (deg2rad -34) [0 1 0])     ; (rotate (deg2rad -34) [0 1 0])
+       (rotate (deg2rad  54) [0 0 1])     ; (rotate (deg2rad  56) [0 0 1])
+       (translate thumborigin)
+       (translate [-7 -55 -14])))         ; (translate [-7 -55 -14])))
+(defn thumb-br-place [shape]
+  (->> shape
+       (rotate (deg2rad -34) [1 0 0])     ; (rotate (deg2rad -16) [1 0 0])
+       (rotate (deg2rad -53) [0 1 0])     ; (rotate (deg2rad -33) [0 1 0])
+       (rotate (deg2rad  54) [0 0 1])     ; (rotate (deg2rad  54) [0 0 1])
+       (translate thumborigin)
+       (translate [-38.8 -52.3 -33.5])    ; (translate [-37.8 -55.3 -25.3])
+       ))
+(defn thumb-bl-place [shape]
+  (->> shape
+       (rotate (deg2rad  14) [1 0 0])     ; (rotate (deg2rad  -4) [1 0 0])
+       (rotate (deg2rad -53) [0 1 0])     ; (rotate (deg2rad -35) [0 1 0])
+       (rotate (deg2rad  52) [0 0 1])     ; (rotate (deg2rad  52) [0 0 1])
+       (translate thumborigin)
+       (translate [-56.3 -25.3 -43.5])    ; (translate [-56.3 -43.3 -23.5])
+       ))
+(defn thumb-ba-place [shape]
+  (->> shape
+       (rotate (deg2rad -16) [1 0 0])     ; (rotate (deg2rad -16) [1 0 0])
+       (rotate (deg2rad -33) [0 1 0])     ; (rotate (deg2rad -33) [0 1 0])
+       (rotate (deg2rad  54) [0 0 1])     ; (rotate (deg2rad  54) [0 0 1])
+       (translate thumborigin)
+       (translate [-19.3 -67.3 -27.1])    ; (translate [-19.3 -67.3 -27.1])
+       ))
+
+(defn thumb-1x-layout [shape]
+  (union
+   (thumb-mr-place shape)
+   (thumb-ml-place shape)
+   (thumb-ma-place shape)
+   (thumb-br-place shape)
+   (thumb-bl-place shape)
+   (thumb-ba-place shape)
+   ))
+
+(defn thumb-15x-layout [shape]
+  (union
+   (thumb-tr-place shape)
+   (thumb-tl-place shape)))
 
 (def thumbcaps
   (union
    (thumb-1x-layout (sa-cap 1))
-   (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
+   (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25))))) ; (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
 
 
 (def thumb
@@ -419,7 +575,7 @@
              (thumb-mr-place web-post-tr)
              (thumb-tr-place thumb-post-bl)
              (thumb-mr-place web-post-br)
-             (thumb-tr-place thumb-post-br)) 
+             (thumb-tr-place thumb-post-br))
       (triangle-hulls    ; top two to the main keyboard, starting on the left
              (thumb-tl-place thumb-post-tl)
              (key-place 0 cornerrow web-post-bl)
@@ -442,7 +598,7 @@
              (key-place 3 lastrow web-post-tr)
              (key-place 3 cornerrow web-post-br)
              (key-place 4 cornerrow web-post-bl))
-      (triangle-hulls 
+      (triangle-hulls
              (key-place 1 cornerrow web-post-br)
              (key-place 2 lastrow web-post-tl)
              (key-place 2 cornerrow web-post-bl)
@@ -450,7 +606,7 @@
              (key-place 2 cornerrow web-post-br)
              (key-place 3 cornerrow web-post-bl)
              )
-      (triangle-hulls 
+      (triangle-hulls
              (key-place 3 lastrow web-post-tr)
              (key-place 3 lastrow web-post-br)
              (key-place 3 lastrow web-post-tr)
@@ -501,8 +657,8 @@
       (place2 (translate (wall-locate3 dx2 dy2) post2)))
       ))
 
-(defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2] 
-  (wall-brace (partial key-place x1 y1) dx1 dy1 post1 
+(defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
+  (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
 
 (def case-walls
@@ -602,11 +758,11 @@
     (->> (apply cube usb-holder-size)
          (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))
 
-(def teensy-width 20)  
+(def teensy-width 20)
 (def teensy-height 12)
 (def teensy-length 33)
 (def teensy2-length 53)
-(def teensy-pcb-thickness 2) 
+(def teensy-pcb-thickness 2)
 (def teensy-holder-width  (+ 7 teensy-pcb-thickness))
 (def teensy-holder-height (+ 6 teensy-width))
 (def teensy-offset-height 5)
@@ -616,10 +772,10 @@
 (def teensy-holder-length (- (second teensy-top-xy) (second teensy-bot-xy)))
 (def teensy-holder-offset (/ teensy-holder-length -2))
 (def teensy-holder-top-offset (- (/ teensy-holder-top-length 2) teensy-holder-length))
- 
-(def teensy-holder 
-    (->> 
-        (union 
+
+(def teensy-holder
+    (->>
+        (union
           (->> (cube 3 teensy-holder-length (+ 6 teensy-width))
                (translate [1.5 teensy-holder-offset 0]))
           (->> (cube teensy-pcb-thickness teensy-holder-length 3)
@@ -632,23 +788,23 @@
                (translate [(+ teensy-pcb-thickness 5) teensy-holder-top-offset (+ 1 (/ teensy-width 2))])))
         (translate [(- teensy-holder-width) 0 0])
         (translate [-1.4 0 0])
-        (translate [(first teensy-top-xy) 
-                    (- (second teensy-top-xy) 1) 
+        (translate [(first teensy-top-xy)
+                    (- (second teensy-top-xy) 1)
                     (/ (+ 6 teensy-width) 2)])
            ))
 
-(defn screw-insert-shape [bottom-radius top-radius height] 
+(defn screw-insert-shape [bottom-radius top-radius height]
    (union (cylinder [bottom-radius top-radius] height)
           (translate [0 0 (/ height 2)] (sphere top-radius))))
 
-(defn screw-insert [column row bottom-radius top-radius height] 
+(defn screw-insert [column row bottom-radius top-radius height]
   (let [shift-right   (= column lastcol)
         shift-left    (= column 0)
         shift-up      (and (not (or shift-right shift-left)) (= row 0))
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow))
         position      (if shift-up     (key-position column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
                        (if shift-down  (key-position column row (map - (wall-locate2  0 -1) [0 (/ mount-height 2) 0]))
-                        (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0)) 
+                        (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0))
                                        (key-position column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))
         ]
     (->> (screw-insert-shape bottom-radius top-radius height)
@@ -692,17 +848,17 @@
         (key-place column row (translate [5 0 0] (wire-post  1 0)))))))
 
 
-(def model-right (difference 
+(def model-right (difference
                    (union
                     key-holes
                     connectors
                     thumb
                     thumb-connectors
-                    (difference (union case-walls 
-                                       screw-insert-outers 
+                    (difference (union case-walls
+                                       screw-insert-outers
                                        teensy-holder
                                        usb-holder)
-                                rj9-space 
+                                rj9-space
                                 usb-holder-hole
                                 screw-insert-holes)
                     rj9-holder
@@ -710,23 +866,23 @@
                     ; thumbcaps
                     ; caps
                     )
-                   (translate [0 0 -20] (cube 350 350 40)) 
+                   (translate [0 0 -20] (cube 350 350 40))
                   ))
 
 (spit "things/right.scad"
       (write-scad model-right))
- 
+
 (spit "things/left.scad"
       (write-scad (mirror [-1 0 0] model-right)))
-                  
+
 (spit "things/right-test.scad"
-      (write-scad 
+      (write-scad
                    (union
                     key-holes
                     connectors
                     thumb
                     thumb-connectors
-                    case-walls 
+                    case-walls
                     thumbcaps
                     caps
                     teensy-holder
@@ -734,16 +890,16 @@
                     usb-holder-hole
                     ; usb-holder-hole
                     ; ; teensy-holder-hole
-                    ;             screw-insert-outers 
+                    ;             screw-insert-outers
                     ;             teensy-screw-insert-holes
                     ;             teensy-screw-insert-outers
-                    ;             usb-cutout 
-                    ;             rj9-space 
+                    ;             usb-cutout
+                    ;             rj9-space
                                 ; wire-posts
                   )))
 
 (spit "things/right-plate.scad"
-      (write-scad 
+      (write-scad
                    (cut
                      (translate [0 0 -0.1]
                        (difference (union case-walls
@@ -754,9 +910,15 @@
                   ))))
 
 (spit "things/test.scad"
-      (write-scad 
+      (write-scad
          (difference usb-holder usb-holder-hole)))
 
-
+(spit "things/pad.scad"
+      (write-scad
+          (union
+          testthumb
+          testcaps
+          ; thumb-connectors
+          )))
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
