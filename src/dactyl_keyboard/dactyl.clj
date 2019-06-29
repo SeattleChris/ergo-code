@@ -329,9 +329,9 @@
 (def tilt-default 3)
 (def tilt-top 18)
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2))
-  (def y-mod (* -1 (+ (/ test-space 2) (coord-x larger-plate-height tilt-top tilt-default))))
-  (def z-mod (* -1 (+ (/ test-space 2) (coord-y larger-plate-height tilt-top tilt-default))))
-  (def place-init (map + [0 y-mod z-mod] [0 0 0]))
+(def y-mod (* -1 (+ (/ test-space 2) (coord-x larger-plate-height tilt-top tilt-default))))
+(def z-mod (* -1 (+ (/ test-space 2) (coord-y larger-plate-height tilt-top tilt-default))))
+(def place-init (map + [0 y-mod z-mod] [0 0 0]))
 ; cap-top-height
 ; keyswitch-height 14.4
 ; keyswitch-width 14.4
@@ -340,8 +340,11 @@
 ; key-base-lift (+ 5 plate-thickness) - (how high to lift the bottom of the keycap)
 ; key-depth (from base to top of the key.)
   ; π = 180 degrees  :: 5 2 2 3 3 || 12 15 || 9 20 || 6 30 || 4 45 || 18 10 ||
-(def key-place-hyp (Math/sqrt (+ (Math/pow (+ key-base-lift key-depth) 2) (Math/pow (/ mount-width 2) 2))))
 (def key-ttl-height (+ key-base-lift key-depth))
+(def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow (/ keyswitch-width 2) 2))))
+(defn displacement [rollin]
+  (- (* key-place-hyp (Math/cos (- (Math/acos (/ keyswitch-width key-place-hyp)) (/ π (*  2 rollin)))) keyswitch-width) )
+)
 ; key-height sine angle
 (def thumbtest
   (map + (key-position 0 0 [0 0 0])
@@ -353,7 +356,7 @@
         ; (rotate (/ π 10) [0 1 0])
         (rotate (/ π tilt) [1 0 0])
         (translate thumbtest)
-        (translate (map * [-1 1 1] (map + [(+ base-offset (* key-ttl-height (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        (translate (map * [-1 1 1] (map + [(+ base-offset (displacement rollin)) 0 0] place)))
         ))
 (defn test-tr-place [shape rollin tilt place]
   (->> shape
@@ -362,7 +365,7 @@
         (rotate (/ π (*  -2 rollin)) [0 1 0])
         (rotate (/ π tilt) [1 0 0])
         (translate thumbtest)
-        (translate (map * [1 1 1] (map + [(+ base-offset (* key-ttl-height (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        (translate (map * [1 1 1] (map + [(+ base-offset (displacement rollin)) 0 0] place)))
         ))
 (defn test-ml-place [shape rollin tilt place]
   (->> shape
@@ -370,7 +373,7 @@
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
         (translate thumbtest)
-        (translate (map * [-1 1 1] (map + [(+ base-offset (* key-ttl-height (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        (translate (map * [-1 1 1] (map + [(+ base-offset (displacement rollin)) 0 0] place)))
         ))
 (defn test-mr-place [shape rollin tilt place]
   (->> shape
@@ -378,7 +381,7 @@
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
         (translate thumbtest)
-        (translate (map * [1 1 1] (map + [(+ base-offset (* key-ttl-height (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
+        (translate (map * [1 1 1] (map + [(+ base-offset (displacement rollin)) 0 0] place)))
         ))
 (defn test-bl-place [shape rollin tilt place]
   (->> shape
@@ -396,16 +399,6 @@
         (translate thumbtest)
         (translate (map * [1 1 1] (map + [(+ base-offset (* key-place-hyp (Math/sin (/ π (*  2 rollin))))) 0 0] place)))
         ))
-(defn test-mid-place [shape rollin tilt place]
-  (union
-   (test-ml-place shape rollin tilt place)
-   (test-mr-place shape rollin tilt place)
-  ))
-(defn test-bottom-place [shape rollin tilt place]
-  (union
-   (test-bl-place shape rollin tilt place)
-   (test-br-place shape rollin tilt place)
-  ))
 (defn test-1x-layout [shape rollin tilt place]
   (def tilt-m tilt)
   (def tilt-b (- tilt 1))
@@ -418,8 +411,6 @@
     (test-mr-place shape rollin tilt-m place)
     (test-bl-place shape rollin tilt-b bottom-place)
     (test-br-place shape rollin tilt-b bottom-place)
-    ; (test-mid-place shape rollin tilt [15 20 0])
-    ; (test-bottom-place shape rollin (- tilt 1) [15 0 0])
    ))
 
 (defn test-15x-layout [shape rollin tilt place]
@@ -440,6 +431,7 @@
   ))
 
 ; =========== Chris Test Sections End ====================
+
 (defn thumb-tr-place [shape]      ; Top Right Thumb
   (->> shape
        (rotate (deg2rad  10) [1 0 0])     ;  (rotate (deg2rad  10) [1 0 0])
