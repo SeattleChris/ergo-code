@@ -321,8 +321,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parameters for test thumb ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin (/ pi ra)) (Math/sin (/ pi rb)))) )
-(defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos (/ pi ra)) (Math/cos (/ pi rb)))) )
+(defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
+(defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
 (def base-offset (/ (+ mount-width (/ plate-thickness 2)) 2) )    ; 14 or 15
 (def test-space 1 )
 ; sa-length 18.25
@@ -332,8 +332,8 @@
 ; π / 5
 (def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
 (def rollin-top (deg2rad 0) )
-(def tilt-default 3 )
-(def tilt-top 18 )
+(def tilt-default (/ π 3))
+(def tilt-top (/ π 18) )
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
 (def y-mod (* -1 (+ (/ test-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
 (def z-mod (* -1 (+ (/ test-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
@@ -363,7 +363,7 @@
         (rotate rollin [0 1 0])
         ; (rotate (/ π 2) [0 0 1])
         ; (rotate (/ π 10) [0 1 0])
-        (rotate (/ π tilt) [1 0 0])
+        (rotate tilt [1 0 0])
         (translate thumbtest)
         (translate (map * [-1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
         ))
@@ -372,7 +372,7 @@
         ; (rotate (/ π -2) [0 0 1])
         ; (rotate (/ π -10) [0 1 0])
         (rotate rollin [0 -1 0])
-        (rotate (/ π tilt) [1 0 0])
+        (rotate tilt [1 0 0])
         (translate thumbtest)
         (translate (map * [1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
         ))
@@ -380,7 +380,7 @@
   (->> shape
         (rotate rollin [0 1 0])
         ; (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))
-        (rotate (/ π tilt) [1 0 0])
+        (rotate tilt [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
         (translate thumbtest)
         (translate (map * [-1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
@@ -389,7 +389,7 @@
   (->> shape
         (rotate rollin [0 -1 0])
         ; (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))
-        (rotate (/ π tilt) [1 0 0])
+        (rotate tilt [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
         (translate thumbtest)
         (translate (map * [1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
@@ -397,7 +397,7 @@
 (defn test-bl-place [shape rollin tilt place]
   (->> shape
         (rotate rollin [0 1 0])
-        (rotate (/ π tilt) [1 0 0])
+        (rotate tilt [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
         (translate thumbtest)
         (translate (map * [-1 1 1] (map + [(- base-offset (displacement-center rollin)) 0 0] place)))
@@ -405,14 +405,14 @@
 (defn test-br-place [shape rollin tilt place]
   (->> shape
         (rotate rollin [0 -1 0])
-        (rotate (/ π tilt) [1 0 0])
+        (rotate tilt [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
         (translate thumbtest)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-center rollin)) 0 0] place)))
         ))
-(defn test-1x-layout [shape rollin tilt place]
+(defn test-lower-layout [shape rollin tilt place]
   (def tilt-m tilt)
-  (def tilt-b (- tilt 1))
+  (def tilt-b (/ π 2))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
   (def y-mod (* -1 (+ (/ test-space 2) (coord-x sa-length tilt-m tilt-b))))
   (def z-mod (* -1 (+ (/ test-space 2) (coord-y sa-length tilt-m tilt-b))))
   (def bottom-place (map + [0 y-mod z-mod] place))
@@ -424,21 +424,21 @@
     (test-br-place shape rollin tilt-b bottom-place)
    ))
 
-(defn test-15x-layout [shape rollin tilt place]
+(defn test-upper-layout [shape rollin tilt place]
   (union
    (test-tl-place shape rollin tilt place)
    (test-tr-place shape rollin tilt place) ; (rotate (/ π (* -2 rollin)) [0 1 0] shape))
    ))
 (def testcaps
   (union
-   (test-1x-layout (sa-cap 1) rollin-default tilt-default place-init)
-   (test-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)) rollin-top tilt-top [0 0 0])
+   (test-lower-layout (sa-cap 1) rollin-default tilt-default place-init)
+   (test-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)) rollin-top tilt-top [0 0 0])
    )) ; (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
 (def testthumb
   (union
-    (test-1x-layout single-plate rollin-default tilt-default place-init)
-    (test-15x-layout single-plate rollin-top tilt-top [0 0 0])
-    (test-15x-layout larger-plate rollin-top tilt-top [0 0 0])
+    (test-lower-layout single-plate rollin-default tilt-default place-init)
+    (test-upper-layout single-plate rollin-top tilt-top [0 0 0])
+    (test-upper-layout larger-plate rollin-top tilt-top [0 0 0])
   ))
 
 ; =========== Chris Test Sections End ====================
