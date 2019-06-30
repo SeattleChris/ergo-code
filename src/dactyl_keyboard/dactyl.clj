@@ -330,8 +330,8 @@
 ; (def place-init [0 -30 0])
 ;        (rotate (/ π (*  1 rollin)) [0 1 0])
 ; π / 5
-(def rollin-default 18 )
-(def rollin-top 0 )
+(def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
+(def rollin-top (deg2rad 0) )
 (def tilt-default 3 )
 (def tilt-top 18 )
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
@@ -350,17 +350,17 @@
 (def half-width (/ keyswitch-width 2))
 (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
 (defn displacement-edge [rollin]
-  (- (* key-place-hyp (Math/cos (- (Math/acos (/ half-width key-place-hyp)) rollin)) half-width ) )
+  (- (* key-place-hyp (Math/cos (+ (Math/acos (/ half-width key-place-hyp)) rollin)) half-width ) )
 )
 (defn displacement [rollin] (* 0 rollin))
-(defn displacement-center [rollin] (* key-place-hyp (Math/sin rollin )))
+(defn displacement-center [rollin] (* key-place-hyp (Math/cos rollin )))
 ; key-height sine angle
 (def thumbtest
   (map + (key-position 0 0 [0 0 0])
          thumb-offsets))
 (defn test-tl-place [shape rollin tilt place]
   (->> shape
-        (rotate (deg2rad rollin) [0 1 0])
+        (rotate rollin [0 1 0])
         ; (rotate (/ π 2) [0 0 1])
         ; (rotate (/ π 10) [0 1 0])
         (rotate (/ π tilt) [1 0 0])
@@ -371,14 +371,14 @@
   (->> shape
         ; (rotate (/ π -2) [0 0 1])
         ; (rotate (/ π -10) [0 1 0])
-        (rotate (deg2rad rollin) [0 -1 0])
+        (rotate rollin [0 -1 0])
         (rotate (/ π tilt) [1 0 0])
         (translate thumbtest)
         (translate (map * [1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-ml-place [shape rollin tilt place]
   (->> shape
-        (rotate (deg2rad rollin) [0 1 0])
+        (rotate rollin [0 1 0])
         ; (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
@@ -387,7 +387,7 @@
         ))
 (defn test-mr-place [shape rollin tilt place]
   (->> shape
-        (rotate (deg2rad rollin) [0 -1 0])
+        (rotate rollin [0 -1 0])
         ; (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
@@ -396,19 +396,19 @@
         ))
 (defn test-bl-place [shape rollin tilt place]
   (->> shape
-        (rotate (deg2rad rollin) [0 1 0])
+        (rotate rollin [0 1 0])
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
         (translate thumbtest)
-        (translate (map * [-1 1 1] (map + [(- 0 (displacement-center rollin)) 0 0] place)))
+        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-center rollin)) 0 0] place)))
         ))
 (defn test-br-place [shape rollin tilt place]
   (->> shape
-        (rotate (deg2rad rollin) [0 -1 0])
+        (rotate rollin [0 -1 0])
         (rotate (/ π tilt) [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
         (translate thumbtest)
-        (translate (map * [1 1 1] (map + [(- 0 (displacement-center rollin)) 0 0] place)))
+        (translate (map * [1 1 1] (map + [(- base-offset (displacement-center rollin)) 0 0] place)))
         ))
 (defn test-1x-layout [shape rollin tilt place]
   (def tilt-m tilt)
