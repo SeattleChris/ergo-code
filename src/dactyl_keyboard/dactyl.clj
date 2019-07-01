@@ -323,20 +323,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
 (defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
-(def base-offset (/ (+ mount-width (/ plate-thickness 2)) 2) )    ; 14 or 15
-(def test-space 1 )
-; sa-length 18.25
-(def sa-width sa-length )    ; 18.25
-; (def place-init [0 -30 0])
-;        (rotate (/ π (*  1 rollin)) [0 1 0])
-; π / 5
+(def test-row-space 1 )
+(def test-column-space 0)
+(def sa-width sa-length )    ; 18.25 for sa-length
 (def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
 (def rollin-top (deg2rad 0) )
-(def tilt-default (/ π 3))
+(def tilt-default (/ π 3))            ; tilt settings are also in radians
 (def tilt-top (/ π 18) )
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
-(def y-mod (* -1 (+ (/ test-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
-(def z-mod (* -1 (+ (/ test-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
+(def y-mod (* -1 (+ (/ test-row-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
+(def z-mod (* -1 (+ (/ test-row-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
+; (def place-init [0 -30 0])
 (def place-init (map + [0 y-mod z-mod] [0 0 0]) )
 ; cap-top-height
 ; keyswitch-height 14.4
@@ -344,13 +341,22 @@
 ; mount-width 17.4
 ; mount-height 17.4
 ; key-base-lift (+ 5 plate-thickness) - (how high to lift the bottom of the keycap)
-; key-depth (from base to top of the key.)
+; key-depth (the total thickness of our keycaps.)
   ; π = 180 degrees  :: 5 2 2 3 3 || 12 15 || 9 20 || 6 30 || 4 45 || 18 10 ||
 (def key-ttl-height (+ key-base-lift key-depth))
-(def half-width (/ keyswitch-width 2))
+(def half-width (+ (/ mount-width 2) test-column-space ))
+; (def base-offset (/ (+ mount-width (/ plate-thickness 2)) 2) )    ; 14 or 15
+(def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))
+; (def base-offset 0)
 (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
+; (defn displacement-edge [rollin]
+;   (- (* key-place-hyp (Math/cos (- (Math/acos (/ half-width key-place-hyp)) rollin)) half-width ) )
+; )
+(def x-point (- 0 (/ keyswitch-width 2)))
+(def y-point key-ttl-height)
 (defn displacement-edge [rollin]
-  (- (* key-place-hyp (Math/cos (+ (Math/acos (/ half-width key-place-hyp)) rollin)) half-width ) )
+  (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point )
+  ; (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
 )
 (defn displacement [rollin] (* 0 rollin))
 (defn displacement-center [rollin] (* key-place-hyp (Math/cos rollin )))
@@ -365,7 +371,7 @@
         ; (rotate (/ π 10) [0 1 0])
         (rotate tilt [1 0 0])
         (translate thumbtest)
-        (translate (map * [-1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
+        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-tr-place [shape rollin tilt place]
   (->> shape
@@ -374,7 +380,7 @@
         (rotate rollin [0 -1 0])
         (rotate tilt [1 0 0])
         (translate thumbtest)
-        (translate (map * [1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
+        (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-ml-place [shape rollin tilt place]
   (->> shape
@@ -383,7 +389,7 @@
         (rotate tilt [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
         (translate thumbtest)
-        (translate (map * [-1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
+        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-mr-place [shape rollin tilt place]
   (->> shape
@@ -392,7 +398,7 @@
         (rotate tilt [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
         (translate thumbtest)
-        (translate (map * [1 1 1] (map + [(+ base-offset (displacement-edge rollin)) 0 0] place)))
+        (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-bl-place [shape rollin tilt place]
   (->> shape
@@ -400,7 +406,7 @@
         (rotate tilt [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
         (translate thumbtest)
-        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-center rollin)) 0 0] place)))
+        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-br-place [shape rollin tilt place]
   (->> shape
@@ -408,13 +414,13 @@
         (rotate tilt [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
         (translate thumbtest)
-        (translate (map * [1 1 1] (map + [(- base-offset (displacement-center rollin)) 0 0] place)))
+        (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-lower-layout [shape rollin tilt place]
   (def tilt-m tilt)
   (def tilt-b (/ π 2))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
-  (def y-mod (* -1 (+ (/ test-space 2) (coord-x sa-length tilt-m tilt-b))))
-  (def z-mod (* -1 (+ (/ test-space 2) (coord-y sa-length tilt-m tilt-b))))
+  (def y-mod (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-m tilt-b))))
+  (def z-mod (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-m tilt-b))))
   (def bottom-place (map + [0 y-mod z-mod] place))
   ; (def bottom-place [0 -50 0])
   (union
