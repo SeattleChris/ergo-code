@@ -334,7 +334,8 @@
 (def y-mod (* -1 (+ (/ test-row-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
 (def z-mod (* -1 (+ (/ test-row-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
 ; (def place-init [0 -30 0])
-(def place-init (map + [0 y-mod z-mod] [0 0 0]) )
+; (def place-init (map + [0 y-mod z-mod] [0 0 0]) )
+(def place-init (rotate (/ π 3 ) [0 0 1] [0 y-mod z-mod]))
 ; cap-top-height
 ; keyswitch-height 14.4
 ; keyswitch-width 14.4
@@ -358,7 +359,10 @@
   (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point )
   ; (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
 )
-(defn displacement [rollin] (* 0 rollin))
+(defn displacement [rollin x-point y-point]
+  (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point )
+  ; (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
+)
 (defn displacement-center [rollin] (* key-place-hyp (Math/cos rollin )))
 ; key-height sine angle
 (def thumbtest
@@ -370,7 +374,7 @@
         ; (rotate (/ π 2) [0 0 1])
         ; (rotate (/ π 10) [0 1 0])
         (rotate tilt [1 0 0])
-        (translate thumbtest)
+        (translate thumborigin)
         (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-tr-place [shape rollin tilt place]
@@ -379,7 +383,7 @@
         ; (rotate (/ π -10) [0 1 0])
         (rotate rollin [0 -1 0])
         (rotate tilt [1 0 0])
-        (translate thumbtest)
+        (translate thumborigin)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-ml-place [shape rollin tilt place]
@@ -388,7 +392,7 @@
         ; (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))
         (rotate tilt [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
-        (translate thumbtest)
+        (translate thumborigin)
         (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-mr-place [shape rollin tilt place]
@@ -397,7 +401,7 @@
         ; (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))
         (rotate tilt [1 0 0])
         ; (rotate (/ π 18) [0 0 1])
-        (translate thumbtest)
+        (translate thumborigin)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-bl-place [shape rollin tilt place]
@@ -405,7 +409,7 @@
         (rotate rollin [0 1 0])
         (rotate tilt [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
-        (translate thumbtest)
+        (translate thumborigin)
         (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-br-place [shape rollin tilt place]
@@ -413,7 +417,7 @@
         (rotate rollin [0 -1 0])
         (rotate tilt [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
-        (translate thumbtest)
+        (translate thumborigin)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-lower-layout [shape rollin tilt place]
@@ -520,10 +524,10 @@
   (union
    (thumb-mr-place shape)
    (thumb-ml-place shape)
-   (thumb-ma-place shape)
+  ;  (thumb-ma-place shape)
    (thumb-br-place shape)
    (thumb-bl-place shape)
-   (thumb-ba-place shape)
+  ;  (thumb-ba-place shape)
    ))
 
 (defn thumb-15x-layout [shape]
