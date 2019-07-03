@@ -325,21 +325,22 @@
 (defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
 (defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
 (defn xy-rotate-z [origin angle place]
-  (let [ x-origin (get origin 0)
-         y-origin (get origin 1)
-         x-start (- (get place 0) (get origin 0))
-         y-start (- (get place 1) (get origin 1))
-         x-end (+ (* x-start (Math/cos angle)) (* -1 y-start (Math/sin angle)) (get origin 0))
-         y-end (+ (* y-start (Math/cos angle)) (* x-start (Math/sin angle)) (get origin 1))
-       ])
+  ; (let [ x-origin (get origin 0)
+  ;        y-origin (get origin 1)
+  ;        x-start (- (get place 0) (get origin 0))
+  ;        y-start (- (get place 1) (get origin 1))
+  ;        x-end (+ (* x-start (Math/cos angle)) (* -1 y-start (Math/sin angle)) (get origin 0))
+  ;        y-end (+ (* y-start (Math/cos angle)) (* x-start (Math/sin angle)) (get origin 1))
+  ;      ])
+  ; [x-end y-end (get place 2 0)]  ; z position is same as input place or 0 if input was only [x y]
 
   ; (let [math-start [(- (get place 0) (get origin 0)) (- (get place 1) (get origin 1)) (get place 2 0) ] ])
-  ; [ (+ (* (get math-start 0 ) (Math/cos angle)) (* -1 (get math-start 1) (Math/sin angle)) (get origin 0) )
-  ;   (+ (* (get math-start 1) (Math/cos angle)) (* (get math-start 0 ) (Math/sin angle)) (get origin 1) )
-  ;   (get place 2 0)
-  ; ]
+
+  [ (+ (* (- (get place 0) (get origin 0)) (Math/cos angle)) (* -1 (- (get place 1) (get origin 1)) (Math/sin angle)) (get origin 0) )
+    (+ (* (- (get place 1) (get origin 1)) (Math/cos angle)) (* (- (get place 0) (get origin 0)) (Math/sin angle)) (get origin 1) )
+    (get place 2 0)
+  ]
   ; [(get place 0) (get place 1) (get place 2 0)]
-  [x-end y-end (get place 2 0)]  ; z position is same as input place or 0 if input was only [x y]
 )
 (def test-row-space 1 )
 (def test-column-space 0)
@@ -388,8 +389,8 @@
 ;          thumb-offsets))
 (defn test-tl-place [shape rollin tilt place]
   (->> shape
-        (rotate rollin [0 1 0])
         ; (rotate (/ π 2) [0 0 1])
+        (rotate rollin [0 1 0])
         ; (rotate (/ π 10) [0 1 0])
         (rotate tilt [1 0 0])
         (translate thumborigin)
@@ -402,6 +403,7 @@
         (rotate rollin [0 -1 0])
         (rotate tilt [1 0 0])
         (translate thumborigin)
+        ; (translate xy-rotate-z thumborigin (/ π 10) place)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-ml-place [shape rollin tilt place]
@@ -409,10 +411,9 @@
         (rotate rollin [0 1 0])
         ; (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))
         (rotate tilt [1 0 0])
-        ; (rotate (/ π 18) [0 0 1])
+        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place )))
+        (rotate (/ π -3) [0 0 1])
         (translate thumborigin)
-        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-        ; (rotate (/ π -9) [0 0 1])
         ; xy-rotate-z (thumborigin (/ π 10))
         ))
 (defn test-mr-place [shape rollin tilt place]
@@ -420,10 +421,9 @@
         (rotate rollin [0 -1 0])
         ; (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))
         (rotate tilt [1 0 0])
-        ; (rotate (/ π 18) [0 0 1])
-        (translate thumborigin)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-        ; (rotate (/ π -9) [0 0 1])
+        (rotate (/ π -3) [0 0 1])
+        (translate thumborigin)
         ; xy-rotate-z (thumborigin (/ π 10))
         ))
 (defn test-bl-place [shape rollin tilt place]
@@ -431,16 +431,18 @@
         (rotate rollin [0 1 0])
         (rotate tilt [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
-        (translate thumborigin)
         (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+        (rotate (/ π -3) [0 0 1])
+        (translate thumborigin)
         ))
 (defn test-br-place [shape rollin tilt place]
   (->> shape
         (rotate rollin [0 -1 0])
         (rotate tilt [1 0 0])
         ; (rotate (/ π 6) [0 0 1])
-        (translate thumborigin)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+        (rotate (/ π -3) [0 0 1])
+        (translate thumborigin)
         ))
 (defn test-lower-layout [shape rollin tilt place]
   (def tilt-m tilt)
