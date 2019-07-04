@@ -324,24 +324,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
 (defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
-(defn xy-rotate-z [origin angle place]
-  ; (let [ x-origin (get origin 0)
-  ;        y-origin (get origin 1)
-  ;        x-start (- (get place 0) (get origin 0))
-  ;        y-start (- (get place 1) (get origin 1))
-  ;        x-end (+ (* x-start (Math/cos angle)) (* -1 y-start (Math/sin angle)) (get origin 0))
-  ;        y-end (+ (* y-start (Math/cos angle)) (* x-start (Math/sin angle)) (get origin 1))
-  ;      ])
-  ; [x-end y-end (get place 2 0)]  ; z position is same as input place or 0 if input was only [x y]
-
-  ; (let [math-start [(- (get place 0) (get origin 0)) (- (get place 1) (get origin 1)) (get place 2 0) ] ])
-
-  [ (+ (* (- (get place 0) (get origin 0)) (Math/cos angle)) (* -1 (- (get place 1) (get origin 1)) (Math/sin angle)) (get origin 0) )
-    (+ (* (- (get place 1) (get origin 1)) (Math/cos angle)) (* (- (get place 0) (get origin 0)) (Math/sin angle)) (get origin 1) )
-    (get place 2 0)
-  ]
-  ; [(get place 0) (get place 1) (get place 2 0)]
-)
+; (defn xy-rotate-z [origin angle place]
+;   [ (+ (* (- (get place 0) (get origin 0)) (Math/cos angle)) (* -1 (- (get place 1) (get origin 1)) (Math/sin angle)) (get origin 0) )
+;     (+ (* (- (get place 1) (get origin 1)) (Math/cos angle)) (* (- (get place 0) (get origin 0)) (Math/sin angle)) (get origin 1) )
+;     (get place 2 0)
+;   ]
+; )
 (def test-row-space 1 )
 (def test-column-space 0)
 (def sa-width sa-length )    ; 18.25 for sa-length
@@ -352,9 +340,7 @@
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
 (def y-mod (* -1 (+ (/ test-row-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
 (def z-mod (* -1 (+ (/ test-row-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
-; (def place-init [0 -30 0])
-(def place-init (map + [0 y-mod z-mod] [0 0 0]) )
-; (def place-init (rotate (/ π 3 ) [0 0 1] [0 y-mod z-mod]))
+(def place-init (map + [0 y-mod z-mod] [0 0 0]) )   ; (def place-init [0 -30 0])
 ; cap-top-height
 ; keyswitch-height 14.4
 ; keyswitch-width 14.4
@@ -362,16 +348,10 @@
 ; mount-height 17.4
 ; key-base-lift (+ 5 plate-thickness) - (how high to lift the bottom of the keycap)
 ; key-depth (the total thickness of our keycaps.)
-  ; π = 180 degrees  :: 5 2 2 3 3 || 12 15 || 9 20 || 6 30 || 4 45 || 18 10 ||
 (def key-ttl-height (+ key-base-lift key-depth))
 (def half-width (+ (/ mount-width 2) test-column-space ))
-; (def base-offset (/ (+ mount-width (/ plate-thickness 2)) 2) )    ; 14 or 15
-(def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))
-; (def base-offset 0)
+(def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))     ; original was 14 or 15
 (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
-; (defn displacement-edge [rollin]
-;   (- (* key-place-hyp (Math/cos (- (Math/acos (/ half-width key-place-hyp)) rollin)) half-width ) )
-; )
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
 (defn displacement-edge [rollin]
@@ -380,13 +360,8 @@
 )
 (defn displacement [rollin x-point y-point]
   (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point )
-  ; (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
 )
-(defn displacement-center [rollin] (* key-place-hyp (Math/cos rollin )))
-; key-height sine angle
-; (def thumbtest
-;   (map + (key-position 0 0 [0 0 0])
-;          thumb-offsets))
+
 (defn test-tl-place [shape rollin tilt place]
   (->> shape
         ; (rotate (/ π 2) [0 0 1])
