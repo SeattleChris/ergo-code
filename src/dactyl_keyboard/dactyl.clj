@@ -366,58 +366,75 @@
   (->> shape
         ; (rotate (/ π 2) [0 0 1])
         (rotate rollin [0 1 0])
-        ; (rotate (/ π 10) [0 1 0])
-        (rotate tilt [1 0 0])
-        (translate thumborigin)
+        ; (rotate (deg2rad -10) [0 1 0])
+        ; (rotate tilt [1 0 0])
+        ; (translate thumborigin)
         (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-tr-place [shape rollin tilt place]
   (->> shape
         ; (rotate (/ π -2) [0 0 1])
-        ; (rotate (/ π -10) [0 1 0])
-        (rotate rollin [0 -1 0])
-        (rotate tilt [1 0 0])
-        (translate thumborigin)
+        (rotate rollin [0 1 0])
+        ; (rotate (deg2rad -10) [0 1 0])
+        ; (rotate tilt [1 0 0])
+        ; (translate thumborigin)
         ; (translate xy-rotate-z thumborigin (/ π 10) place)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-ml-place [shape rollin tilt place]
   (->> shape
         (rotate rollin [0 1 0])
-        ; (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))
+        (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
         (rotate tilt [1 0 0])
-        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place )))
+        (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
+        (translate (map * [-1 1 1] [base-offset 0 0]))
         (rotate (/ π -3) [0 0 1])
-        (translate thumborigin)
+        ; (translate (map * [-1 0 0] [base-offset 0 0]))
+
+        ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place )))
+        ; (translate thumborigin)
         ; xy-rotate-z (thumborigin (/ π 10))
         ))
 (defn test-mr-place [shape rollin tilt place]
   (->> shape
         (rotate rollin [0 -1 0])
-        ; (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))
+        (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
         (rotate tilt [1 0 0])
-        (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+        (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
+        (translate (map * [1 1 1] [base-offset 0 0]))
+        ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         (rotate (/ π -3) [0 0 1])
-        (translate thumborigin)
+        (translate (map * [-1 0 0] larger[base-offset 0 0]))
+
+        ; (translate thumborigin)
         ; xy-rotate-z (thumborigin (/ π 10))
         ))
+        
 (defn test-bl-place [shape rollin tilt place]
   (->> shape
         (rotate rollin [0 1 0])
         (rotate tilt [1 0 0])
+        (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
+        (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
+        (translate (map * [-1 1 1] [base-offset 0 0]))
+
         ; (rotate (/ π 6) [0 0 1])
-        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+        ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         (rotate (/ π -3) [0 0 1])
-        (translate thumborigin)
+        ; (translate thumborigin)
         ))
 (defn test-br-place [shape rollin tilt place]
   (->> shape
         (rotate rollin [0 -1 0])
         (rotate tilt [1 0 0])
+        (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
+        (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
+        (translate (map * [1 1 1] [base-offset 0 0]))
+
         ; (rotate (/ π 6) [0 0 1])
-        (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+        ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         (rotate (/ π -3) [0 0 1])
-        (translate thumborigin)
+        ; (translate thumborigin)
         ))
 (defn test-lower-layout [shape rollin tilt place]
   (def tilt-m tilt)
