@@ -352,6 +352,9 @@
 (def half-width (+ (/ mount-width 2) test-column-space ))
 (def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))     ; original was 14 or 15
 (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
+(def large-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2))))
+(def deflect-fudge [-4 4 0])
+(defn deflect-offset [angle] (map + deflect-fudge [(* large-plate-hyp (Math/cos angle)) (* large-plate-hyp (Math/sin angle)) 0]))
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
 (defn displacement-edge [rollin]
@@ -381,74 +384,79 @@
         ; (translate xy-rotate-z thumborigin (/ π 10) place)
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
-(defn test-ml-place [shape rollin tilt place]
+(defn test-ml-place [shape rollin tilt deflect place]
   (->> shape
-        (rotate rollin [0 1 0])
-        (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
-        (rotate tilt [1 0 0])
-        (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
-        (translate (map * [-1 1 1] [base-offset 0 0]))
-        (rotate (/ π -3) [0 0 1])
+       (rotate rollin [0 1 0])
+       (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
+       (rotate tilt [1 0 0])
+       (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
+       (translate (map * [-1 1 1] [base-offset 0 0]))
+       (rotate deflect [0 0 1])
+       (translate (map * [-1 1 0] (deflect-offset deflect)))
         ; (translate (map * [-1 0 0] [base-offset 0 0]))
-
+       
         ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place )))
         ; (translate thumborigin)
         ; xy-rotate-z (thumborigin (/ π 10))
-        ))
-(defn test-mr-place [shape rollin tilt place]
+       ))
+(defn test-mr-place [shape rollin tilt deflect place]
   (->> shape
-        (rotate rollin [0 -1 0])
-        (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
-        (rotate tilt [1 0 0])
-        (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
-        (translate (map * [1 1 1] [base-offset 0 0]))
+       (rotate rollin [0 -1 0])
+       (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
+       (rotate tilt [1 0 0])
+       (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
+       (translate (map * [1 1 1] [base-offset 0 0]))
         ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-        (rotate (/ π -3) [0 0 1])
-        (translate (map * [-1 0 0] larger[base-offset 0 0]))
+       (rotate deflect [0 0 1])
+       (translate (map * [-1 1 0] (deflect-offset deflect)))
 
         ; (translate thumborigin)
         ; xy-rotate-z (thumborigin (/ π 10))
-        ))
+       ))
         
-(defn test-bl-place [shape rollin tilt place]
+(defn test-bl-place [shape rollin tilt deflect place]
   (->> shape
-        (rotate rollin [0 1 0])
-        (rotate tilt [1 0 0])
-        (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
-        (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
-        (translate (map * [-1 1 1] [base-offset 0 0]))
+       (rotate rollin [0 1 0])
+       (rotate tilt [1 0 0])
+       (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
+       (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
+       (translate (map * [-1 1 1] [base-offset 0 0]))
 
         ; (rotate (/ π 6) [0 0 1])
         ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-        (rotate (/ π -3) [0 0 1])
+       (rotate deflect [0 0 1])
+       (translate (map * [-1 1 0] (deflect-offset deflect)))
+       
         ; (translate thumborigin)
-        ))
-(defn test-br-place [shape rollin tilt place]
+       ))
+(defn test-br-place [shape rollin tilt deflect place]
   (->> shape
-        (rotate rollin [0 -1 0])
-        (rotate tilt [1 0 0])
-        (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
-        (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
-        (translate (map * [1 1 1] [base-offset 0 0]))
+       (rotate rollin [0 -1 0])
+       (rotate tilt [1 0 0])
+       (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
+       (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
+       (translate (map * [1 1 1] [base-offset 0 0]))
 
         ; (rotate (/ π 6) [0 0 1])
         ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-        (rotate (/ π -3) [0 0 1])
+       (rotate deflect [0 0 1])
+       (translate (map * [-1 1 0] (deflect-offset deflect)))
+       
         ; (translate thumborigin)
-        ))
+       ))
 (defn test-lower-layout [shape rollin tilt place]
   (def tilt-m tilt)
   (def tilt-b (/ π 2))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
   (def y-mod (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-m tilt-b))))
   (def z-mod (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-m tilt-b))))
   (def bottom-place (map + [0 y-mod z-mod] place))
+  (def deflect (/ π -3))
   ; (def bottom-place [0 -50 0])
   (union
-    (test-ml-place shape rollin tilt-m place)
-    (test-mr-place shape rollin tilt-m place)
-    (test-bl-place shape rollin tilt-b bottom-place)
-    (test-br-place shape rollin tilt-b bottom-place)
-   ))
+   (test-ml-place shape rollin tilt-m deflect place)
+   (test-mr-place shape rollin tilt-m deflect place)
+   (test-bl-place shape rollin tilt-b deflect bottom-place)
+   (test-br-place shape rollin tilt-b deflect bottom-place)))
 
 (defn test-upper-layout [shape rollin tilt place]
   (union
