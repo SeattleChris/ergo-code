@@ -353,7 +353,7 @@
 (def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))     ; original was 14 or 15
 (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
 (def large-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2))))
-(def deflect-fudge [-4 4 0])
+(def deflect-fudge [-2 4 0])
 (defn deflect-offset [angle] (map + deflect-fudge [(* large-plate-hyp (Math/cos angle)) (* large-plate-hyp (Math/sin angle)) 0]))
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
@@ -369,32 +369,33 @@
   (->> shape
         ; (rotate (/ π 2) [0 0 1])
         (rotate rollin [0 1 0])
-        ; (rotate (deg2rad -10) [0 1 0])
-        ; (rotate tilt [1 0 0])
+        (rotate tilt [1 0 0])
         ; (translate thumborigin)
+        (rotate (deg2rad -10) [0 1 0])
         (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-tr-place [shape rollin tilt place]
   (->> shape
         ; (rotate (/ π -2) [0 0 1])
         (rotate rollin [0 1 0])
-        ; (rotate (deg2rad -10) [0 1 0])
-        ; (rotate tilt [1 0 0])
+        (rotate tilt [1 0 0])
         ; (translate thumborigin)
         ; (translate xy-rotate-z thumborigin (/ π 10) place)
+        (rotate (deg2rad -10) [0 1 0])
         (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
         ))
 (defn test-ml-place [shape rollin tilt deflect place]
   (->> shape
        (rotate rollin [0 1 0])
-       (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
        (rotate tilt [1 0 0])
-       (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
-       (translate (map * [-1 1 1] [base-offset 0 0]))
+       (translate (map * [-1 1 1] (map + place [(- base-offset (displacement-edge rollin)) 0 0])))
+      ;  (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
+      ;  (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
+      ;  (translate (map * [-1 1 1] [base-offset 0 0]))  ; add the space between the keys
        (rotate deflect [0 0 1])
        (translate (map * [-1 1 0] (deflect-offset deflect)))
         ; (translate (map * [-1 0 0] [base-offset 0 0]))
-       
+
         ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place )))
         ; (translate thumborigin)
         ; xy-rotate-z (thumborigin (/ π 10))
@@ -402,11 +403,11 @@
 (defn test-mr-place [shape rollin tilt deflect place]
   (->> shape
        (rotate rollin [0 -1 0])
-       (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
        (rotate tilt [1 0 0])
-       (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
-       (translate (map * [1 1 1] [base-offset 0 0]))
-        ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+       (translate (map * [1 1 1] (map + place [(- base-offset (displacement-edge rollin))0 0])))
+      ;  (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
+      ;  (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
+      ;  (translate (map * [1 1 1] [base-offset 0 0]))
        (rotate deflect [0 0 1])
        (translate (map * [-1 1 0] (deflect-offset deflect)))
 
