@@ -264,8 +264,8 @@
 (def post-adj (/ post-size 2))
 (def web-post-tr (translate [(- (/ mount-width 2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
 (def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
-(def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 (def web-post-br (translate [(- (/ mount-width 2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
+(def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 
 (defn triangle-hulls [& shapes]
   (apply union
@@ -305,6 +305,7 @@
 ;;;;;;;;;;;;
 ;; Thumbs ;;
 ;;;;;;;;;;;;
+(def test-column-space 0)
 (def half-width (+ (/ mount-width 2) test-column-space ))
 
 (def thumb-offsets [(* -1.25 half-width) (/ (- sa-double-length mount-height) -2) 0])            ; original [6 -3 7], [20 -3 7]
@@ -335,7 +336,6 @@
 ;   ]
 ; )
 (def test-row-space 3.5 )
-(def test-column-space 0)
 (def sa-width sa-length )    ; 18.25 for sa-length
 (def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
 (def rollin-top (deg2rad 0) )
@@ -347,8 +347,8 @@
 (def y-mod-init (* -1 (+ (/ test-row-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
 (def z-mod-init (* -1 (+ (/ test-row-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
 (def place-init (map + [0 y-mod-init z-mod-init] [0 0 0]) )   ; (def place-init [0 -30 0])
-(def y-mod (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-default tilt-b))))
-(def z-mod (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-default tilt-b))))
+(def y-mod (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-default tilt-last))))
+(def z-mod (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-default tilt-last))))
 (def bottom-place (map + [0 y-mod z-mod] place-init))
 ; cap-top-height
 ; keyswitch-height 14.4
@@ -708,22 +708,22 @@
 
 (defn thumb-walls [param]
   (union
-   (wall-brace thumb-mr-place  0 -1 web-post-br thumb-tr-place  0 -1 thumb-post-br)
-   (wall-brace thumb-mr-place  0 -1 web-post-br thumb-mr-place  0 -1 web-post-bl)
+   (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br) ; orig: (wall-brace thumb-mr-place  0 -1 web-post-br thumb-tr-place  0 -1 thumb-post-br)
+   (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-mr-place  0 -1 web-post-br)
    (wall-brace thumb-br-place  0 -1 web-post-br thumb-br-place  0 -1 web-post-bl)
-   (wall-brace thumb-ml-place -0.3  1 web-post-tr thumb-ml-place  0  1 web-post-tl)
-   (wall-brace thumb-bl-place  0  1 web-post-tr thumb-bl-place  0  1 web-post-tl)
+  ;  (wall-brace thumb-ml-place -0.3  1 web-post-tr thumb-ml-place  0  1 web-post-tl)
+  ;  (wall-brace thumb-bl-place  0  1 web-post-tr thumb-bl-place  0  1 web-post-tl)
    (wall-brace thumb-br-place -1  0 web-post-tl thumb-br-place -1  0 web-post-bl)
    (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place -1  0 web-post-bl)
    ; thumb corners
    (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)
    (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place  0  1 web-post-tl)
    ; thumb tweeners
-   (wall-brace thumb-mr-place  0 -1 web-post-bl thumb-br-place  0 -1 web-post-br)
-   (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tr)
-   (wall-brace thumb-bl-place -1  0 web-post-bl thumb-br-place -1  0 web-post-tl)
-   (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)
-   ; clunky bit on the top left thumb connection  (normal connectors don't work well)
+  ;  (wall-brace thumb-mr-place  0 -1 web-post-bl thumb-br-place  0 -1 web-post-br)
+   (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tl)
+   (wall-brace thumb-bl-place -1  0 web-post-br thumb-br-place -1  0 web-post-bl)
+  ;  (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)
+  ;  clunky bit on the top left thumb connection  (normal connectors don't work well)
    (bottom-hull
     (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
     (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
