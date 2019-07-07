@@ -587,41 +587,53 @@
 
 (def thumb-connectors
   (union
-      (triangle-hulls    ; top two
-             (thumb-tl-place thumb-post-tr)
-             (thumb-tl-place thumb-post-br)
-             (thumb-tr-place thumb-post-tl)
-             (thumb-tr-place thumb-post-bl))
-      (triangle-hulls    ; bottom two on the right
-             (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
-             (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
-             (thumb-mr-place web-post-bl)   ; (thumb-mr-place web-post-tl)
-             (thumb-mr-place web-post-tl))  ; (thumb-mr-place web-post-bl))
-      (triangle-hulls    ; bottom two on the left
-             (thumb-bl-place web-post-tr)
-             (thumb-bl-place web-post-br)
-             (thumb-ml-place web-post-tr)
-             (thumb-ml-place web-post-br))
-      (triangle-hulls    ; centers of the bottom four
-             (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tl)
-             (thumb-bl-place web-post-br)   ; (thumb-bl-place web-post-bl)
-             (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-tr)
-             (thumb-bl-place web-post-tr)   ; (thumb-bl-place web-post-br)
-            (thumb-mr-place web-post-tl)   ; (thumb-mr-place web-post-tl)
-            (thumb-ml-place web-post-tr)   ; (thumb-ml-place web-post-bl)
-             (thumb-mr-place web-post-bl)   ; (thumb-mr-place web-post-tr)
-             (thumb-ml-place web-post-br)  ; (thumb-ml-place web-post-br))
-       )
-(triangle-hulls    ; top two to the middle two, starting on the left
-             (thumb-tl-place thumb-post-tl)
-             (thumb-ml-place web-post-tl)
-             (thumb-tl-place thumb-post-bl)
-             (thumb-ml-place web-post-tr)
-             (thumb-tl-place thumb-post-br)
-             (thumb-mr-place web-post-tl)
-             (thumb-tr-place thumb-post-bl)
-             (thumb-mr-place web-post-tr)
-             (thumb-tr-place thumb-post-br))
+   (triangle-hulls    ; top two
+    (thumb-tl-place thumb-post-tr)
+    (thumb-tl-place thumb-post-br)
+    (thumb-tr-place thumb-post-tl)
+    (thumb-tr-place thumb-post-bl))
+   (triangle-hulls    ; bottom two on the right
+    (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
+    (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
+    (thumb-mr-place web-post-bl)   ; (thumb-mr-place web-post-tl)
+    (thumb-mr-place web-post-tl))  ; (thumb-mr-place web-post-bl))
+   (triangle-hulls    ; bottom two on the left
+    (thumb-bl-place web-post-tr)
+    (thumb-bl-place web-post-br)
+    (thumb-ml-place web-post-tr)
+    (thumb-ml-place web-post-br))
+   (triangle-hulls    ; centers of the bottom four
+    (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tl)
+    (thumb-bl-place web-post-br)   ; (thumb-bl-place web-post-bl)
+    (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-tr)
+    (thumb-bl-place web-post-tr)   ; (thumb-bl-place web-post-br)
+    (thumb-mr-place web-post-bl)   ; (thumb-mr-place web-post-tr)
+    (thumb-ml-place web-post-br)  ; (thumb-ml-place web-post-br))
+    (thumb-mr-place web-post-tl)   ; (thumb-mr-place web-post-tl)
+    (thumb-ml-place web-post-tr)   ; (thumb-ml-place web-post-bl)
+    )
+   (triangle-hulls    ; top two to the middle two, starting on the left
+    (thumb-tl-place thumb-post-tl)
+    (thumb-ml-place web-post-tl)
+    (thumb-tl-place thumb-post-bl)
+    (thumb-ml-place web-post-tr)
+    (thumb-tl-place thumb-post-br)
+    (thumb-mr-place web-post-tl)
+    (thumb-tr-place thumb-post-bl)
+    (thumb-mr-place web-post-tr)
+    (thumb-tr-place thumb-post-br))
+   (triangle-hulls 
+    (thumb-ml-place web-post-bl)
+    (thumb-bl-place web-post-tl)
+    (thumb-ml-place web-post-br)
+    (thumb-bl-place web-post-tr)
+    )
+   (triangle-hulls
+    (thumb-mr-place web-post-br)
+    (thumb-br-place web-post-tr)
+    (thumb-mr-place web-post-bl)
+    (thumb-br-place web-post-tl)
+    )
       ; (triangle-hulls    ; top two to the main keyboard, starting on the left
       ;        (thumb-tl-place thumb-post-tl)
       ;        (key-place 0 cornerrow web-post-bl)
@@ -657,7 +669,7 @@
       ;        (key-place 3 lastrow web-post-br)
       ;        (key-place 3 lastrow web-post-tr)
       ;        (key-place 4 cornerrow web-post-bl))
-       ))
+   ))
 
 ;;;;;;;;;;
 ;; Case ;;
