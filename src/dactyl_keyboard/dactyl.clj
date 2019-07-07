@@ -308,7 +308,7 @@
 (def test-column-space 0)
 (def half-width (+ (/ mount-width 2) test-column-space ))
 
-(def thumb-offsets [(* -1.25 half-width) (/ (- sa-double-length mount-height) -2) 0])            ; original [6 -3 7], [20 -3 7]
+(def thumb-offsets [(* -1.25 half-width) (/ (- sa-double-length mount-height) -2) -5])            ; original [6 -3 7], [20 -3 7]
 
 (def thumborigin
   (map + (key-position 1 cornerrow [(/ mount-width 2) (- (/ sa-double-length 2)) 0])
@@ -335,12 +335,12 @@
 ;     (get place 2 0)
 ;   ]
 ; )
-(def test-row-space 3.5 )
+(def test-row-space 3.5 )   ; at one point, 3.5 seemed good.
 (def sa-width sa-length )    ; 18.25 for sa-length
 (def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
 (def rollin-top (deg2rad 0) )
-(def tilt-default (/ π 3))            ; tilt settings are also in radians
-(def tilt-last (/ π 2))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
+(def tilt-default (deg2rad 60) )            ; tilt settings are also in radians
+(def tilt-last (deg2rad 75))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
 (def tilt-top (/ π 18) )
 (def deflect (/ π -3))
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
@@ -361,7 +361,7 @@
 (def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))     ; original was 14 or 15
 (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
 (def large-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2))))
-(def deflect-fudge [-4 4 4])
+(def deflect-fudge [-4 4 2])
 (defn deflect-offset [angle] (map + deflect-fudge [(* large-plate-hyp (Math/cos angle)) (* large-plate-hyp (Math/sin angle)) 0]))
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
@@ -382,7 +382,7 @@
        (rotate rollin [0 1 0])
        (rotate tilt [1 0 0])
        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-       (rotate (deg2rad -10) [0 1 0])
+       (rotate (deg2rad -15) [0 1 0])
        (translate thumborigin)
        ))
 (defn thumb-tr-place [shape]
@@ -395,7 +395,7 @@
        (rotate tilt [1 0 0])
         ; (translate xy-rotate-z thumborigin (/ π 10) place)
        (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-       (rotate (deg2rad -10) [0 1 0])
+       (rotate (deg2rad -15) [0 1 0])
        (translate thumborigin)
        ))
 (defn thumb-ml-place [shape]
@@ -410,7 +410,7 @@
       ;  (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
       ;  (translate (map * [-1 1 1] [base-offset 0 0]))  ; add the space between the keys
        (rotate deflect [0 0 1])
-       (translate (map * [-1 1 0] (deflect-offset deflect)))
+       (translate (map * [-1 1 1] (deflect-offset deflect)))
         ; xy-rotate-z (thumborigin (/ π 10))
        (translate thumborigin)))
 (defn thumb-mr-place [shape]
@@ -425,7 +425,7 @@
       ;  (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
       ;  (translate (map * [1 1 1] [base-offset 0 0]))
        (rotate deflect [0 0 1])
-       (translate (map * [-1 1 0] (deflect-offset deflect)))
+       (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
         ; xy-rotate-z (thumborigin (/ π 10))
        ))
@@ -442,7 +442,7 @@
        (translate (map * [-1 1 1] [base-offset 0 0]))
         ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
        (rotate deflect [0 0 1])
-       (translate (map * [-1 1 0] (deflect-offset deflect)))
+       (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)))
 (defn thumb-br-place [shape]
   (def rollin rollin-default)
@@ -456,7 +456,7 @@
        (translate (map * [1 1 1] [base-offset 0 0]))
         ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
        (rotate deflect [0 0 1])
-       (translate (map * [-1 1 0] (deflect-offset deflect)))
+       (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)))
 (defn thumb-1x-layout [shape]
   (union
