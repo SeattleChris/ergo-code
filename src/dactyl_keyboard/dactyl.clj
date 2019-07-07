@@ -361,7 +361,7 @@
 (def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))     ; original was 14 or 15
 (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
 (def large-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2))))
-(def deflect-fudge [-4 4 2])
+(def deflect-fudge [-4 5 4])
 (defn deflect-offset [angle] (map + deflect-fudge [(* large-plate-hyp (Math/cos angle)) (* large-plate-hyp (Math/sin angle)) 0]))
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
