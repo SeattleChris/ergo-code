@@ -724,16 +724,17 @@
    (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br) ; orig: (wall-brace thumb-mr-place  0 -1 web-post-br thumb-tr-place  0 -1 thumb-post-br)
    (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-mr-place  0 -1 web-post-br)
    (wall-brace thumb-br-place  0  -1 web-post-br thumb-br-place  0 -1 web-post-bl)
-   (wall-brace thumb-ml-place -0.3 1 web-post-tr thumb-ml-place  0  1 web-post-tl)
+   (wall-brace thumb-ml-place -1   0 web-post-tl thumb-ml-place -1 -1 web-post-bl)
+   (wall-brace thumb-bl-place -1   0 web-post-tl thumb-bl-place -1 -1 web-post-bl)
+   
    (wall-brace thumb-bl-place  -1 -1 web-post-br thumb-bl-place -1 -1 web-post-bl)
-   (wall-brace thumb-br-place -1  0 web-post-tl thumb-br-place -1  0 web-post-bl)
-   (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place -1 -1 web-post-bl)
+  ;  (wall-brace thumb-br-place -1  0 web-post-tl thumb-br-place -1  0 web-post-bl)
    ; thumb corners
    (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)
    (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place  0  1 web-post-tl)
    ; thumb tweeners
    (wall-brace thumb-mr-place  0 -1 web-post-br thumb-br-place  0 -1 web-post-br)
-   (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tl)
+  ;  (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tl)
    (wall-brace thumb-bl-place -1  0 web-post-br thumb-br-place -1  0 web-post-bl)
   ;  (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)
   ;  clunky bit on the top left thumb connection  (normal connectors don't work well)
@@ -981,7 +982,7 @@
            thumb
           ;  thumbcaps
            thumb-connectors
-          ;  (thumb-walls 0)
+           (thumb-walls 0)
           ;  case-walls
            )))
 
