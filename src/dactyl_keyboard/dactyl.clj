@@ -33,10 +33,8 @@
   :else [0 0 0]))
 
 (def keyboard-z-offset 2)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
-
 (def extra-width 2.5)                   ; extra space between the base of keys; original= 2, 2.5
 (def extra-height 1.0)                  ; original= 0.5
-
 (def wall-z-offset -15)                 ; length of the first downward-sloping part of the wall (negative)
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 2)                  ; wall thickness parameter; originally 5, 2
@@ -302,8 +300,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parameters for test thumb ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def test-column-space 0)
-(def test-row-space 3.5 )   ; at one point, 3.5 seemed good.
+(def test-column-space -0.5)
+(def test-row-space 1.5 )   ; at one point, 3.5 seemed good.
 (def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
 (def rollin-top (deg2rad 0) )
 (def tilt-default (deg2rad 60) )            ; tilt settings are also in radians
@@ -475,11 +473,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def thumb-connectors
   (union
-  ;  (triangle-hulls    ; top two column gap
-  ;   (thumb-tl-place thumb-post-tr)
-  ;   (thumb-tr-place thumb-post-tl)
-  ;   (thumb-tl-place thumb-post-br)
-  ;   (thumb-tr-place thumb-post-bl))
+   (triangle-hulls    ; top two column gap
+    (thumb-tl-place thumb-post-tr)
+    (thumb-tr-place thumb-post-tl)
+    (thumb-tl-place thumb-post-br)
+    (thumb-tr-place thumb-post-bl))
   ;  (triangle-hulls    ; old & not needed: bottom two on the right
   ;   (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
   ;   (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
@@ -500,16 +498,16 @@
     (thumb-mr-place web-post-tl)   ; (thumb-mr-place web-post-tl)
     (thumb-ml-place web-post-tr)   ; (thumb-ml-place web-post-bl)
     )
-  ;  (triangle-hulls    ; top two to the middle two, starting on the left
-  ;   (thumb-tl-place thumb-post-tl)
-  ;   (thumb-ml-place web-post-tl)
-  ;   (thumb-tl-place web-post-bl)
-  ;   (thumb-ml-place web-post-tr)
-  ;   (thumb-tl-place thumb-post-br)
-  ;   (thumb-mr-place web-post-tl)
-  ;   (thumb-tr-place thumb-post-bl)
-  ;   (thumb-mr-place web-post-tr)
-  ;   (thumb-tr-place thumb-post-br))
+   (triangle-hulls    ; top two to the middle two, starting on the left
+    (thumb-tl-place thumb-post-tl)
+    (thumb-ml-place web-post-tl)
+    (thumb-tl-place web-post-bl)
+    (thumb-ml-place web-post-tr)
+    (thumb-tl-place thumb-post-br)
+    (thumb-mr-place web-post-tl)
+    (thumb-tr-place thumb-post-bl)
+    (thumb-mr-place web-post-tr)
+    (thumb-tr-place thumb-post-br))
    (triangle-hulls  ; Row gap on left thumb
     (thumb-ml-place web-post-bl)
     (thumb-bl-place web-post-tl)
@@ -914,13 +912,16 @@
 
 (spit "things/thumbpad.scad"
       (write-scad
-      (translate [-10 -30 -114] 
-       (rotate (deg2rad 60) [-1 0 0] 
-               (rotate (deg2rad 30) [0 1 0]
-                       (rotate (deg2rad 45) [0 0 1]
-               
-               (union
-                (thumb-lower-layout single-plate)
-                thumb-connectors)))))))
+       (translate [-10 -30 -84] 
+                  (rotate (deg2rad 35) [-1 0 0] 
+                          (rotate (deg2rad 10) [0 1 0]
+                                  (rotate (deg2rad 45) [0 0 1]
+       (union
+        thumb
+        thumb-connectors
+        ; (thumb-walls 0)
+        )
+                                          ))))
+       ))
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
