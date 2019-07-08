@@ -5,13 +5,10 @@
             [scad-clj.model :refer :all]
             [unicode-math.core :refer :all]))
 
-
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
 ; rad = pi * deg / 180
 ; 180 * rad / pi = deg
-(defn rad2deg [radians]
-  (/ (* 180 radians) pi))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Shape parameters ;;
@@ -34,7 +31,6 @@
   (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
   (>= column 4) [0 -5.18 3.39]             ; original [0 -5.8 5.64], [0 -12 5.64]
   :else [0 0 0]))
-
 
 (def keyboard-z-offset 2)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
@@ -69,9 +65,7 @@
 
 (def keyswitch-height 14.4) ;; Was 14.1, then 14.25, 14.4 before clc
 (def keyswitch-width 14.4)  ; 14.4 before clc
-
 (def sa-profile-key-height 12.7)
-
 (def plate-thickness 4)
 (def mount-width (+ keyswitch-width 3))
 (def mount-height (+ keyswitch-height 3))
@@ -229,7 +223,6 @@
 (defn key-position [column row position]
   (apply-key-geometry (partial map +) rotate-around-x rotate-around-y column row position))
 
-
 (def key-holes
   (apply union
          (for [column columns
@@ -305,17 +298,28 @@
 ;;;;;;;;;;;;
 ;; Thumbs ;;
 ;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Parameters for test thumb ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def test-column-space 0)
+(def test-row-space 3.5 )   ; at one point, 3.5 seemed good.
+(def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
+(def rollin-top (deg2rad 0) )
+(def tilt-default (deg2rad 60) )            ; tilt settings are also in radians
+(def tilt-last (deg2rad 75))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
+(def tilt-top (/ π 18) )
+(def deflect (/ π -3))
 (def half-width (+ (/ mount-width 2) test-column-space ))
-
+(def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
 (def thumb-offsets [(* -1.25 half-width) (/ (- sa-double-length mount-height) -2) -5])            ; original [6 -3 7], [20 -3 7]
-
+(def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))     ; original was 14 or 15
+(def deflect-fudge [-4 5 4])
+; (def sa-width sa-length )    ; 18.25 for sa-length
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def thumborigin
   (map + (key-position 1 cornerrow [(/ mount-width 2) (- (/ sa-double-length 2)) 0])
-         thumb-offsets))
-; (def thumborigin 
-;   (map + (key-position 1 cornerrow thumb-offsets)))
-; (pr thumborigin)
+         thumb-offsets))  ; original: (map + (key-position 1 cornerrow thumb-offsets)))
 (def larger-plate
   (let [plate-height (/ (- sa-double-length mount-height) 3)
         top-plate (->> (cube mount-width plate-height web-thickness)
@@ -323,56 +327,31 @@
                                    (- plate-thickness (/ web-thickness 2))]))
         ]
     (union top-plate (mirror [0 1 0] top-plate))))
-; ================= Start Chris Test versions =====================
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Parameters for test thumb ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
 (defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
-; (defn xy-rotate-z [origin angle place]
-;   [ (+ (* (- (get place 0) (get origin 0)) (Math/cos angle)) (* -1 (- (get place 1) (get origin 1)) (Math/sin angle)) (get origin 0) )
-;     (+ (* (- (get place 1) (get origin 1)) (Math/cos angle)) (* (- (get place 0) (get origin 0)) (Math/sin angle)) (get origin 1) )
-;     (get place 2 0)
-;   ]
-; )
-(def test-row-space 3.5 )   ; at one point, 3.5 seemed good.
-(def sa-width sa-length )    ; 18.25 for sa-length
-(def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
-(def rollin-top (deg2rad 0) )
-(def tilt-default (deg2rad 60) )            ; tilt settings are also in radians
-(def tilt-last (deg2rad 75))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
-(def tilt-top (/ π 18) )
-(def deflect (/ π -3))
-(def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
 (def y-mod-init (* -1 (+ (/ test-row-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
 (def z-mod-init (* -1 (+ (/ test-row-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
 (def place-init (map + [0 y-mod-init z-mod-init] [0 0 0]) )   ; (def place-init [0 -30 0])
 (def y-mod (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-default tilt-last))))
 (def z-mod (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-default tilt-last))))
 (def bottom-place (map + [0 y-mod z-mod] place-init))
-; cap-top-height
-; keyswitch-height 14.4
-; keyswitch-width 14.4
-; mount-width 17.4
-; mount-height 17.4
-; key-base-lift (+ 5 plate-thickness) - (how high to lift the bottom of the keycap)
-; key-depth (the total thickness of our keycaps.)
 (def key-ttl-height (+ key-base-lift key-depth))
-(def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))     ; original was 14 or 15
-(def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
+; (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
 (def large-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2))))
-(def deflect-fudge [-4 5 4])
 (defn deflect-offset [angle] (map + deflect-fudge [(* large-plate-hyp (Math/cos angle)) (* large-plate-hyp (Math/sin angle)) 0]))
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
 (defn displacement-edge [rollin]
-  (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point )
-  ; (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
+  (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point )  ; older: (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
 )
-(defn displacement [rollin x-point y-point]
-  (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point )
-)
-
+; (defn displacement [rollin x-point y-point]
+;   (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point ))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Thumb Placement Functions          ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Used for the buttons, but also     ;;;
+;;; for the wall and inter-connections ;;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn thumb-tl-place [shape]
   (def rollin rollin-top)
   (def tilt tilt-top)
@@ -429,7 +408,6 @@
        (translate thumborigin)
         ; xy-rotate-z (thumborigin (/ π 10))
        ))
- 
 (defn thumb-bl-place [shape]
   (def rollin rollin-default)
   (def tilt tilt-last)
@@ -458,13 +436,14 @@
        (rotate deflect [0 0 1])
        (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)))
+
 (defn thumb-1x-layout [shape]
   (union
    (thumb-ml-place shape)
    (thumb-mr-place shape)
    (thumb-bl-place shape)
    (thumb-br-place shape)
-  ))
+   ))
 
 (defn thumb-15x-layout [shape]
   (union
@@ -483,108 +462,17 @@
     (thumb-15x-layout larger-plate)
   ))
 
-; =========== Chris Test Sections End ====================
-
-; (defn thumb-tr-place [shape]      ; Top Right Thumb
-;   (->> shape
-;        (rotate (deg2rad  10) [1 0 0])     ;  (rotate (deg2rad  10) [1 0 0])
-;        (rotate (deg2rad -23) [0 1 0])     ;  (rotate (deg2rad -23) [0 1 0])
-;        (rotate (deg2rad  10) [0 0 1])     ;  (rotate (deg2rad  -3) [0 0 1])
-;        (translate thumborigin)
-;        (translate [-12 -16 3])            ; (translate [-12 -16 3])
-;        ))
-; (defn thumb-tl-place [shape]    ; Top Left Thumb
-;   (->> shape
-;        (rotate (deg2rad  10) [1 0 0])     ;  (rotate (deg2rad  10) [1 0 0])
-;        (rotate (deg2rad -23) [0 1 0])     ;  (rotate (deg2rad -23) [0 1 0])
-;        (rotate (deg2rad  10) [0 0 1])     ;  (rotate (deg2rad  -3) [0 0 1])
-;        (translate thumborigin)
-;        (translate [-32 -15 -2])))         ; (translate [-32 -15 -2])))
-; ; Upper Thumb Buttons above. Lower Thumb Buttons below
-;   ; Rotate X: Roll concave convex
-;   ; Rotate Y: Angle away from facing up?
-;   ; Rotate Z: pivot around origin corner?
-;   ; pi / 5 is 36 degress
-; (defn thumb-mr-place [shape]
-;   (->> shape
-;        (rotate (deg2rad -18) [1 0 0])     ; (rotate (deg2rad  -6) [1 0 0])
-;        (rotate (deg2rad -49) [0 1 0])     ; (rotate (deg2rad -34) [0 1 0])
-;        (rotate (deg2rad  48) [0 0 1])     ; (rotate (deg2rad  48) [0 0 1])
-;        (translate thumborigin)
-;        (translate [-38 -40 -13])          ; (translate [-29 -40 -13])
-;        ))
-; (defn thumb-ml-place [shape]
-;   (->> shape
-;        (rotate (deg2rad  18) [1 0 0])     ; (rotate (deg2rad   6) [1 0 0])
-;        (rotate (deg2rad -54) [0 1 0])     ; (rotate (deg2rad -34) [0 1 0])
-;        (rotate (deg2rad  40) [0 0 1])     ; (rotate (deg2rad  40) [0 0 1])
-;        (translate thumborigin)
-;        (translate [-51 -25 -12])))        ; (translate [-51 -25 -12])))
-; (defn thumb-ma-place [shape]
-;   (->> shape
-;        (rotate (deg2rad   6) [1 0 0])     ; (rotate (deg2rad   6) [1 0 0])
-;        (rotate (deg2rad -34) [0 1 0])     ; (rotate (deg2rad -34) [0 1 0])
-;        (rotate (deg2rad  54) [0 0 1])     ; (rotate (deg2rad  56) [0 0 1])
-;        (translate thumborigin)
-;        (translate [-7 -55 -14])))         ; (translate [-7 -55 -14])))
-; (defn thumb-br-place [shape]
-;   (->> shape
-;        (rotate (deg2rad -34) [1 0 0])     ; (rotate (deg2rad -16) [1 0 0])
-;        (rotate (deg2rad -53) [0 1 0])     ; (rotate (deg2rad -33) [0 1 0])
-;        (rotate (deg2rad  54) [0 0 1])     ; (rotate (deg2rad  54) [0 0 1])
-;        (translate thumborigin)
-;        (translate [-38.8 -52.3 -33.5])    ; (translate [-37.8 -55.3 -25.3])
-;        ))
-; (defn thumb-bl-place [shape]
-;   (->> shape
-;        (rotate (deg2rad  14) [1 0 0])     ; (rotate (deg2rad  -4) [1 0 0])
-;        (rotate (deg2rad -53) [0 1 0])     ; (rotate (deg2rad -35) [0 1 0])
-;        (rotate (deg2rad  52) [0 0 1])     ; (rotate (deg2rad  52) [0 0 1])
-;        (translate thumborigin)
-;        (translate [-56.3 -25.3 -43.5])    ; (translate [-56.3 -43.3 -23.5])
-;        ))
-; (defn thumb-ba-place [shape]
-;   (->> shape
-;        (rotate (deg2rad -16) [1 0 0])     ; (rotate (deg2rad -16) [1 0 0])
-;        (rotate (deg2rad -33) [0 1 0])     ; (rotate (deg2rad -33) [0 1 0])
-;        (rotate (deg2rad  54) [0 0 1])     ; (rotate (deg2rad  54) [0 0 1])
-;        (translate thumborigin)
-;        (translate [-19.3 -67.3 -27.1])    ; (translate [-19.3 -67.3 -27.1])
-;        ))
-
-; (defn thumb-1x-layout [shape]
-;   (union
-;    (thumb-mr-place shape)
-;    (thumb-ml-place shape)
-;   ;  (thumb-ma-place shape)
-;    (thumb-br-place shape)
-;    (thumb-bl-place shape)
-;   ;  (thumb-ba-place shape)
-;    ))
-
-; (defn thumb-15x-layout [shape]
-;   (union
-;    (thumb-tr-place shape)
-;    (thumb-tl-place shape)))
-
-; (def thumbcaps
-;   (union
-;    (thumb-1x-layout (sa-cap 1))
-;    (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25))))) ; (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
-
-
-; (def thumb
-;   (union
-;    (thumb-1x-layout single-plate)
-;    (thumb-15x-layout single-plate)
-;    (thumb-15x-layout larger-plate)
-;    ))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; These define edges when we use the bigger key plate ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.15) post-adj) 0] web-post))
 (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  1.15) post-adj) 0] web-post))
 (def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
 (def thumb-post-br (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -1.15) post-adj) 0] web-post))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; We want to fill in the gaps between the thumb keys ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def thumb-connectors
   (union
    (triangle-hulls    ; top two column gap
@@ -592,17 +480,17 @@
     (thumb-tr-place thumb-post-tl)
     (thumb-tl-place thumb-post-br)
     (thumb-tr-place thumb-post-bl))
-  ;  (triangle-hulls    ; bottom two on the right
+  ;  (triangle-hulls    ; old & not needed: bottom two on the right
   ;   (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
   ;   (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
   ;   (thumb-mr-place web-post-bl)   ; (thumb-mr-place web-post-tl)
   ;   (thumb-mr-place web-post-tl))  ; (thumb-mr-place web-post-bl))
-  ;  (triangle-hulls    ; bottom two on the left
+  ;  (triangle-hulls    ; old & not needed: bottom two on the left
   ;   (thumb-bl-place web-post-tr)
   ;   (thumb-bl-place web-post-br)
   ;   (thumb-ml-place web-post-tr)
   ;   (thumb-ml-place web-post-br))
-   (triangle-hulls    ; centers of the bottom four
+   (triangle-hulls    ; Column gaps of the bottom four
     (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tl)
     (thumb-bl-place web-post-br)   ; (thumb-bl-place web-post-bl)
     (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-tr)
@@ -633,7 +521,7 @@
     (thumb-mr-place web-post-bl)
     (thumb-br-place web-post-tl))
    
-  ;  (triangle-hulls ; attaching thumb section to main keyboard. Starting on left)
+  ;  (triangle-hulls ; alternative? attaching thumb section to main keyboard. Starting on left)
   ;   (thumb-ml-place web-post-tl)
   ;   (key-place 0 cornerrow web-post-bl)
   ;   (thumb-tl-place thumb-post-tl)
@@ -646,7 +534,6 @@
   ;   (key-place 2 lastrow web-post-tl)
   ;   (key-place 2 lastrow web-post-bl)
   ;   (thumb-tr-place thumb-post-tr)
-   
   ;  )    
    
   ; Original: 
@@ -742,8 +629,7 @@
    (wall-brace thumb-br-place  0  -1 web-post-br thumb-br-place  0 -1 web-post-bl)
    (wall-brace thumb-ml-place -1   0 web-post-tl thumb-ml-place -1 -1 web-post-bl)
    (wall-brace thumb-bl-place -1   0 web-post-tl thumb-bl-place -1 -1 web-post-bl)
-   
-   (wall-brace thumb-bl-place  -1 -1 web-post-br thumb-bl-place -1 -1 web-post-bl)
+   (wall-brace thumb-bl-place -1  -1 web-post-br thumb-bl-place -1 -1 web-post-bl)
   ;  (wall-brace thumb-br-place -1  0 web-post-tl thumb-br-place -1  0 web-post-bl)
    ; thumb corners
    (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)
@@ -779,7 +665,7 @@
     (key-place 0 cornerrow web-post-bl)
     (key-place 0 cornerrow (translate (wall-locate1 -1 0) web-post-bl))
     (thumb-tl-place thumb-post-tl))
-  ;  (hull  ; original under the tl thumb key
+  ;  (hull  ; original, currently not needed: under the tl thumb key
   ;   (thumb-ml-place web-post-tr)
   ;   (thumb-ml-place (translate (wall-locate1 -0.3 1) web-post-tr))
   ;   (thumb-ml-place (translate (wall-locate2 -0.3 1) web-post-tr))
@@ -818,8 +704,9 @@
    (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
    (thumb-walls 0)
    ))
-; thumb walls
-
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Other Components ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
 (def rj9-start  (map + [0 -3  0] (key-position 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
 (def rj9-position  [(first rj9-start) (second rj9-start) 11])
 (def rj9-cube   (cube 14.78 13 22.38))
@@ -928,6 +815,9 @@
         (key-place column row (translate [0 0 0] (wire-post -1 6)))
         (key-place column row (translate [5 0 0] (wire-post  1 0)))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Main Model (used for both sides) ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def model-right (difference
                    (union
@@ -950,6 +840,9 @@
                    (translate [0 0 -20] (cube 350 350 40))
                   ))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Create the SCAD files ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (spit "things/right.scad"
       (write-scad model-right))
 
