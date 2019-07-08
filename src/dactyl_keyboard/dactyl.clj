@@ -757,14 +757,18 @@
    (bottom-hull
     (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
     (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-    (thumb-ml-place (translate (wall-locate2 -1.2 1) web-post-tl))
-    (thumb-ml-place (translate (wall-locate3 -1.2 1) web-post-tl)))
-  ;  (hull
-  ;   (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-  ;   (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-  ;   (thumb-ml-place (translate (wall-locate2 -0.3 1) web-post-tr))
-  ;   (thumb-ml-place (translate (wall-locate3 -0.3 1) web-post-tr))
-  ;   (thumb-tl-place thumb-post-tl))
+    (thumb-ml-place (translate (wall-locate2 -1.2 0) web-post-tl))
+    (thumb-ml-place (translate (wall-locate3 -1.2 0) web-post-tl)))
+
+
+   (hull  ; over ml key
+    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
+    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
+    (thumb-ml-place web-post-tl)
+    (thumb-ml-place (translate (wall-locate2 -1.2 0) web-post-tl))
+    (thumb-ml-place (translate (wall-locate3 -1.2 0) web-post-tl))
+    (thumb-tl-place thumb-post-tl)
+    )
   ;  (hull
   ;   (left-key-place cornerrow -1 web-post)
   ;   (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
@@ -777,7 +781,7 @@
   ;   (key-place 0 cornerrow web-post-bl)
   ;   (key-place 0 cornerrow (translate (wall-locate1 -1 0) web-post-bl))
   ;   (thumb-tl-place thumb-post-tl))
-  ;  (hull
+  ;  (hull  ; original under the tl thumb key
   ;   (thumb-ml-place web-post-tr)
   ;   (thumb-ml-place (translate (wall-locate1 -0.3 1) web-post-tr))
   ;   (thumb-ml-place (translate (wall-locate2 -0.3 1) web-post-tr))
