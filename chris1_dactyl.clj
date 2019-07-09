@@ -302,11 +302,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def test-column-space -0.5)
 (def test-row-space 1.5 )   ; at one point, 3.5 seemed good.
-(def rollin-default (deg2rad 30) )    ; we want to do radians since java Math trig functions take in radian values.
-(def rollin-top (deg2rad 18) )
-(def tilt-default (deg2rad 45) )            ; tilt settings are also in radians
-(def tilt-last (deg2rad 60))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
-(def tilt-top (deg2rad 30) )
+(def rollin-default (deg2rad 18) )    ; we want to do radians since java Math trig functions take in radian values.
+(def rollin-top (deg2rad 0) )
+(def tilt-default (deg2rad 60) )            ; tilt settings are also in radians
+(def tilt-last (deg2rad 75))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
+(def tilt-top (/ π 18) )
 (def deflect (/ π -3))
 (def half-width (+ (/ mount-width 2) test-column-space ))
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
@@ -359,24 +359,22 @@
        (rotate rollin [0 1 0])
        (rotate tilt [1 0 0])
        (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-      ;  (rotate (deg2rad -15) [0 1 0])
-       (rotate deflect [0 0 1])
-       (translate (map * [-1 1 1] (deflect-offset deflect)))
-       (translate thumborigin)))
+       (rotate (deg2rad -15) [0 1 0])
+       (translate thumborigin)
+       ))
 (defn thumb-tr-place [shape]
   (def rollin rollin-top)
   (def tilt tilt-top)
   (def place [0 0 0])
   (->> shape
         ; (rotate (/ π -2) [0 0 1])
-       (rotate rollin [0 -1 0])
+       (rotate rollin [0 1 0])
        (rotate tilt [1 0 0])
         ; (translate xy-rotate-z thumborigin (/ π 10) place)
+       (rotate (deg2rad -15) [0 1 0])
        (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-       (rotate deflect [0 0 1])
-       (translate (map * [-1 1 1] (deflect-offset deflect)))
-      ;  (rotate (deg2rad -15) [0 1 0])
-       (translate thumborigin)))
+       (translate thumborigin)
+       ))
 (defn thumb-ml-place [shape]
   (def rollin rollin-default)
   (def tilt tilt-default)
@@ -453,29 +451,22 @@
 (def thumbcaps
   (union
    (thumb-lower-layout (sa-cap 1) )
-   (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1)) )  ; (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)) )  ; 
+   (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)) )
    )) ; (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
 (def thumb
   (union
     (thumb-lower-layout single-plate)
     (thumb-upper-layout single-plate)
-    ; (thumb-upper-layout larger-plate)
+    (thumb-upper-layout larger-plate)
   ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; These define edges when we use the bigger key plate ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def thumb-post-tr web-post-tr)
-(def thumb-post-tl web-post-tl)
-(def thumb-post-bl web-post-bl)
-(def thumb-post-br web-post-br)
-
-
-; Original, if using large plate for buttons tl & tr
-; (def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.15) post-adj) 0] web-post))
-; (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  1.15) post-adj) 0] web-post))
-; (def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
-; (def thumb-post-br (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -1.15) post-adj) 0] web-post))
+(def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.15) post-adj) 0] web-post))
+(def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  1.15) post-adj) 0] web-post))
+(def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
+(def thumb-post-br (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -1.15) post-adj) 0] web-post))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; We want to fill in the gaps between the thumb keys ;;;
@@ -487,6 +478,16 @@
     (thumb-tr-place thumb-post-tl)
     (thumb-tl-place thumb-post-br)
     (thumb-tr-place thumb-post-bl))
+  ;  (triangle-hulls    ; old & not needed: bottom two on the right
+  ;   (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
+  ;   (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
+  ;   (thumb-mr-place web-post-bl)   ; (thumb-mr-place web-post-tl)
+  ;   (thumb-mr-place web-post-tl))  ; (thumb-mr-place web-post-bl))
+  ;  (triangle-hulls    ; old & not needed: bottom two on the left
+  ;   (thumb-bl-place web-post-tr)
+  ;   (thumb-bl-place web-post-br)
+  ;   (thumb-ml-place web-post-tr)
+  ;   (thumb-ml-place web-post-br))
    (triangle-hulls    ; Column gaps of the bottom four
     (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tl)
     (thumb-bl-place web-post-br)   ; (thumb-bl-place web-post-bl)
@@ -497,35 +498,16 @@
     (thumb-mr-place web-post-tl)   ; (thumb-mr-place web-post-tl)
     (thumb-ml-place web-post-tr)   ; (thumb-ml-place web-post-bl)
     )
-   (triangle-hulls  ; Column gap within the row gap of top to middle 
-    (thumb-mr-place web-post-tl)
-    (thumb-ml-place web-post-tr)
-    (thumb-tr-place thumb-post-bl)
-    (thumb-tl-place thumb-post-br)
-    )
-   (triangle-hulls  ; row gap on left, between top and middle
-    (thumb-tl-place web-post-br)
-    (thumb-ml-place web-post-tr)
-    (thumb-tl-place web-post-bl)
+   (triangle-hulls    ; top two to the middle two, starting on the left
+    (thumb-tl-place thumb-post-tl)
     (thumb-ml-place web-post-tl)
-    )
-   (triangle-hulls    ; row gap on right, between top and middle
-    (thumb-tr-place web-post-bl)
+    (thumb-tl-place web-post-bl)
+    (thumb-ml-place web-post-tr)
+    (thumb-tl-place thumb-post-br)
     (thumb-mr-place web-post-tl)
-    (thumb-tr-place web-post-br)
+    (thumb-tr-place thumb-post-bl)
     (thumb-mr-place web-post-tr)
-    )
-
-  ;  (triangle-hulls    ; Old version (tl & tr are rotated from lower): top two to the middle two, starting on the left
-  ;   (thumb-tl-place thumb-post-tl)
-  ;   (thumb-ml-place web-post-tl)
-  ;   (thumb-tl-place web-post-bl)
-  ;   (thumb-ml-place web-post-tr)
-  ;   (thumb-tl-place thumb-post-br)
-  ;   (thumb-mr-place web-post-tl)
-  ;   (thumb-tr-place thumb-post-bl)
-  ;   (thumb-mr-place web-post-tr)
-  ;   (thumb-tr-place thumb-post-br))
+    (thumb-tr-place thumb-post-br))
    (triangle-hulls  ; Row gap on left thumb
     (thumb-ml-place web-post-bl)
     (thumb-bl-place web-post-tl)
@@ -536,7 +518,7 @@
     (thumb-br-place web-post-tr)
     (thumb-mr-place web-post-bl)
     (thumb-br-place web-post-tl))
-
+   
   ;  (triangle-hulls ; alternative? attaching thumb section to main keyboard. Starting on left)
   ;   (thumb-ml-place web-post-tl)
   ;   (key-place 0 cornerrow web-post-bl)
@@ -588,16 +570,6 @@
   ;   (key-place 3 lastrow web-post-br)
   ;   (key-place 3 lastrow web-post-tr)
   ;   (key-place 4 cornerrow web-post-bl))
-  ;  (triangle-hulls    ; old & not needed: bottom two on the right
-  ;   (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
-  ;   (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
-  ;   (thumb-mr-place web-post-bl)   ; (thumb-mr-place web-post-tl)
-  ;   (thumb-mr-place web-post-tl))  ; (thumb-mr-place web-post-bl))
-  ;  (triangle-hulls    ; old & not needed: bottom two on the left
-  ;   (thumb-bl-place web-post-tr)
-  ;   (thumb-bl-place web-post-br)
-  ;   (thumb-ml-place web-post-tr)
-  ;   (thumb-ml-place web-post-br))
    ))
 
 ;;;;;;;;;;
