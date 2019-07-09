@@ -515,7 +515,6 @@
     (thumb-tr-place web-post-br)
     (thumb-mr-place web-post-tr)
     )
-
   ;  (triangle-hulls    ; Old version (tl & tr are rotated from lower): top two to the middle two, starting on the left
   ;   (thumb-tl-place thumb-post-tl)
   ;   (thumb-ml-place web-post-tl)
@@ -553,7 +552,7 @@
   ;  )    
    
   ; Original: 
-  ;  (triangle-hulls    ; top two to the main keyboard, starting on the left
+  ;  (triangle-hulls    ; Orig when rotated upper to lower: top two to the main keyboard, starting on the left
   ;   (thumb-tl-place thumb-post-tl)
   ;   (key-place 0 cornerrow web-post-bl)
   ;   (thumb-tl-place thumb-post-tr)
@@ -575,19 +574,36 @@
   ;   (key-place 3 lastrow web-post-tr)
   ;   (key-place 3 cornerrow web-post-br)
   ;   (key-place 4 cornerrow web-post-bl))
-  ;  (triangle-hulls
-  ;   (key-place 1 cornerrow web-post-br)
-  ;   (key-place 2 lastrow web-post-tl)
-  ;   (key-place 2 cornerrow web-post-bl)
-  ;   (key-place 2 lastrow web-post-tr)
-  ;   (key-place 2 cornerrow web-post-br)
-  ;   (key-place 3 cornerrow web-post-bl)
-  ;   )
-  ;  (triangle-hulls
-  ;   (key-place 3 lastrow web-post-tr)
-  ;   (key-place 3 lastrow web-post-br)
-  ;   (key-place 3 lastrow web-post-tr)
-  ;   (key-place 4 cornerrow web-post-bl))
+   
+  ;  (triangle-hulls  ; when thumb are normal aligned - connect thumb section to main
+  ;   (key-place 0 cornerrow web-post-bl)
+  ;   (thumb-tl-place thumb-post-tl)
+  ;   (key-place 0 cornerrow web-post-br)
+  ;   (key-place 1 cornerrow web-post-bl)
+  ;   (thumb-tl-place thumb-post-tr)
+    ; (key-place 1 cornerrow web-post-br)
+    ; (key-place 2 lastrow web-post-tl)
+    ; (thumb-tl-place thumb-post-tr)
+    ; (key-place 2 lastrow web-post-bl)
+    ; (thumb-tr-place thumb-post-tl)
+    ; (key-place 2 lastrow web-post-br)
+    ; (key-place 3 lastrow web-post-bl)
+    ; (thumb-tr-place thumb-post-tl)
+    ; (thumb-tr-place thumb-post-tr)
+    ; )
+   (triangle-hulls  ; seems to connect the lastrow key hole (left side)
+    (key-place 1 cornerrow web-post-br)
+    (key-place 2 lastrow web-post-tl)
+    (key-place 2 cornerrow web-post-bl)
+    (key-place 2 lastrow web-post-tr)
+    (key-place 2 cornerrow web-post-br)
+    (key-place 3 cornerrow web-post-bl)
+    )
+   (triangle-hulls  ; seems to connect the lastrow key hole (right side)
+    (key-place 3 lastrow web-post-tr)
+    (key-place 3 lastrow web-post-br)
+    (key-place 3 lastrow web-post-tr)
+    (key-place 4 cornerrow web-post-bl))
   ;  (triangle-hulls    ; old & not needed: bottom two on the right
   ;   (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
   ;   (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
@@ -650,12 +666,12 @@
 
 (defn thumb-walls [param]
   (union
-  ;  (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tl)  ; Opt-A: outside of middle left
-  ;  (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place  0  1 web-post-tl)  ; w/ Opt-A: works with Opt-A, or original but incomplete solution: outside of left lower thumb
-   (wall-brace thumb-ml-place -1 0 web-post-tl thumb-bl-place -1 -0 web-post-tl)  ; Opt-B: outside left middle wall
+   (wall-brace thumb-ml-place -1 0 web-post-tl thumb-bl-place -1 -0 web-post-tl)  ; Opt-B: outside left middle wall - Has no gap, needs none of fillers. 
    (wall-brace thumb-bl-place -1 0 web-post-tl thumb-bl-place -1 -1 web-post-bl)  ; outside left lower wall
-  ;  (wall-brace thumb-ml-place -1 0 web-post-bl thumb-bl-place -1 -1 web-post-tl)  ; alt solution: triangle gap of the above two.
-  ;  (triangle-hulls  ; seems better solution: triangle gap of the first two union lines. 
+  ; Opt-A line 1;  (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tl)  ; Opt-A: outside of middle left
+  ; Opt-A line 2; (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place  0  1 web-post-tl)  ; w/ Opt-A: works with Opt-A, or original but incomplete solution: outside of left lower thumb
+  ; Opt-C ;  (wall-brace thumb-ml-place -1 0 web-post-bl thumb-bl-place -1 -1 web-post-tl)  ; alt solution: triangle gap of the above two.
+  ; Opt-D;  (triangle-hulls  ; seems better solution: triangle gap of the first two union lines. 
   ;   (thumb-bl-place web-post-tl )
   ;   (thumb-ml-place web-post-bl )
   ;   (thumb-bl-place (translate (wall-locate3 -0.75 0) web-post-tl))
@@ -663,27 +679,30 @@
    (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-tr)  ; outside right middle wall
    (wall-brace thumb-br-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-br)  ; outside of lower right
   ;  (wall-brace thumb-br-place -1  0 web-post-tl thumb-br-place -1  0 web-post-bl)  ; Currently not needed. May be needed if rolled out instead of rolled in. 
-   ; thumb corners
    (wall-brace thumb-bl-place -1  0 web-post-br thumb-br-place -1  0 web-post-bl)  ; center middle to floor
    (wall-brace thumb-bl-place -1  -1 web-post-br thumb-bl-place -1 -1 web-post-bl)  ; left lower to floor
    (wall-brace thumb-br-place  0  -1 web-post-br thumb-br-place  0 -1 web-post-bl)  ; right lower to floor
    (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)  ; inside of lower right thumb to floor 
    (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall between middle and top thumbs
-   (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; Connect back right corner to keys
+   (wall-brace thumb-tr-place  0  -1 thumb-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall under top row (when not rotated)
+  ;  (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; When lower rotated from upper - Connect back right corner to keys
+   (wall-brace thumb-tr-place  0 -1 thumb-post-tr (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; When lower & upper is normal aligned. - Connect back right corner to keys
+   
+
   ;  clunky bit on the top left thumb connection  (normal connectors don't work well)
    (bottom-hull  ; wall connection of bottom left keys to thumb left-side section. 
     (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
     (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
     (thumb-ml-place (translate (wall-locate2 -1.2 0) web-post-tl))
     (thumb-ml-place (translate (wall-locate3 -1.2 0) web-post-tl)))
-   (hull  ; over ml key
-    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-    (thumb-ml-place web-post-tl)
-    (thumb-ml-place (translate (wall-locate2 -1.2 0) web-post-tl))
-    (thumb-ml-place (translate (wall-locate3 -1.2 0) web-post-tl))
-    (thumb-tl-place thumb-post-tl)
-    )
+  ;  (hull  ; over ml key when lower thumb rotated from upper thumb
+  ;   (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
+  ;   (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
+  ;   (thumb-ml-place web-post-tl)
+  ;   (thumb-ml-place (translate (wall-locate2 -1.2 0) web-post-tl))
+  ;   (thumb-ml-place (translate (wall-locate3 -1.2 0) web-post-tl))
+  ;   (thumb-tl-place thumb-post-tl)
+  ;   )
    (hull  ; 
     (left-key-place cornerrow -1 web-post)
     (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
