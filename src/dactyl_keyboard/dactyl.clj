@@ -303,9 +303,9 @@
 (def test-column-space -0.5)
 (def test-row-space 1.5 )   ; at one point, 3.5 seemed good.
 (def rollin-default (deg2rad 30) )    ; we want to do radians since java Math trig functions take in radian values.
-(def rollin-top (deg2rad 18) )
-(def tilt-default (deg2rad 45) )            ; tilt settings are also in radians
-(def tilt-last (deg2rad 60))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
+(def rollin-top (deg2rad 30) )
+(def tilt-default (deg2rad 5) )            ; tilt settings are also in radians
+(def tilt-last (deg2rad 45))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
 (def tilt-top (deg2rad 30) )
 (def deflect (/ π -3))
 (def half-width (+ (/ mount-width 2) test-column-space ))
@@ -327,16 +327,16 @@
     (union top-plate (mirror [0 1 0] top-plate))))
 (defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
 (defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
-(def y-mod-init (* -1 (+ (/ test-row-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )
-(def z-mod-init (* -1 (+ (/ test-row-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )
+(def y-mod-init (* -1 (+ (/ test-row-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )  ; was larger-plate-height instead of mount-height
+(def z-mod-init (* -1 (+ (/ test-row-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )  ; was larger-plate-height instead of mount-height
 (def place-init (map + [0 y-mod-init z-mod-init] [0 0 0]) )   ; (def place-init [0 -30 0])
 (def y-mod (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-default tilt-last))))
 (def z-mod (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-default tilt-last))))
 (def bottom-place (map + [0 y-mod z-mod] place-init))
 (def key-ttl-height (+ key-base-lift key-depth))
 ; (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
-(def large-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2))))
-(defn deflect-offset [angle] (map + deflect-fudge [(* large-plate-hyp (Math/cos angle)) (* large-plate-hyp (Math/sin angle)) 0]))
+(def upper-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2))))  ; was larger-plate-height instead of mount-height
+(defn deflect-offset [angle] (map + deflect-fudge [(* upper-plate-hyp (Math/cos angle)) (* upper-plate-hyp (Math/sin angle)) 0]))
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
 (defn displacement-edge [rollin]
@@ -591,19 +591,19 @@
     ; (thumb-tr-place thumb-post-tl)
     ; (thumb-tr-place thumb-post-tr)
     ; )
-   (triangle-hulls  ; seems to connect the lastrow key hole (left side)
-    (key-place 1 cornerrow web-post-br)
-    (key-place 2 lastrow web-post-tl)
-    (key-place 2 cornerrow web-post-bl)
-    (key-place 2 lastrow web-post-tr)
-    (key-place 2 cornerrow web-post-br)
-    (key-place 3 cornerrow web-post-bl)
-    )
-   (triangle-hulls  ; seems to connect the lastrow key hole (right side)
-    (key-place 3 lastrow web-post-tr)
-    (key-place 3 lastrow web-post-br)
-    (key-place 3 lastrow web-post-tr)
-    (key-place 4 cornerrow web-post-bl))
+  ;  (triangle-hulls  ; seems to connect the lastrow key hole (left side)
+  ;   (key-place 1 cornerrow web-post-br)
+  ;   (key-place 2 lastrow web-post-tl)
+  ;   (key-place 2 cornerrow web-post-bl)
+  ;   (key-place 2 lastrow web-post-tr)
+  ;   (key-place 2 cornerrow web-post-br)
+  ;   (key-place 3 cornerrow web-post-bl)
+  ;   )
+  ;  (triangle-hulls  ; seems to connect the lastrow key hole (right side)
+  ;   (key-place 3 lastrow web-post-tr)
+  ;   (key-place 3 lastrow web-post-br)
+  ;   (key-place 3 lastrow web-post-tr)
+  ;   (key-place 4 cornerrow web-post-bl))
   ;  (triangle-hulls    ; old & not needed: bottom two on the right
   ;   (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
   ;   (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
