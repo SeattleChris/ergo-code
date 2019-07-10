@@ -1015,7 +1015,7 @@
 (spit "things/thumbpad.scad"
       (write-scad
        (translate [-10 -30 -84] 
-                  (rotate (deg2rad 35) [-1 0 0] 
+                  (rotate (deg2rad 25) [-1 0 0] 
                           (rotate (deg2rad 10) [0 1 0]
                                   (rotate (deg2rad 45) [0 0 1]
        (union
