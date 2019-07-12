@@ -17,11 +17,11 @@
 (def thumb-nrows 4)
 (def thumb-ncols 2)
 
-(def thumb-α (deg2rad 20))                        ; curvature of the thumb-columns - 5 or 6?
-(def thumb-β (deg2rad 6))                        ; curvature of the thumb-rows - 30 or 36?
+(def thumb-α (deg2rad 45))                        ; curvature of the thumb-columns - 5 or 6?
+(def thumb-β (deg2rad 0.1))                        ; curvature of the thumb-rows - 30 or 36?
 (def thumb-centerrow (- thumb-nrows 3))             ; controls front-back tilt - 3
 (def thumb-centercol 0.5)                       ; controls left-right tilt / tenting (higher number is more tenting) - 4
-(def thumb-tenting-angle (/ π 12))            ; or, change this for more precise tenting control - 12
+(def thumb-tenting-angle (deg2rad 0))            ; or, change this for more precise tenting control - 12
 (def thumb-column-style
   (if (> thumb-nrows 4) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 ; (def thumb-column-style :fixed)
@@ -38,7 +38,7 @@
                                      :else [0 0 0]))
 
 
-(def keyboard-z-offset 2)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
+(def keyboard-z-offset 0)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 (def thumb-extra-width 2.5)                   ; extra space between the base of keys; original= 2, 2.5
 (def thumb-extra-height 1.0)                  ; original= 0.5
 (def wall-z-offset -15)                 ; length of the first downward-sloping part of the wall (negative)
@@ -338,7 +338,8 @@
     (place1 (translate (wall-locate2 dx1 dy1) post1))
     (place1 (translate (wall-locate3 dx1 dy1) post1))
     (place2 (translate (wall-locate2 dx2 dy2) post2))
-    (place2 (translate (wall-locate3 dx2 dy2) post2)))))
+    (place2 (translate (wall-locate3 dx2 dy2) post2)))
+   ))
 
 (defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
   (wall-brace (partial key-place x1 y1) dx1 dy1 post1
@@ -367,12 +368,12 @@
                                            (left-key-place (dec y) -1 web-post))))
    (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)
    (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)
-   ; front wall
-   (key-wall-brace thumb-lastcol 0 0 1 web-post-tr thumb-lastcol 0 1 0 web-post-tr)
-   (key-wall-brace 3 thumb-lastrow   0 -1 web-post-bl 3 thumb-lastrow 0.5 -1 web-post-br)
-   (key-wall-brace 3 thumb-lastrow 0.5 -1 web-post-br 4 thumb-cornerrow 1 -1 web-post-bl)
-   (for [x (range 4 thumb-ncols)] (key-wall-brace x thumb-cornerrow 0 -1 web-post-bl x       thumb-cornerrow 0 -1 web-post-br))
-   (for [x (range 5 thumb-ncols)] (key-wall-brace x thumb-cornerrow 0 -1 web-post-bl (dec x) thumb-cornerrow 0 -1 web-post-br))
+  ;  ; front wall
+  ;  (key-wall-brace thumb-lastcol 0 0 1 web-post-tr thumb-lastcol 0 1 0 web-post-tr)
+  ;  (key-wall-brace 3 thumb-lastrow   0 -1 web-post-bl 3 thumb-lastrow 0.5 -1 web-post-br)
+  ;  (key-wall-brace 3 thumb-lastrow 0.5 -1 web-post-br 4 thumb-cornerrow 1 -1 web-post-bl)
+  ;  (for [x (range 4 thumb-ncols)] (key-wall-brace x thumb-cornerrow 0 -1 web-post-bl x       thumb-cornerrow 0 -1 web-post-br))
+  ;  (for [x (range 5 thumb-ncols)] (key-wall-brace x thumb-cornerrow 0 -1 web-post-bl (dec x) thumb-cornerrow 0 -1 web-post-br))
   ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
