@@ -17,7 +17,6 @@
 (def thumb-nrows 4)
 (def thumb-ncols 2)
 
-; (def tilt-default (deg2rad 30) )
 (def thumb-α (deg2rad 45))                        ; curvature of the thumb-columns - 5 or 6?
 (def thumb-β (deg2rad 60))                        ; curvature of the thumb-rows - 30 or 36?
 (def thumb-centerrow (- thumb-nrows 3))             ; controls front-back tilt - 3
@@ -185,7 +184,6 @@
                                 (translate-fn [0 0 (- thumb-row-radius)])
                                 (rotate-y-fn  column-angle)
                                 (rotate-x-fn  (* thumb-α (- thumb-centerrow row)))
-                                ; (rotate tilt-default [(- thumb-centercol column) 0 0])
                                 (translate-fn [0 0 thumb-row-radius])
                                 (translate-fn [(- (* (- column thumb-centercol) thumb-column-x-delta)) 0 column-z-delta])
                                 (translate-fn (thumb-column-offset column)))
@@ -203,7 +201,6 @@
            placed-shape)
          (rotate-y-fn  thumb-tenting-angle)
          (translate-fn [0 0 keyboard-z-offset])
-        ;  (rotate tilt-default [(- thumb-centercol column) 0 0])
          
          )))
 

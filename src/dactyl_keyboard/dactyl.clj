@@ -306,15 +306,15 @@
 (def test-row-space 1.5 )   ; at one point, 3.5 seemed good.
 (def rollin-default (deg2rad 30) )    ; we want to do radians since java Math trig functions take in radian values.
 (def rollin-top (deg2rad 30) )
-(def tilt-default (deg2rad 5) )            ; tilt settings are also in radians
-(def tilt-last (deg2rad 45))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
+(def tilt-default (deg2rad 0) )            ; tilt settings are also in radians
+(def tilt-last (deg2rad -30))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
 (def tilt-top (deg2rad 30) )
 (def deflect (/ π -3))
 (def half-width (+ (/ mount-width 2) test-column-space ))
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
 (def thumb-offsets [(* -1.25 half-width) (/ (- sa-double-length mount-height) -2) -5])            ; original [6 -3 7], [20 -3 7]
 (def base-offset (+ half-width (/ plate-thickness 2) test-column-space ))     ; original was 14 or 15
-(def deflect-fudge [-6 7 4])
+(def deflect-fudge [0 0 0])  ; previoiusly: (def deflect-fudge [-6 7 4])
 ; (def sa-width sa-length )    ; 18.25 for sa-length
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def thumborigin
@@ -329,21 +329,24 @@
     (union top-plate (mirror [0 1 0] top-plate))))
 (defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
 (defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
-(def y-mod-init (* -1 (+ (/ test-row-space 2) (coord-x larger-plate-height tilt-top tilt-default))) )  ; was larger-plate-height instead of mount-height
-(def z-mod-init (* -1 (+ (/ test-row-space 2) (coord-y larger-plate-height tilt-top tilt-default))) )  ; was larger-plate-height instead of mount-height
-(def place-init (map + [0 y-mod-init z-mod-init] [0 0 0]) )   ; (def place-init [0 -30 0])
-(def y-mod (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-default tilt-last))))
-(def z-mod (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-default tilt-last))))
+(def y-mod-init (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-top tilt-default))) )  ; was larger-plate-height instead of mount-height
+(def z-mod-init (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-top tilt-default))) )  ; was larger-plate-height instead of mount-height
+(def y-mod      (* -1 (+ (/ test-row-space 2) (coord-x sa-length tilt-default tilt-last))))
+(def z-mod      (* -1 (+ (/ test-row-space 2) (coord-y sa-length tilt-default tilt-last))))
+(def place-init (map + [0 y-mod-init z-mod-init] [0 0 0]));  (def place-init (map + [0 y-mod-init z-mod-init] [0 0 0]) )
 (def bottom-place (map + [0 y-mod z-mod] place-init))
 (def key-ttl-height (+ key-base-lift key-depth))
 ; (def key-place-hyp (Math/sqrt (+ (Math/pow key-ttl-height 2) (Math/pow half-width 2))))
-(def upper-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2))))  ; was larger-plate-height instead of mount-height
+(def upper-plate-hyp (Math/sqrt (+ (Math/pow (+ base-offset 0) 2) (Math/pow (/ larger-plate-height 2) 2)))) 
 (defn deflect-offset [angle] (map + deflect-fudge [(* upper-plate-hyp (Math/cos angle)) (* upper-plate-hyp (Math/sin angle)) 0]))
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
-(defn displacement-edge [rollin]
-  (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point )  ; older: (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
+(defn displacement-edge [angle]
+  (- (* x-point (Math/cos angle)) (* y-point (Math/sin angle)) x-point )  ; older: (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
 )
+; (defn tilt-displacement-edge [tilt]
+;   (- (* x-point (Math/cos tilt)) (* y-point (Math/sin tilt)) x-point)  
+;   )
 ; (defn displacement [rollin x-point y-point]
 ;   (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -357,28 +360,51 @@
   (def tilt tilt-top)
   (def place [0 0 0])
   (->> shape
-        ; (rotate (/ π 2) [0 0 1])
        (rotate rollin [0 1 0])
        (rotate tilt [1 0 0])
-       (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
-      ;  (rotate (deg2rad -15) [0 1 0])
+       (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
+       (translate (map * [1 -1 1] [0 (displacement-edge tilt) 0]))    ; space out accounting for tilt
+       (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
+       (translate (map * [-1 1 1] [base-offset 0 0]))
+        ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
        (rotate deflect [0 0 1])
        (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)))
+
+      ;   ; (rotate (/ π 2) [0 0 1])
+      ;  (rotate rollin [0 1 0])
+      ;  (rotate tilt [1 0 0])
+      ;  (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+      ; ;  (rotate (deg2rad -15) [0 1 0])
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ;  (translate thumborigin)))
 (defn thumb-tr-place [shape]
   (def rollin rollin-top)
   (def tilt tilt-top)
   (def place [0 0 0])
   (->> shape
-        ; (rotate (/ π -2) [0 0 1])
        (rotate rollin [0 -1 0])
        (rotate tilt [1 0 0])
-        ; (translate xy-rotate-z thumborigin (/ π 10) place)
-       (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+       (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
+       (translate (map * [1 -1 1] [0 (displacement-edge tilt) 0]))    ; space out accounting for tilt
+       (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
+       (translate (map * [1 1 1] [base-offset 0 0]))
+        ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
        (rotate deflect [0 0 1])
        (translate (map * [-1 1 1] (deflect-offset deflect)))
-      ;  (rotate (deg2rad -15) [0 1 0])
-       (translate thumborigin)))
+       (translate thumborigin)
+
+      ;   ; (rotate (/ π -2) [0 0 1])
+      ;  (rotate rollin [0 -1 0])
+      ;  (rotate tilt [1 0 0])
+      ;   ; (translate xy-rotate-z thumborigin (/ π 10) place)
+      ;  (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ; ;  (rotate (deg2rad -15) [0 1 0])
+      ;  (translate thumborigin)
+       ))
 (defn thumb-ml-place [shape]
   (def rollin rollin-default)
   (def tilt tilt-default)
@@ -386,14 +412,23 @@
   (->> shape
        (rotate rollin [0 1 0])
        (rotate tilt [1 0 0])
-       (translate (map * [-1 1 1] (map + place [(- base-offset (displacement-edge rollin)) 0 0])))
-      ;  (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
-      ;  (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
-      ;  (translate (map * [-1 1 1] [base-offset 0 0]))  ; add the space between the keys
+       (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
+       (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
+       (translate (map * [-1 1 1] [base-offset 0 0]))
+        ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
        (rotate deflect [0 0 1])
        (translate (map * [-1 1 1] (deflect-offset deflect)))
-        ; xy-rotate-z (thumborigin (/ π 10))
        (translate thumborigin)))
+      ;  (rotate rollin [0 1 0])
+      ;  (rotate tilt [1 0 0])
+      ;  (translate (map * [-1 1 1] (map + place [(- base-offset (displacement-edge rollin)) 0 0])))
+      ; ;  (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
+      ; ;  (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
+      ; ;  (translate (map * [-1 1 1] [base-offset 0 0]))  ; add the space between the keys
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ;   ; xy-rotate-z (thumborigin (/ π 10))
+      ;  (translate thumborigin)))
 (defn thumb-mr-place [shape]
   (def rollin rollin-default)
   (def tilt tilt-default)
@@ -401,14 +436,23 @@
   (->> shape
        (rotate rollin [0 -1 0])
        (rotate tilt [1 0 0])
-       (translate (map * [1 1 1] (map + place [(- base-offset (displacement-edge rollin)) 0 0])))
-      ;  (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
-      ;  (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
-      ;  (translate (map * [1 1 1] [base-offset 0 0]))
+       (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
+       (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
+       (translate (map * [1 1 1] [base-offset 0 0]))
+        ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
        (rotate deflect [0 0 1])
        (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
-        ; xy-rotate-z (thumborigin (/ π 10))
+      ;  (rotate rollin [0 -1 0])
+      ;  (rotate tilt [1 0 0])
+      ;  (translate (map * [1 1 1] (map + place [(- base-offset (displacement-edge rollin)) 0 0])))
+      ; ;  (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
+      ; ;  (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
+      ; ;  (translate (map * [1 1 1] [base-offset 0 0]))
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ;  (translate thumborigin)
+      ;   ; xy-rotate-z (thumborigin (/ π 10))
        ))
 (defn thumb-bl-place [shape]
   (def rollin rollin-default)
@@ -418,6 +462,7 @@
        (rotate rollin [0 1 0])
        (rotate tilt [1 0 0])
        (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
+       (translate (map * [1 -1 1] [0 (displacement-edge tilt) 0]))    ; space out accounting for tilt
        (translate (map * [-1 1 1] place))  ; place has been determined to account for tilt.
        (translate (map * [-1 1 1] [base-offset 0 0]))
         ; (translate (map * [-1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
@@ -432,6 +477,7 @@
        (rotate rollin [0 -1 0])
        (rotate tilt [1 0 0])
        (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
+       (translate (map * [1 -1 1] [0 (displacement-edge tilt) 0]))    ; space out accounting for tilt
        (translate (map * [1 1 1] place))   ; place has been determined to account for tilt.
        (translate (map * [1 1 1] [base-offset 0 0]))
         ; (translate (map * [1 1 1] (map + [(- base-offset (displacement-edge rollin)) 0 0] place)))
@@ -1016,16 +1062,17 @@
 
 (spit "things/thumbpad.scad"
       (write-scad
-       (translate [-10 -30 -84] 
-                  (rotate (deg2rad 25) [-1 0 0] 
-                          (rotate (deg2rad 10) [0 1 0]
-                                  (rotate (deg2rad 45) [0 0 1]
+      ;  (translate [-10 -30 -84] 
+      ;             (rotate (deg2rad 25) [-1 0 0] 
+      ;                     (rotate (deg2rad 10) [0 1 0]
+      ;                             (rotate (deg2rad 45) [0 0 1]
        (union
         thumb
         thumb-connectors
+        thumbcaps
         ; (thumb-walls 0)
         )
-                                          ))))
+                                          ; ))))
        ))
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
