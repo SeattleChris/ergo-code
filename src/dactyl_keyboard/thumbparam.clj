@@ -17,8 +17,9 @@
 (def thumb-nrows 4)
 (def thumb-ncols 2)
 
+; (def tilt-default (deg2rad 30) )
 (def thumb-α (deg2rad 45))                        ; curvature of the thumb-columns - 5 or 6?
-(def thumb-β (deg2rad 0.1))                        ; curvature of the thumb-rows - 30 or 36?
+(def thumb-β (deg2rad 60))                        ; curvature of the thumb-rows - 30 or 36?
 (def thumb-centerrow (- thumb-nrows 3))             ; controls front-back tilt - 3
 (def thumb-centercol 0.5)                       ; controls left-right tilt / tenting (higher number is more tenting) - 4
 (def thumb-tenting-angle (deg2rad 0))            ; or, change this for more precise tenting control - 12
@@ -39,8 +40,8 @@
 
 
 (def keyboard-z-offset 0)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
-(def thumb-extra-width 2.5)                   ; extra space between the base of keys; original= 2, 2.5
-(def thumb-extra-height 1.0)                  ; original= 0.5
+(def thumb-extra-width 0)                   ; extra space between the base of keys; original= 2, 2.5
+(def thumb-extra-height 4)                  ; original= 0.5
 (def wall-z-offset -15)                 ; length of the first downward-sloping part of the wall (negative)
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 2)                  ; wall thickness parameter; originally 5, 2
@@ -173,18 +174,19 @@
   (let [column-angle (* thumb-β (- thumb-centercol column))
         placed-shape (->> shape
                           (translate-fn [0 0 (- thumb-row-radius)])
+                          (rotate-y-fn  column-angle)
                           (rotate-x-fn  (* thumb-α (- thumb-centerrow row)))
                           (translate-fn [0 0 thumb-row-radius])
                           (translate-fn [0 0 (- thumb-column-radius)])
-                          (rotate-y-fn  column-angle)
                           (translate-fn [0 0 thumb-column-radius])
                           (translate-fn (thumb-column-offset column)))
         column-z-delta (* thumb-column-radius (- 1 (Math/cos column-angle)))
         placed-shape-ortho (->> shape
                                 (translate-fn [0 0 (- thumb-row-radius)])
-                                (rotate-x-fn  (* thumb-α (- thumb-centerrow row)))
-                                (translate-fn [0 0 thumb-row-radius])
                                 (rotate-y-fn  column-angle)
+                                (rotate-x-fn  (* thumb-α (- thumb-centerrow row)))
+                                ; (rotate tilt-default [(- thumb-centercol column) 0 0])
+                                (translate-fn [0 0 thumb-row-radius])
                                 (translate-fn [(- (* (- column thumb-centercol) thumb-column-x-delta)) 0 column-z-delta])
                                 (translate-fn (thumb-column-offset column)))
         placed-shape-fixed (->> shape
@@ -200,7 +202,10 @@
            :fixed        placed-shape-fixed
            placed-shape)
          (rotate-y-fn  thumb-tenting-angle)
-         (translate-fn [0 0 keyboard-z-offset]))))
+         (translate-fn [0 0 keyboard-z-offset])
+        ;  (rotate tilt-default [(- thumb-centercol column) 0 0])
+         
+         )))
 
 (defn key-place [column row shape]
   (apply-key-geometry translate
@@ -384,7 +389,7 @@
                   (union
                    key-holes
                    connectors
-                   case-walls
+                  ;  case-walls
                     caps
                    )
                   (translate [0 0 -20] (cube 350 350 40))))
