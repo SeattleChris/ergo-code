@@ -673,44 +673,32 @@
   ; TODO: Update thumb walls to tilted bowl. 
 
   (union
-   (wall-brace thumb-bl-place -1 0 web-post-tl thumb-bl-place -1 -1 web-post-bl)  ; outside left lower wall
-   (wall-brace thumb-ml-place -1 0 web-post-tl thumb-ml-place -1 -1 web-post-bl)
+   (wall-brace thumb-bl-place -1 0 web-post-bl thumb-bl-place -1 1 web-post-tl)  ; outside left lower wall
+   (wall-brace thumb-bl-place -1 1 web-post-tl thumb-ml-place -1 0 web-post-bl)  ; outside left wall between lower & middle
+   (wall-brace thumb-ml-place -1 0 web-post-bl thumb-ml-place -1 -1 web-post-tl)  ; outside left middle wall
+  ;  (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 web-post-bl)  ; outside left between middle and top
+  ;  (wall-brace thumb-tl-place -1 0 web-post-bl thumb-tl-place -1 0 web-post-tl)  ; outside left top wall
    
-   
-;   ;  (wall-brace thumb-ml-place -1 0 web-post-tl thumb-bl-place -1 -0 web-post-tl)  ; Opt-B: outside left middle wall - Has no gap, needs none of fillers. 
-;     ; (wall-brace thumb-ml-place  0  1 web-post-tl thumb-bl-place  0  1 web-post-tl)  ; Opt-A: outside of middle left
-;    (wall-brace thumb-bl-place -1  0 web-post-tl thumb-bl-place  0  1 web-post-tl)  ; w/ Opt-A: works with Opt-A, or original but incomplete solution: outside of left lower thumb
-;    (wall-brace thumb-ml-place -1 0 web-post-bl thumb-bl-place -1 -1 web-post-tl)  ; Opt-C:  triangle gap of the above two.
-;   ; Opt-D;  (triangle-hulls  ; seems better solution: triangle gap of the first two union lines. 
-;   ;   (thumb-bl-place web-post-tl )
-;   ;   (thumb-ml-place web-post-bl )
-;   ;   (thumb-bl-place (translate (wall-locate3 -0.75 0) web-post-tl))
-;   ;   (thumb-bl-place (translate (wall-locate2 -0.75 0) web-post-tl)))
 ;    (wall-brace thumb-br-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-br)  ; outside of lower right
 ;    (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-tr)  ; outside right middle wall
 ;    (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall between middle and top thumbs
 ;    (wall-brace thumb-tr-place  0  -1 thumb-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall under top row (when not rotated)
-;   ;  (wall-brace thumb-br-place -1  0 web-post-tl thumb-br-place -1  0 web-post-bl)  ; Currently not needed. May be needed if rolled out instead of rolled in. 
 ;    (wall-brace thumb-bl-place -1  0 web-post-br thumb-br-place -1  0 web-post-bl)  ; center middle to floor
 ;    (wall-brace thumb-bl-place -1  -1 web-post-br thumb-bl-place -1 -1 web-post-bl)  ; left lower to floor
 ;    (wall-brace thumb-br-place  0  -1 web-post-br thumb-br-place  0 -1 web-post-bl)  ; right lower to floor
 ;    (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)  ; inside of lower right thumb to floor 
-   
 
-; ;; Following two do not seem to connect well. 
-;   ;  (wall-brace thumb-tl-place  0  -1 thumb-post-bl thumb-ml-place  0 -1 web-post-tl)  ; left wall for gap between ml & tl (when not rotated)
-;   ;  (wall-brace thumb-tl-place  0  -1 thumb-post-tl thumb-tl-place  0 -1 thumb-post-bl)  ; left wall under top row (when not rotated)
-   
-
-;   ;  (wall-brace thumb-tr-place  0 -1 thumb-post-br (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; When lower rotated from upper - Connect back right corner to keys
+   (wall-brace thumb-tr-place  0 -1 thumb-post-tr (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; When lower rotated from upper - Connect back right corner to keys
 ;    (wall-brace thumb-tr-place  0 -1 thumb-post-tr (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; When lower & upper is normal aligned. - Connect back right corner to keys
 ;   ;  clunky bit on the top left thumb connection  (normal connectors don't work well)
-;    (bottom-hull  ; wall connection of bottom left keys to thumb left-side section. 
-;     (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-;     (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-;     (thumb-tl-place (translate (wall-locate2 -1.2 0) thumb-post-bl))
-;     (thumb-tl-place (translate (wall-locate3 -1.2 0) thumb-post-bl)))
-
+   (bottom-hull  ; wall connection of bottom left keys to thumb left-side section. 
+    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
+    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
+    (thumb-ml-place thumb-post-tl)
+    ; (thumb-tl-place (translate (wall-locate2 -1 0) thumb-post-bl))
+    ; (thumb-tl-place (translate (wall-locate3 -1 0) thumb-post-bl))
+    )
+   
 ;    (triangle-hulls  ; left of thumb valley
 ;     (thumb-ml-place web-post-tl)
 ;     (thumb-ml-place (translate (wall-locate2 -1.2 0) web-post-tl))
