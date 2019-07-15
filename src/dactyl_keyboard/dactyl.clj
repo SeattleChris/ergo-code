@@ -304,8 +304,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parameters for test thumb ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def test-column-space (/ 1.65 -2))  ; like extra-width (2.5); to spec when flat is 1.65
-(def test-row-space (/ 1 -1) )   ; like extra-height (1.0)to spec when flat is 1.65;  at one point, 3.5 seemed good.
+(def test-column-space (/ 1.65 2))  ; like extra-width (2.5); to spec when flat is 1.65
+(def test-row-space -6 )   ; like extra-height (1.0)to spec when flat is 1.65;  at one point, 3.5 seemed good.
 (def rollin-default (deg2rad 45) )    ; we want to do radians since java Math trig functions take in radian values.
 (def rollin-top (deg2rad 45) )
 (def tilt-top (deg2rad 45) )
@@ -540,18 +540,18 @@
     (thumb-br-place web-post-tr)
     (thumb-mr-place web-post-bl)
     (thumb-br-place web-post-tl))
-   (triangle-hulls  ; seems to connect the lastrow key hole (left side)
-    (key-place 1 cornerrow web-post-br)
-    (key-place 2 lastrow web-post-tl)
-    (key-place 2 cornerrow web-post-bl)
-    (key-place 2 lastrow web-post-tr)
-    (key-place 2 cornerrow web-post-br)
-    (key-place 3 cornerrow web-post-bl))
-   (triangle-hulls  ; seems to connect the lastrow key hole (right side)
-    (key-place 3 lastrow web-post-tr)
-    (key-place 3 lastrow web-post-br)
-    (key-place 3 lastrow web-post-tr)
-    (key-place 4 cornerrow web-post-bl))
+  ;  (triangle-hulls  ; seems to connect the lastrow key hole (left side)
+  ;   (key-place 1 cornerrow web-post-br)
+  ;   (key-place 2 lastrow web-post-tl)
+  ;   (key-place 2 cornerrow web-post-bl)
+  ;   (key-place 2 lastrow web-post-tr)
+  ;   (key-place 2 cornerrow web-post-br)
+  ;   (key-place 3 cornerrow web-post-bl))
+  ;  (triangle-hulls  ; seems to connect the lastrow key hole (right side)
+  ;   (key-place 3 lastrow web-post-tr)
+  ;   (key-place 3 lastrow web-post-br)
+  ;   (key-place 3 lastrow web-post-tr)
+  ;   (key-place 4 cornerrow web-post-bl))
 
   ;  (triangle-hulls ; alternative? attaching thumb section to main keyboard. Starting on left)
   ;   (thumb-ml-place web-post-tl)
@@ -1038,8 +1038,8 @@
        (union
         thumb
         thumb-connectors
-        ; thumbcaps
-        ; (thumb-walls 0)
+        thumbcaps
+        (thumb-walls 0)
         )
                                           ; ))))
        ))
