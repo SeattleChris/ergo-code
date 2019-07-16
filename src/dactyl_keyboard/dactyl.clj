@@ -15,7 +15,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (def nrows 5)
-(def ncols 2)
+(def ncols 5)
 
 (def α (/ π 5))                        ; curvature of the columns - 5 or 6?
 (def β (/ π 30))                        ; curvature of the rows - 30 or 36?
@@ -23,7 +23,7 @@
 (def centercol 5)                       ; controls left-right tilt / tenting (higher number is more tenting) - 4
 (def tenting-angle (/ π 12))            ; or, change this for more precise tenting control - 12
 (def column-style
-  (if (> nrows 1) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
+  (if (> nrows 4) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 ; (def column-style :fixed)
 
 (defn column-offset [column] (cond
@@ -363,12 +363,12 @@
        (translate (map * [-1 1 1] [base-offset row-offset 0]))
        (translate (map * [1 1 1] [0 (* 1 key-ttl-height (Math/sin tilt)) (* 1 key-ttl-height (Math/cos tilt))]))  ; space out accounting for tilt
        ; Fit to Keyboard settings. 
-       (rotate (deg2rad 90) [0 1 0])
-       (rotate (deg2rad 90) [0 0 -1])
-       (rotate slope-thumb [0 1 0])
+      ;  (rotate (deg2rad 90) [0 1 0])
+      ;  (rotate (deg2rad 90) [0 0 -1])
+      ;  (rotate slope-thumb [0 1 0])
       ;  (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-       (translate thumborigin)
+      ;  (translate thumborigin)
     ))
 (defn thumb-tr-place [shape]
   (def rollin rollin-top)
@@ -380,12 +380,12 @@
        (translate (map * [1 1 1] [base-offset row-offset 0]))
        (translate (map * [1 1 1] [0 (* 1 key-ttl-height (Math/sin tilt)) (* 1 key-ttl-height (Math/cos tilt))])) ; space out accounting for tilt
        ; Fit to Keyboard settings. 
-       (rotate (deg2rad 90) [0 1 0])
-       (rotate (deg2rad 90) [0 0 -1])
-       (rotate slope-thumb [0 1 0])
-      ;  (rotate deflect [0 0 1])
-      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-       (translate thumborigin)
+      ;  (rotate (deg2rad 90) [0 1 0])
+      ;  (rotate (deg2rad 90) [0 0 -1])
+      ;  (rotate slope-thumb [0 1 0])
+      ; ;  (rotate deflect [0 0 1])
+      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ;  (translate thumborigin)
   ))
 (defn thumb-ml-place [shape]
   (def rollin rollin-default)
@@ -396,12 +396,12 @@
        (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
        (translate (map * [-1 1 1] [base-offset 0 0]))
        ; Fit to Keyboard settings. 
-       (rotate (deg2rad 90) [0 1 0])
-       (rotate (deg2rad 90) [0 0 -1])
-       (rotate slope-thumb [0 1 0])
-      ;  (rotate deflect [0 0 1])
-      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-       (translate thumborigin)
+      ;  (rotate (deg2rad 90) [0 1 0])
+      ;  (rotate (deg2rad 90) [0 0 -1])
+      ;  (rotate slope-thumb [0 1 0])
+      ; ;  (rotate deflect [0 0 1])
+      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ;  (translate thumborigin)
   ))
 (defn thumb-mr-place [shape]
   (def rollin rollin-default)
@@ -412,12 +412,12 @@
        (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
        (translate (map * [1 1 1] [base-offset 0 0]))
        ; Fit to Keyboard settings. 
-       (rotate (deg2rad 90) [0 1 0])
-       (rotate (deg2rad 90) [0 0 -1])
-       (rotate slope-thumb [0 1 0])
-      ;  (rotate deflect [0 0 1])
-      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-       (translate thumborigin)
+      ;  (rotate (deg2rad 90) [0 1 0])
+      ;  (rotate (deg2rad 90) [0 0 -1])
+      ;  (rotate slope-thumb [0 1 0])
+      ; ;  (rotate deflect [0 0 1])
+      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ;  (translate thumborigin)
   ))
 (defn thumb-bl-place [shape]
   (def rollin rollin-default)
@@ -429,12 +429,12 @@
        (translate (map * [-1 -1 1] [base-offset row-offset 0]))
        (translate (map * [1 1 1] [0 (* 1 key-ttl-height (Math/sin tilt)) (* 1 key-ttl-height (Math/cos tilt))]))  ; space out accounting for tilt
        ; Fit to Keyboard settings. 
-       (rotate (deg2rad 90) [0 1 0])
-       (rotate (deg2rad 90) [0 0 -1])
-       (rotate slope-thumb [0 1 0])
-      ;  (rotate deflect [0 0 1])
-      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-       (translate thumborigin)
+      ;  (rotate (deg2rad 90) [0 1 0])
+      ;  (rotate (deg2rad 90) [0 0 -1])
+      ;  (rotate slope-thumb [0 1 0])
+      ; ;  (rotate deflect [0 0 1])
+      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ;  (translate thumborigin)
   ))
 (defn thumb-br-place [shape]
   (def rollin rollin-default)
@@ -446,12 +446,12 @@
        (translate (map * [1 -1 1] [base-offset row-offset 0]))
        (translate (map * [1 1 1] [0 (* 1 key-ttl-height (Math/sin tilt)) (* 1 key-ttl-height (Math/cos tilt))]))  ; space out accounting for tilt
        ; Fit to Keyboard settings. 
-       (rotate (deg2rad 90) [0 1 0])
-       (rotate (deg2rad 90) [0 0 -1])
-       (rotate slope-thumb [0 1 0])
-      ;  (rotate deflect [0 0 1])
-      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-       (translate thumborigin)
+      ;  (rotate (deg2rad 90) [0 1 0])
+      ;  (rotate (deg2rad 90) [0 0 -1])
+      ;  (rotate slope-thumb [0 1 0])
+      ; ;  (rotate deflect [0 0 1])
+      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+      ;  (translate thumborigin)
   ))
 
 (defn thumb-lower-layout [shape]
@@ -1087,7 +1087,7 @@
         thumb
           ;  thumbcaps
         thumb-connectors
-        (thumb-walls 0)
+        ; (thumb-walls 0)
           ;  case-walls
         )))
 
