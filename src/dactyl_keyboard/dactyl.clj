@@ -16,28 +16,24 @@
 
 (def nrows 5)
 (def ncols 5)
-
-(def α (/ π 5))                        ; curvature of the columns - 5 or 6?
-(def β (/ π 30))                        ; curvature of the rows - 30 or 36?
-(def centerrow (- nrows 3))             ; controls front-back tilt - 3
-(def centercol 5)                       ; controls left-right tilt / tenting (higher number is more tenting) - 4
+(def α (deg2rad 36))                    ; (/ π 5) ; curvature of the columns - 5 or 6?
+(def β (deg2rad 6))                     ; (/ π 30) ; curvature of the rows - 30 or 36?
+(def extra-width 2.5)                   ; extra space between the base of keys; original= 2, 2.5; to spec when flat is 1.65
+(def extra-height 0.5)                  ; original= 0.5, then 1.0; to spec when flat is 1.65
+(def wall-z-offset -15)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
+(def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+(def wall-thickness 2)                  ; wall thickness parameter; originally 5, 2
+(def tilt-pivotrow (- nrows 1 (/ nrows 2)))             ; controls front-back tilt - 3
+(def tent-pivotcol 5 )                       ; controls left-right tilt / tenting (higher number is more tenting) - 4
 (def tenting-angle (/ π 12))            ; or, change this for more precise tenting control - 12
 (def column-style
-  (if (> nrows 4) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
-; (def column-style :fixed)
-
+  (if (> nrows 5) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (defn column-offset [column] (cond
   (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
   (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
   (>= column 4) [0 -5.18 3.39]             ; original [0 -5.8 5.64], [0 -12 5.64]
   :else [0 0 0]))
-
-(def keyboard-z-offset 2)               ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
-(def extra-width 2.5)                   ; extra space between the base of keys; original= 2, 2.5; to spec when flat is 1.65
-(def extra-height 1.0)                  ; original= 0.5; to spec when flat is 1.65
-(def wall-z-offset -15)                 ; length of the first downward-sloping part of the wall (negative)
-(def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 2)                  ; wall thickness parameter; originally 5, 2
+(def keyboard-z-offset 0)               ; controls overall height; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
@@ -60,7 +56,6 @@
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
-
 (def keyswitch-height 14.4) ;; Was 14.1, then 14.25, 14.4 before clc
 (def keyswitch-width 14.4)  ; 14.4 before clc
 (def sa-profile-key-height 12.7)
@@ -154,7 +149,6 @@
 
 (def columns (range 0 ncols))
 (def rows (range 0 nrows))
-
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
 (def row-radius (+ (/ (/ (+ mount-height extra-height) 2)
                       (Math/sin (/ α 2)))
@@ -163,13 +157,13 @@
                          (Math/sin (/ β 2)))
                       cap-top-height))
 (def column-x-delta (+ -1 (- (* column-radius (Math/sin β)))))
-(def column-base-angle (* β (- centercol 2)))
+(def column-base-angle (* β (- tent-pivotcol 2)))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
-  (let [column-angle (* β (- centercol column))
+  (let [column-angle (* β (- tent-pivotcol column))
         placed-shape (->> shape
                           (translate-fn [0 0 (- row-radius)])
-                          (rotate-x-fn  (* α (- centerrow row)))
+                          (rotate-x-fn  (* α (- tilt-pivotrow row)))
                           (translate-fn [0 0 row-radius])
                           (translate-fn [0 0 (- column-radius)])
                           (rotate-y-fn  column-angle)
@@ -178,16 +172,16 @@
         column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
         placed-shape-ortho (->> shape
                                 (translate-fn [0 0 (- row-radius)])
-                                (rotate-x-fn  (* α (- centerrow row)))
+                                (rotate-x-fn  (* α (- tilt-pivotrow row)))
                                 (translate-fn [0 0 row-radius])
                                 (rotate-y-fn  column-angle)
-                                (translate-fn [(- (* (- column centercol) column-x-delta)) 0 column-z-delta])
+                                (translate-fn [(- (* (- column tent-pivotcol) column-x-delta)) 0 column-z-delta])
                                 (translate-fn (column-offset column)))
         placed-shape-fixed (->> shape
                                 (rotate-y-fn  (nth fixed-angles column))
                                 (translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
                                 (translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
-                                (rotate-x-fn  (* α (- centerrow row)))
+                                (rotate-x-fn  (* α (- tilt-pivotrow row)))
                                 (translate-fn [0 0 (+ row-radius (nth fixed-z column))])
                                 (rotate-y-fn  fixed-tenting)
                                 (translate-fn [0 (second (column-offset column)) 0])
@@ -231,7 +225,6 @@
                          (not= row lastrow))]
            (->> single-plate
                 (key-place column row)))))
-
 (def caps
   (apply union
          (for [column columns
@@ -241,19 +234,14 @@
            (->> (sa-cap (if (= column 5) 1 1))
                 (key-place column row)))))
 
-; (pr (rotate-around-y π [10 0 1]))
-; (pr (key-position 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0]))
-
 ;;;;;;;;;;;;;;;;;;;;
 ;; Web Connectors ;;
 ;;;;;;;;;;;;;;;;;;;;
-
 (def web-thickness 3.5)  ; 3.5
 (def post-size 0.1)
 (def web-post (->> (cube post-size post-size web-thickness)
                    (translate [0 0 (+ (/ web-thickness -2)
                                       plate-thickness)])))
-
 (def post-adj (/ post-size 2))
 (def web-post-tr (translate [(- (/ mount-width 2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
 (def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
@@ -277,7 +265,7 @@
              (key-place (inc column) row web-post-bl)
              (key-place column row web-post-br)))
 
-          ;; Column connections
+          ;; Column connections (except the bonus on lastrow)
           (for [column columns
                 row (range 0 cornerrow)]
             (triangle-hulls
@@ -285,7 +273,6 @@
              (key-place column row web-post-br)
              (key-place column (inc row) web-post-tl)
              (key-place column (inc row) web-post-tr)))
-
           ;; Diagonal connections
           (for [column (range 0 (dec ncols))
                 row (range 0 cornerrow)]
@@ -293,13 +280,39 @@
              (key-place column row web-post-br)
              (key-place column (inc row) web-post-tr)
              (key-place (inc column) row web-post-bl)
-             (key-place (inc column) (inc row) web-post-tl))))))
+             (key-place (inc column) (inc row) web-post-tl))))
+          ; (triangle-hulls  ;; Column connector for the 2 lastrow keys
+          ;    (key-place 2 cornerrow web-post-bl)
+          ;    (key-place 2 cornerrow web-post-br)
+          ;    (key-place 3 lastrow web-post-tl)
+          ;    (key-place 3 lastrow web-post-tr)
+          ;  )
+        ;  (triangle-hulls
+        ;   (key-place column row web-post-br)
+        ;   (key-place column (inc row) web-post-tr)
+        ;   (key-place (inc column) row web-post-bl)
+        ;   (key-place (inc column) (inc row) web-post-tl)
+        ;  )
+          ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;     Thumbs with Updated Params & Placement                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
+;; Explored settings: 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Thumb: test-column-space 0, test-row-space -5, rollin 30 degrees, tilt +- 40 degress, 
+;; Main: α 36 deg, β 6 deg, tilt-pivotrow 1.5, tent-pivotcol 5, tenting-angle (/ π 12), 
+;; extra-width 2.5, extra-height 0.5, keyboard-z-offset 0, wall-z-offset -15
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Thumb: test-column-space 0, test-row-space -5, rollin 30 degrees, tilt +- 40 degress, 
+;; Main: α 36 deg, β 6 deg, tilt-pivotrow (- nrows 3), tent-pivotcol 5, tenting-angle (/ π 12), 
+;; extra-width 2.5, extra-height 1.0, keyboard-z-offset 2, wall-z-offset -15
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Thumb: test-column-space (/ 1.65 +-2), test-row-space -4|-6|-8, rollin 45 degrees, tilt +- 45 degress, 
+;; Main: α (/ π 5), β (/ π 30), tilt-pivotrow (- nrows 3), tent-pivotcol 5, tenting-angle (/ π 12), 
+;; extra-width 2.5, extra-height 1.0, keyboard-z-offset 2, wall-z-offset -15
+;; 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parameters for test thumb ;;
@@ -363,12 +376,12 @@
        (translate (map * [-1 1 1] [base-offset row-offset 0]))
        (translate (map * [1 1 1] [0 (* 1 key-ttl-height (Math/sin tilt)) (* 1 key-ttl-height (Math/cos tilt))]))  ; space out accounting for tilt
        ; Fit to Keyboard settings. 
-      ;  (rotate (deg2rad 90) [0 1 0])
-      ;  (rotate (deg2rad 90) [0 0 -1])
-      ;  (rotate slope-thumb [0 1 0])
+       (rotate (deg2rad 90) [0 1 0])
+       (rotate (deg2rad 90) [0 0 -1])
+       (rotate slope-thumb [0 1 0])
       ;  (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-      ;  (translate thumborigin)
+       (translate thumborigin)
     ))
 (defn thumb-tr-place [shape]
   (def rollin rollin-top)
@@ -380,12 +393,12 @@
        (translate (map * [1 1 1] [base-offset row-offset 0]))
        (translate (map * [1 1 1] [0 (* 1 key-ttl-height (Math/sin tilt)) (* 1 key-ttl-height (Math/cos tilt))])) ; space out accounting for tilt
        ; Fit to Keyboard settings. 
-      ;  (rotate (deg2rad 90) [0 1 0])
-      ;  (rotate (deg2rad 90) [0 0 -1])
-      ;  (rotate slope-thumb [0 1 0])
-      ; ;  (rotate deflect [0 0 1])
-      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-      ;  (translate thumborigin)
+       (rotate (deg2rad 90) [0 1 0])
+       (rotate (deg2rad 90) [0 0 -1])
+       (rotate slope-thumb [0 1 0])
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+       (translate thumborigin)
   ))
 (defn thumb-ml-place [shape]
   (def rollin rollin-default)
@@ -396,12 +409,12 @@
        (translate (map * [1 1 1] [(displacement-edge rollin) 0 0]))    ; space out accounting for rollin
        (translate (map * [-1 1 1] [base-offset 0 0]))
        ; Fit to Keyboard settings. 
-      ;  (rotate (deg2rad 90) [0 1 0])
-      ;  (rotate (deg2rad 90) [0 0 -1])
-      ;  (rotate slope-thumb [0 1 0])
-      ; ;  (rotate deflect [0 0 1])
-      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-      ;  (translate thumborigin)
+       (rotate (deg2rad 90) [0 1 0])
+       (rotate (deg2rad 90) [0 0 -1])
+       (rotate slope-thumb [0 1 0])
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+       (translate thumborigin)
   ))
 (defn thumb-mr-place [shape]
   (def rollin rollin-default)
@@ -412,12 +425,12 @@
        (translate (map * [-1 1 1] [(displacement-edge rollin) 0 0]))   ; space out accounting for rollin
        (translate (map * [1 1 1] [base-offset 0 0]))
        ; Fit to Keyboard settings. 
-      ;  (rotate (deg2rad 90) [0 1 0])
-      ;  (rotate (deg2rad 90) [0 0 -1])
-      ;  (rotate slope-thumb [0 1 0])
-      ; ;  (rotate deflect [0 0 1])
-      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-      ;  (translate thumborigin)
+       (rotate (deg2rad 90) [0 1 0])
+       (rotate (deg2rad 90) [0 0 -1])
+       (rotate slope-thumb [0 1 0])
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+       (translate thumborigin)
   ))
 (defn thumb-bl-place [shape]
   (def rollin rollin-default)
@@ -429,12 +442,12 @@
        (translate (map * [-1 -1 1] [base-offset row-offset 0]))
        (translate (map * [1 1 1] [0 (* 1 key-ttl-height (Math/sin tilt)) (* 1 key-ttl-height (Math/cos tilt))]))  ; space out accounting for tilt
        ; Fit to Keyboard settings. 
-      ;  (rotate (deg2rad 90) [0 1 0])
-      ;  (rotate (deg2rad 90) [0 0 -1])
-      ;  (rotate slope-thumb [0 1 0])
-      ; ;  (rotate deflect [0 0 1])
-      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-      ;  (translate thumborigin)
+       (rotate (deg2rad 90) [0 1 0])
+       (rotate (deg2rad 90) [0 0 -1])
+       (rotate slope-thumb [0 1 0])
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+       (translate thumborigin)
   ))
 (defn thumb-br-place [shape]
   (def rollin rollin-default)
@@ -446,12 +459,12 @@
        (translate (map * [1 -1 1] [base-offset row-offset 0]))
        (translate (map * [1 1 1] [0 (* 1 key-ttl-height (Math/sin tilt)) (* 1 key-ttl-height (Math/cos tilt))]))  ; space out accounting for tilt
        ; Fit to Keyboard settings. 
-      ;  (rotate (deg2rad 90) [0 1 0])
-      ;  (rotate (deg2rad 90) [0 0 -1])
-      ;  (rotate slope-thumb [0 1 0])
-      ; ;  (rotate deflect [0 0 1])
-      ; ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
-      ;  (translate thumborigin)
+       (rotate (deg2rad 90) [0 1 0])
+       (rotate (deg2rad 90) [0 0 -1])
+       (rotate slope-thumb [0 1 0])
+      ;  (rotate deflect [0 0 1])
+      ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
+       (translate thumborigin)
   ))
 
 (defn thumb-lower-layout [shape]
@@ -918,8 +931,8 @@
 (def teensy-holder-height (+ 6 teensy-width))
 (def teensy-offset-height 5)
 (def teensy-holder-top-length 18)
-(def teensy-top-xy (key-position 0 (- centerrow 1) (wall-locate3 -1 0)))
-(def teensy-bot-xy (key-position 0 (+ centerrow 1) (wall-locate3 -1 0)))
+(def teensy-top-xy (key-position 0 (- tilt-pivotrow 1) (wall-locate3 -1 0)))
+(def teensy-bot-xy (key-position 0 (+ tilt-pivotrow 1) (wall-locate3 -1 0)))
 (def teensy-holder-length (- (second teensy-top-xy) (second teensy-bot-xy)))
 (def teensy-holder-offset (/ teensy-holder-length -2))
 (def teensy-holder-top-offset (- (/ teensy-holder-top-length 2) teensy-holder-length))
