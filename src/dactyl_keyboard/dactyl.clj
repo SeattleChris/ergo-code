@@ -333,7 +333,7 @@
 (def row-offset (+ mount-height test-row-space) )
 (def deflect-fudge [0 0 0])  ; previoiusly: (def deflect-fudge [-6 7 4])
 ; (def sa-width sa-length )    ; 18.25 for sa-length
-(def thumb-offsets [(* -2 half-width) (* -1.0 mount-height) (* -3.0 mount-height)])            ; original [6 -3 7], [20 -3 7]
+(def thumb-offsets [(* -2 half-width) (* -1.0 mount-height) (* -3.5 mount-height)])            ; original [6 -3 7], [20 -3 7]
 ; (def thumborigin [0 0 0])
 (def thumborigin
   (map + (key-position 0 lastrow [(* -1 mount-width) (* -0 mount-height) (* 0 mount-height)])  ; [(* -2 mount-width) (/ mount-height -20) (/ mount-height -2)]
@@ -861,77 +861,111 @@
     (thumb-tl-place thumb-post-tl))
    )
   )
+; translate [(* -1 left-wall-x-offset) 0 (* -1 left-wall-z-offset)]
+
+(def main-key-cleanup 
+  (union
+   (hull  ; main keys, first extra key (column 2) left wall
+    (key-place 2 lastrow web-post-tl)
+    (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-tl))
+    (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-tl))
+    (key-place 2 lastrow (translate (wall-locate1 1 0) web-post-tl))
+    (key-place 2 lastrow web-post-bl)
+    (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
+    (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-bl))
+    (key-place 2 lastrow (translate (wall-locate1 1 0) web-post-bl))
+    ; Then it connects to what?
+    (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
+    (thumb-tl-place thumb-post-tl))
+   (triangle-hulls  ; above connection span to back (& top) wall of main keys - first extra key (column 2 )  
+    (thumb-tl-place thumb-post-tl)
+    (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
+    (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
+    )
+  ;  (wall-brace thumb-tl-place 0 1 web-post-tl )   
+   (bottom-hull
+    (thumb-tl-place web-post-tl)
+    (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
+    (key-place 3 lastrow (translate (wall-locate3 0.5 -1) web-post-br))
+    (key-place 4 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
+    )
+  ;  (hull  ; main keys - first extra key (column 2) top wall
+  ;   (key-place 2 lastrow (translate (wall-locate1 0 0) web-post-bl))
+  ;   (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
+  ;   (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-bl))
+  ;                 ; (key-place 2 lastrow web-post-br)
+  ;   (key-place 2 lastrow (translate (wall-locate1 0 0) web-post-br))
+  ;               ;  (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-br))
+  ;               ;  (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-br))
+  ;   (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
+   
+  ;                 ; Then it connext to what? 
+  ;   )
+  ;  (hull  ; main keys, first extra key (column 2) right wall
+  ;   (key-place 2 lastrow web-post-tr)
+  ;   (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-tr))
+  ;   (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-tr))
+  ;   (key-place 2 lastrow web-post-br)
+  ;   (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-br))
+  ;   (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-br))
+  ;                ; Then it connects to what? 
+  ;               ;  (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
+  ;   )
+  ;  (hull  ; main keys, second extra key (column 3) left wall
+  ;   (key-place 3 lastrow web-post-tl)
+  ;   (key-place 3 lastrow (translate (wall-locate3 0 0) web-post-tl))
+  ;   (key-place 3 lastrow (translate (wall-locate2 0 0) web-post-tl))
+  ;   (key-place 3 lastrow web-post-bl)
+  ;   (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
+  ;   (key-place 3 lastrow (translate (wall-locate2 0 -1) web-post-bl))
+  ;                ; Then it connects to what? 
+  ;               ;  (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
+  ;   )
+   (hull  ; main keys - first extra key (column 2) top wall sloped to second extra key (column 3) top wall
+    (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
+    (key-place 3 lastrow (translate (wall-locate2 0 -1) web-post-bl))
+    (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
+    (key-place 3 lastrow (translate (wall-locate1 0 -1) web-post-bl))
+    (key-place 3 lastrow web-post-bl)
+    (key-place 2 lastrow web-post-br)
+    (key-place 2 lastrow web-post-bl))))
 
 (def thumb-walls 
  (union  ;; currently being made for tipped-bowl version 
-                (wall-brace thumb-br-place -1 -1 web-post-br thumb-br-place -1 -1 web-post-bl)  ; outside left lower wall
-                (wall-brace thumb-br-place -1 -1 web-post-bl thumb-bl-place -1 -1 web-post-br)  ; outside left lower wall
-                (wall-brace thumb-bl-place -1 -1 web-post-br thumb-bl-place -1 -1 web-post-bl)  ; outside left lower wall
-                (wall-brace thumb-br-place -1 -1 web-post-br thumb-br-place  1  1 web-post-tr)  ; outside left lower wall
-                (wall-brace thumb-br-place  1  1 web-post-tr thumb-mr-place  1  1 web-post-br)
-                (wall-brace thumb-mr-place  1  1 web-post-br thumb-mr-place  1  1 web-post-tr)
-                (wall-brace thumb-mr-place  1  1 web-post-tr thumb-tr-place  1  1 web-post-br)
-                (wall-brace thumb-tr-place  1  1 web-post-br thumb-tr-place  1  1 web-post-tr)
-                (wall-brace thumb-tr-place  1  1 web-post-tr thumb-tr-place  1  1 web-post-tl)
+  main-key-cleanup
+  (wall-brace thumb-br-place 0 -1 web-post-br thumb-br-place -1 -1 web-post-bl)  ; outside left lower wall
+  (wall-brace thumb-bl-place -1 -0.5 web-post-br thumb-bl-place 0 -0.5 web-post-bl) ; outside left lower wall
+  (wall-brace thumb-br-place -1 -1 web-post-bl thumb-bl-place -1 -0.5 web-post-br)  ; outside left lower wall
+  
+; (translate [(* -1 left-wall-x-offset) 0 (* -1 left-wall-z-offset)] (wall-brace thumb-bl-place -1 -1 web-post-br thumb-bl-place -1 -1 web-post-bl) ) ; outside left lower wall
+  (wall-brace thumb-br-place  0 -1 web-post-br thumb-br-place  1.5  1 web-post-tr)  ; outside left lower wall cornering to south wall
+  (wall-brace thumb-br-place  1.5  1 web-post-tr thumb-mr-place 1  1 web-post-br)  ; south wall
+  (wall-brace thumb-mr-place  1  1 web-post-br thumb-mr-place  1  -1.5 web-post-tr)  ; south wall
+  (wall-brace thumb-mr-place  1  -1.5 web-post-tr thumb-tr-place  0.5  1 web-post-br)  ; south wall
+  (wall-brace thumb-tr-place  0.5  1 web-post-br thumb-tr-place  0  1 web-post-tr)  ; south wall
+  
+  (wall-brace thumb-tr-place  0  1 web-post-tr thumb-tr-place  0  1 web-post-tl)  ; right wall of thumb, south section
+  (wall-brace thumb-tr-place  0  1 web-post-tl thumb-tl-place  0  1 web-post-tr)  ; right wall of thumb, middle section
+  (wall-brace thumb-tl-place  0  1 web-post-tr thumb-tl-place  6  1 web-post-tl)  ; right wall of thumb, upper section
+  
                 ; (wall-brace thumb-tl-place  1  1 thumb-post-tl (partial key-place 2 lastrow)  0 -1 web-post-bl)  ; When lower rotated from upper - Connect back right corner to keys
+  
+
+  ; (hull ;; mimic left wall of main section
+  ;  (thumb-bl-place web-post-bl)
+  ;  (thumb-bl-place web-post-br)
+  ;  (translate (thumb-bl-place web-post-bl) [left-wall-x-offset 0 left-wall-z-offset])
+  ;  (translate (thumb-bl-place web-post-br) [left-wall-x-offset 0 left-wall-z-offset])
+  
+  ;  )
+  
                 ;;; Right outsie wall to main keys 
-                (hull  ; main keys, first extra key (column 2) left wall
-                 (key-place 2 lastrow web-post-tl)
-                 (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-tl))
-                 (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-tl))
-                 (key-place 2 lastrow web-post-bl)
-                 (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
-                 (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-bl))
-                 ; Then it connects to what? 
-                ;  (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
-                 )
-                (hull  ; main keys - first extra key (column 2) top wall
-                 (key-place 2 lastrow (translate (wall-locate1 0 0) web-post-bl))
-                 (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
-                 (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-bl))
-                  ; (key-place 2 lastrow web-post-br)
-                 (key-place 2 lastrow (translate (wall-locate1 0 0) web-post-br))
-                ;  (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-br))
-                ;  (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-br))
-                 (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
-                 
-                  ; Then it connext to what? 
-                 )
-                (hull  ; main keys, first extra key (column 2) right wall
-                 (key-place 2 lastrow web-post-tr)
-                 (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-tr))
-                 (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-tr))
-                 (key-place 2 lastrow web-post-br)
-                 (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-br))
-                 (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-br))
-                 ; Then it connects to what? 
-                ;  (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
-                 )
-                (hull  ; main keys, second extra key (column 3) left wall
-                 (key-place 3 lastrow web-post-tl)
-                 (key-place 3 lastrow (translate (wall-locate3 0 0) web-post-tl))
-                 (key-place 3 lastrow (translate (wall-locate2 0 0) web-post-tl))
-                 (key-place 3 lastrow web-post-bl)
-                 (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
-                 (key-place 3 lastrow (translate (wall-locate2 0 -1) web-post-bl))
-                 ; Then it connects to what? 
-                ;  (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
-                 )
-                (triangle-hulls  ; finish the top edge of first extra button to second extra button 
-                 (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
-                 (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-br))
-                 (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
-                 
-                 )
-                 (bottom-hull  ; wall connection of bottom left keys to thumb left-side section. 
-                  (left-key-place cornerrow -1 (translate (wall-locate2 -1 1) web-post))
-                  (left-key-place cornerrow -1 (translate (wall-locate3 -1 1) web-post))
-                  (thumb-bl-place (translate (wall-locate3 0 0) web-post-bl))
-                  (thumb-bl-place (translate (wall-locate2 0 0) thumb-post-tl))
-                  (left-key-place cornerrow -1 (translate (wall-locate1 -0 0) web-post))
-                  
-                )
-                )  ;; end union
+  (bottom-hull  ; wall connection of bottom left keys to thumb left-side section. 
+   (left-key-place cornerrow -1 (translate (wall-locate2 -1 1) web-post))
+   (left-key-place cornerrow -1 (translate (wall-locate3 -1 1) web-post))
+   (thumb-bl-place (translate (wall-locate3 0 0) web-post-bl))
+   (thumb-bl-place (translate (wall-locate2 0 0) thumb-post-tl))
+   (left-key-place cornerrow -1 (translate (wall-locate1 -0 0) web-post))))  ;; end union
     )  ; End of thumb-walls
 
 (def case-walls
