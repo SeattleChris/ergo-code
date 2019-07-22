@@ -988,10 +988,72 @@
     (key-place 4 cornerrow (translate (wall-locate3 0 -1) web-post-bl)))
    ; end of main-key-cleanup
    ))
+(def thumb-valley 
+  (union 
+   (hull  ;; Thumb bottom left edge to main section
+    (thumb-ml-place web-post-bl)
+    (thumb-bl-place web-post-tl)
+    (thumb-bl-place web-post-bl)
+    (key-place 0 cornerrow web-post-bl)
+    )
+   (hull  ;; left outside ridge between thumb and main
+    (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
+    (thumb-bl-place web-post-bl)
+    (key-place 0 cornerrow web-post-bl)
+    (left-key-place cornerrow -1 (translate (wall-locate1 -1 1) web-post))
+    (thumb-bl-place (translate (wall-locate2 0 -0.5) web-post-bl))
+    (thumb-bl-place (translate (wall-locate3 0 -0.5) web-post-bl))
+    )
+   (triangle-hulls  ;; maybe not needed: minor cover for inside back wall of thumb
+    (thumb-ml-place web-post-tl)
+    (thumb-tl-place thumb-post-bl)
+    (thumb-tl-place thumb-post-tl)
+    )
+   (triangle-hulls  ;; maybe not needed: minor cover for front wall first couple of keys
+    (key-place 0 cornerrow web-post-bl)
+    (key-place 0 cornerrow (translate (wall-locate1 0 0) web-post-br))
+    (key-place 1 cornerrow web-post-br)
+    )
+  ;  (hull
+  ;   (thumb-ml-place web-post-bl)
+  ;   (left-key-place cornerrow -1 (translate (wall-locate2 -1 1) web-post))
+  ;   (thumb-bl-place web-post-tl)
+  ;   (thumb-bl-place web-post-bl)
+  ;   (thumb-bl-place (translate (wall-locate3 0 -0.5) web-post-bl))
+  ;   )
+   (triangle-hulls  ;; essentially the internal back wall of thumb section. 
+    (thumb-tl-place thumb-post-tl)
+   
+    (key-place 1 cornerrow web-post-br)
+    (thumb-ml-place web-post-tl)
+    ; (thumb-bl-place web-post-bl)
+    (key-place 0 cornerrow web-post-bl)
+    (thumb-ml-place web-post-bl)
+   ;;; Here ;;;  
+    )
+  ;  (hull
+  ; ;   (left-key-place cornerrow -1 (translate (wall-locate3 -1 1) web-post))
+  ; ; ;  (left-key-place cornerrow -1 (translate (wall-locate2 -1 1) web-post))
+  ; ;   (left-key-place cornerrow -1 (translate (wall-locate1 -1 1) web-post))
+  ;   (thumb-bl-place web-post-bl)
+  ;   (thumb-ml-place web-post-bl)
+  ;   (key-place 0 cornerrow web-post-bl)
+  ;   (thumb-ml-place web-post-tl)
+  ;   (key-place 0 cornerrow web-post-br)
+  ;   (thumb-tl-place thumb-post-bl)
+  ;   (key-place 1 cornerrow web-post-bl)
+  ; ;  (key-place 1 cornerrow (translate (wall-locate1 0 0.75) web-post-bl))   
+  ;   (thumb-tl-place thumb-post-tl)
+  ;   (key-place 1 cornerrow web-post-br)
+  ; ;  (key-place 1 cornerrow (translate (wall-locate1 0 0) web-post-br))
+  ; ;  (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
+  ;   )
+   ))  ;; end thumb-valley
 
 (def thumb-walls
   (union  ;; currently being made for tipped-bowl version 
    main-key-cleanup
+   thumb-valley
    (wall-brace thumb-br-place 0 -1 web-post-br thumb-br-place -1 -1 web-post-bl)  ; outside left lower wall
    (wall-brace thumb-br-place -1 -1 web-post-bl thumb-bl-place -1 -0.5 web-post-br)  ; outside left lower wall
    (wall-brace thumb-bl-place -1 -0.5 web-post-br thumb-bl-place 0 -0.5 web-post-bl) ; outside left lower wall
@@ -1013,6 +1075,7 @@
   ;  (translate (thumb-bl-place web-post-br) [left-wall-x-offset 0 left-wall-z-offset])
   ;  )
    (bottom-hull  ; wall connection of bottom left keys to thumb left-side section. 
+   ;;; Check ;;;    
     (left-key-place cornerrow -1 (translate (wall-locate1 -1 1) web-post))
     (left-key-place cornerrow -1 (translate (wall-locate2 -1 1) web-post))
     (left-key-place cornerrow -1 (translate (wall-locate3 -1 1) web-post))
@@ -1253,7 +1316,7 @@
         thumb
           ;  thumbcaps
         thumb-connectors
-        ; thumb-walls
+        thumb-walls
           ;  case-walls
         )))
 
