@@ -1147,8 +1147,8 @@
 (def teensy-holder-height (+ 6 teensy-width))
 (def teensy-offset-height 5)
 (def teensy-holder-top-length 18)
-(def teensy-top-xy (key-position 0 (- tilt-pivotrow 1) (wall-locate3 -1 0)))
-(def teensy-bot-xy (key-position 0 (+ tilt-pivotrow 1) (wall-locate3 -1 0)))
+(def teensy-top-xy (key-position 0 (- tilt-pivotrow 1) (wall-locate3 0.5 0)))
+(def teensy-bot-xy (key-position 0 (+ tilt-pivotrow 1) (wall-locate3 0.5 0)))
 (def teensy-holder-length (- (second teensy-top-xy) (second teensy-bot-xy)))
 (def teensy-holder-offset (/ teensy-holder-length -2))
 (def teensy-holder-top-offset (- (/ teensy-holder-top-length 2) teensy-holder-length))
@@ -1183,7 +1183,7 @@
         shift-up      (and (not (or shift-right shift-left)) (= row 0))
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow))
         position      (if shift-up     (key-position column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
-                       (if shift-down  (key-position column row (map - (wall-locate2  0 -1) [0 (/ mount-height 2) 0]))
+                       (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [0 (/ mount-height 2) 0]))
                         (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0))
                                        (key-position column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))
         ]
@@ -1191,13 +1191,24 @@
          (translate [(first position) (second position) (/ height 2)])
     )))
 
+; (defn thumb-screw-insert [thumb-position corner bottom-radius top-radius height]
+  
+;   (translate [0 0 (/ height 2)] (thumb-tl-place ((screw-insert-shape bottom-radius top-radius height))))
+;   ; (->> (screw-insert-shape bottom-radius top-radius height)
+;   ;      thumb-tl-place
+;   ;      (translate [(first position) (second position) (/ height 2)]))
+;   )
+     ;;; here-thumb ;;; 
+
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
-  (union (screw-insert 0 0         bottom-radius top-radius height)
-         (screw-insert 0 lastrow   bottom-radius top-radius height)
-         (screw-insert 2 (+ lastrow 0.3)  bottom-radius top-radius height)
-         (screw-insert 3 0         bottom-radius top-radius height)
-         (screw-insert lastcol 1   bottom-radius top-radius height)
-         ))
+  (union 
+   (screw-insert 0 0         bottom-radius top-radius height)  ; back/top left
+   (screw-insert 0 (+ cornerrow 0.3)   bottom-radius top-radius height)  ; front/bottom left
+   (screw-insert 2 (+ lastrow 0)  bottom-radius top-radius height)  ; front/bottom right
+   (screw-insert 3 0         bottom-radius top-radius height)  ; back/top center
+   (screw-insert lastcol 1   bottom-radius top-radius height)  ; back/top right
+  ;  (thumb-screw-insert 0 (+ cornerrow 0.9)  bottom-radius top-radius height)  ; thumb screw 
+   ))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
 (def screw-insert-top-radius (/ 5.1 2))
@@ -1236,19 +1247,19 @@
                     key-holes
                     connectors
                     case-walls
-                    ; thumb
-                    ; thumb-connectors
-                    ; (difference (union case-walls
-                    ;                    screw-insert-outers
-                    ;                    teensy-holder
-                    ;                    usb-holder)
-                    ;             rj9-space
-                    ;             usb-holder-hole
-                    ;             screw-insert-holes)
-                    ; rj9-holder
-                    ; wire-posts
-                    ; ; thumbcaps
-                    ; ; caps
+                    thumb
+                    thumb-connectors
+                    (difference (union case-walls
+                                       screw-insert-outers
+                                       teensy-holder
+                                       usb-holder)
+                                rj9-space
+                                usb-holder-hole
+                                screw-insert-holes)
+                    rj9-holder
+                    wire-posts
+                    ; thumbcaps
+                    ; caps
                     )
                    (translate [0 0 -20] (cube 350 350 40))
                   ))
