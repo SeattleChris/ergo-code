@@ -1180,34 +1180,38 @@
 (defn screw-insert [column row bottom-radius top-radius height]
   (let [shift-right   (= column lastcol)
         shift-left    (= column 0)
-        shift-up      (and (not (or shift-right shift-left)) (= row 0))
-        shift-down    (and (not (or shift-right shift-left)) (>= row lastrow))
-        position      (if shift-up     (key-position column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
-                       (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [0 (/ mount-height 2) 0]))
-                        (if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0))
-                                       (key-position column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))
-        ]
+        shift-up      (and (not (or shift-right shift-left)) (= row 0))  ; if row is 0, but column is not 0 or lastcol 
+        shift-down    (and (not (or shift-right shift-left)) (>= row lastrow)) ; if row is lastrow (or greater), but column is not 0 or lastcol 
+        shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
+        position 
+        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-85 0 -38 ]))
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-65 3 -32]))
+            (if shift-up     (key-position column row (map + (wall-locate2  -0.5  -0.5) [0 (/ mount-height 2) 2]))
+                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))
+                    (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0))
+                        (key-position column row (map + (wall-locate2  0  1) [(/ mount-width 2) 0 0])))))))]
     (->> (screw-insert-shape bottom-radius top-radius height)
          (translate [(first position) (second position) (/ height 2)])
     )))
 
-; (defn thumb-screw-insert [thumb-position corner bottom-radius top-radius height]
-  
-;   (translate [0 0 (/ height 2)] (thumb-tl-place ((screw-insert-shape bottom-radius top-radius height))))
-;   ; (->> (screw-insert-shape bottom-radius top-radius height)
-;   ;      thumb-tl-place
-;   ;      (translate [(first position) (second position) (/ height 2)]))
-;   )
+(defn thumb-screw-insert [bottom-radius top-radius height]
+  (translate (map - (wall-locate2  1 1) [(/ mount-width -2) (/ mount-height 2) 10]) (thumb-tr-place (screw-insert-shape bottom-radius top-radius height)))
+  ; (translate [0 0 (/ height 2)] (thumb-tl-place (screw-insert-shape bottom-radius top-radius height)))
+  ; (->> (screw-insert-shape bottom-radius top-radius height)
+  ;      thumb-tl-place
+  ;      (translate [(first position) (second position) (/ height 2)]))
+  )
      ;;; here-thumb ;;; 
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union 
-   (screw-insert 0 0         bottom-radius top-radius height)  ; back/top left
-   (screw-insert 0 (+ cornerrow 0.3)   bottom-radius top-radius height)  ; front/bottom left
+   (screw-insert 0 1         bottom-radius top-radius height)  ; back/top left
+   (screw-insert 0 (+ cornerrow 0.4)   bottom-radius top-radius height)  ; front/bottom left
    (screw-insert 2 (+ lastrow 0)  bottom-radius top-radius height)  ; front/bottom right
-   (screw-insert 3 0         bottom-radius top-radius height)  ; back/top center
-   (screw-insert lastcol 1   bottom-radius top-radius height)  ; back/top right
-  ;  (thumb-screw-insert 0 (+ cornerrow 0.9)  bottom-radius top-radius height)  ; thumb screw 
+   (screw-insert 2 0         bottom-radius top-radius height)  ; back/top center
+   (screw-insert lastcol 0   bottom-radius top-radius height)  ; back/top right
+   (screw-insert lastcol (+ lastrow 0.1) bottom-radius top-radius height)  ; thumb screw 
+   (screw-insert 0 (+ lastrow 0.1) bottom-radius top-radius height)  ; thumb screw 
    ))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
