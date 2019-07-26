@@ -459,7 +459,7 @@
       ;  (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
-  ))
+       ))
 
 (defn thumb-lower-layout [shape]
   (union
@@ -990,24 +990,24 @@
    ))
 (def thumb-valley 
   (union 
-   (triangle-hulls
-    (thumb-ml-place web-post-bl)
-    (thumb-bl-place web-post-tl)
-    (key-place 0 cornerrow web-post-bl)
-    (thumb-bl-place web-post-bl)
-    (left-key-place cornerrow -1 web-post)
-    (thumb-bl-place (translate (wall-locate3 0 0) web-post-bl))
-    
-    )
-  ;  (hull  ;; Thumb bottom left edge to main section
+  ;  (triangle-hulls  ; top left ridge of thumb to main.
   ;   (thumb-ml-place web-post-bl)
   ;   (thumb-bl-place web-post-tl)
-  ;   (thumb-bl-place web-post-bl)
   ;   (key-place 0 cornerrow web-post-bl)
-  ;   ; (left-key-place cornerrow left-thumb-intercept web-post)
-  ;   ; (thumb-bl-place (translate (wall-locate2 0 -0.5) web-post-br))
-  ;   ;;; thumb-here ;;;
+  ;   (thumb-bl-place web-post-bl)
+  ;   (left-key-place cornerrow -1 web-post)
+  ;   (thumb-bl-place (translate (wall-locate3 0 0) web-post-bl))
+    
   ;   )
+   (hull  ;; Thumb bottom left edge to main section
+    (thumb-ml-place web-post-bl)
+    (thumb-bl-place web-post-tl)
+    (thumb-bl-place web-post-bl)
+    (key-place 0 cornerrow web-post-bl)
+    ; (left-key-place cornerrow left-thumb-intercept web-post)
+    ; (thumb-bl-place (translate (wall-locate2 0 -0.5) web-post-br))
+    ;;; thumb-here ;;;
+    )
   ;  (hull  ;; when thumb wall cuts in tight - cap over left outside ridge between thumb and main
   ;   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
   ;   (thumb-bl-place web-post-bl)
@@ -1055,17 +1055,60 @@
    main-key-cleanup
    thumb-valley
    (wall-brace thumb-br-place 0 -1 web-post-br thumb-br-place -1 -1 web-post-bl)  ; outside left lower wall
-   (wall-brace thumb-br-place -1 -1 web-post-bl thumb-bl-place -1 -0.5 web-post-br)  ; outside left lower wall
+  ;  (wall-brace thumb-br-place -1 -1 web-post-bl thumb-bl-place 1 -0.5 web-post-br)  ; outside left lower wall
   ;  (wall-brace thumb-bl-place -1 -0.5 web-post-br (partial left-key-place cornerrow left-thumb-intercept) -1 0 web-post) ; outside left lower wall
    ; thumb-wall-here
-   (triangle-hulls 
-    (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-br))
+  ;  (triangle-hulls  ; fill in the little gap caused by moving the bl wall further out. 
+  ;   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-br))
+  ;   (thumb-bl-place web-post-br)
+  ;   (thumb-bl-place (translate (map + (wall-locate1 0 0) [0 0 (/ wall-z-offset 2)]) web-post-bl))
+  ;   (thumb-bl-place web-post-bl)
+  ;   (left-key-place cornerrow -1 web-post)
+  ;   (key-place 0 cornerrow web-post-bl)
+  ;   )
+      ;  (translate (map * [-1 1 1] [(displacement-edge rollin-default) 0 0])  )   ; space out accounting for rollin
+   (wall-brace thumb-br-place -1 -1 web-post-bl thumb-br-place -1 -1 (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))
+   (wall-brace thumb-br-place -1 -1 (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl) (partial left-key-place cornerrow 1) -1 0 web-post)
+   (hull  ; fill in the gap for the displaced edge for wall-brace
+    (thumb-br-place web-post-bl)
+    (thumb-br-place (translate (wall-locate1 -1 -1) web-post-bl))
+    (thumb-bl-place web-post-br)
+    (thumb-br-place (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))
+    (thumb-br-place (translate (map + (wall-locate1 -1 -1) [(- (displacement-edge rollin-default) base-offset) 0 4]) web-post-bl))
+    )
+  ;  (bottom-hull
+  ;   (thumb-br-place (translate (map + (wall-locate3 -1 -1) [(- (displacement-edge rollin-default) base-offset) 0 4]) web-post-bl))
+  ;   (left-key-place cornerrow 1 web-post)
+
+  ;   )
+   (triangle-hulls  ; prettier cap over the wall spanning from thumb-br to the main left wall
+    (left-key-place cornerrow 1 web-post)
+    (thumb-br-place (translate (map + (wall-locate3 -1 -1) [(- (displacement-edge rollin-default) base-offset) 0 4]) web-post-bl))
+    (thumb-bl-place (translate (wall-locate3 0 0) web-post-bl))
+    (thumb-br-place (translate (map + (wall-locate1 -1 -1) [(- (displacement-edge rollin-default) base-offset) 0 4]) web-post-bl))
+    (thumb-bl-place web-post-br)
+    )
+   (triangle-hulls
     (thumb-bl-place web-post-br)
     (thumb-bl-place web-post-bl)
-    (thumb-bl-place (translate (map + (wall-locate1 0 -0.5) [0 0 (/ wall-z-offset 2)]) web-post-bl))
-    ; (left-key-place cornerrow 1 web-post)
-    )
-   (wall-brace thumb-bl-place -1 -0.5 web-post-br thumb-bl-place -0 0 (translate [0 0 (/ wall-z-offset 2)] web-post-bl)) ; not connect to main: outside left lower wall
+    (thumb-bl-place (translate (wall-locate3 0 0) web-post-bl))
+    (key-place 0 cornerrow web-post-bl)
+    (left-key-place cornerrow 1 web-post)
+    )   
+  ;  (triangle-hulls  ; cover up the gaps due to the displaced edge for wall-brace
+  ;   (thumb-br-place (translate (map + (wall-locate3 -1 -1) [(- (displacement-edge rollin-default) base-offset) 0 4]) web-post-bl))
+  ;   (left-key-place cornerrow -1 web-post)
+  ;   ; (key-place 0 cornerrow web-post-bl)
+   
+  ;   ; (thumb-bl-place (translate (wall-locate2 0 0) web-post-br))
+  ;   ; (thumb-br-place (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))
+  ;   ; (key-place 0 cornerrow web-post-bl)
+  ;   )
+  ;  (wall-brace thumb-bl-place -1 -0.5 web-post-br thumb-bl-place 0 -0.5 web-post-bl)
+   
+  ;  (wall-brace thumb-bl-place 0 0 (translate (map + (wall-locate1 0 0) [0 0 (/ wall-z-offset 2)]) web-post-bl) (partial left-key-place cornerrow 1) 0 0 web-post )
+  ;  (wall-brace thumb-bl-place -1 -0.5 web-post-br thumb-bl-place 1.5 0 web-post-bl) ; not connect to main: outside left lower wall
+  ;  (wall-brace thumb-bl-place -1 -0.5 web-post-br thumb-bl-place -1 0 (translate [0 0 (/ wall-z-offset 2)] web-post-bl)) ; not connect to main: outside left lower wall
    (wall-brace thumb-br-place  0 -1 web-post-br thumb-br-place  1.5  1 web-post-tr)  ; outside left lower wall cornering to front wall
    (wall-brace thumb-br-place  1.5  1 web-post-tr thumb-mr-place 1  1 web-post-br)  ; front wall
    (wall-brace thumb-mr-place  1  1 web-post-br thumb-mr-place  1  -1.5 web-post-tr)  ; front wall
