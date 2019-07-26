@@ -1228,11 +1228,12 @@
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position 
         (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-85 0 -38 ]))
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-65 3 -32]))
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-72 5 -32]))
             (if shift-up     (key-position column row (map + (wall-locate2  -0.5  -0.5) [0 (/ mount-height 2) 2]))
                 (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))
+                    (if (and shift-left (>= row cornerrow)) (map + (left-key-position row 1) (wall-locate3 0 0) [-9 2 0])  
                     (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0))
-                        (key-position column row (map + (wall-locate2  0  1) [(/ mount-width 2) 0 0])))))))]
+                        (key-position column row (map + (wall-locate2  0  1) [(/ mount-width 2) 0 0]))))))))]
     (->> (screw-insert-shape bottom-radius top-radius height)
          (translate [(first position) (second position) (/ height 2)])
     )))
