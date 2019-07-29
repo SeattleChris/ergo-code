@@ -33,7 +33,7 @@
   (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
   (>= column 4) [0 -5.18 3.39]             ; original [0 -5.8 5.64], [0 -12 5.64]
   :else [0 0 0]))
-(def keyboard-z-offset 0)               ; controls overall height; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
+(def keyboard-z-offset 1)               ; controls overall height; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
@@ -1052,7 +1052,6 @@
 
 (def thumb-walls
   (union  ;; currently being made for tipped-bowl version 
-   main-key-cleanup
    thumb-valley
    (wall-brace thumb-br-place 0 -1 web-post-br thumb-br-place -1 -1 web-post-bl)  ; outside left lower wall
   ;  (wall-brace thumb-br-place -1 -1 web-post-bl thumb-bl-place 1 -0.5 web-post-br)  ; outside left lower wall
@@ -1133,6 +1132,7 @@
 
 (def case-walls
   (union
+   main-key-cleanup
    ; back wall
    (for [x (range 0 ncols)] (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
    (for [x (range 1 ncols)] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
@@ -1157,7 +1157,7 @@
    ; front wall
    (for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br))
    (for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
-   thumb-walls
+  ;  thumb-walls
    ))
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Other Components ;;;
@@ -1227,13 +1227,13 @@
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow)) ; if row is lastrow (or greater), but column is not 0 or lastcol 
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position 
-        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-75 0 -38 ]))  ; [-85 0 -38]
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-72 7 -34]))  ; [-72 5 -32]
+        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-67 0 -38 ]))  ; [-85 0 -38]
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-70 7 -36]))  ; [-72 5 -32]
             (if shift-up     (key-position column row (map + (wall-locate2  -0.5  -0.5) [0 (/ mount-height 2) 2]))
-                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))
+                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-7 (/ mount-height 2) -14]))   ; [-1 (/ mount-height 2) 11]
                     (if (and shift-left (>= row cornerrow)) (map + (left-key-position row 1) (wall-locate3 0 0) [-9 2 0])  
-                    (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0))
-                        (key-position column row (map + (wall-locate2  0  1) [(/ mount-width 2) 0 0]))))))))]
+                    (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0) [3 (/ mount-height 2) 11])
+                        (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) 2) 0 -3]))))))))]  ; [(+ (/ mount-width 2) 0) 0 0 ]
     (->> (screw-insert-shape bottom-radius top-radius height)
          (translate [(first position) (second position) (/ height 2)])
     )))
@@ -1286,9 +1286,11 @@
                     key-holes
                     connectors
                     case-walls
+                    thumb-walls
                     thumb
                     thumb-connectors
                     (difference (union case-walls
+                                       thumb-walls
                                        screw-insert-outers
                                        teensy-holder
                                        usb-holder)
@@ -1320,6 +1322,7 @@
                     thumb
                     thumb-connectors
                     case-walls
+                    thumb-walls
                     thumbcaps
                     caps
                     teensy-holder
@@ -1333,21 +1336,22 @@
                     ;             usb-cutout
                     ;             rj9-space
                                 ; wire-posts
-                  )))
+                    )))
 
 (spit "things/right-plate.scad"
       (write-scad
-                   (cut
-                    (translate [0 0 (* -1 wall-thickness)]
-                               (difference 
+       (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
+                       (cut
+                        (translate [0 0 (* -1 wall-thickness)]
+                                   (difference
                                 ; (bottom-hull 
-                                 (union case-walls
-                                        teensy-holder
+                                    (union case-walls
+                                           thumb-walls
+                                           teensy-holder
                                           ; rj9-holder
-                                        screw-insert-outers)
+                                           screw-insert-outers)
                                 ;  )
-                                (translate [0 0 -10] screw-insert-screw-holes))
-                               ))))
+                                    (translate [0 0 -10] screw-insert-screw-holes)))))))
 
 (spit "things/test.scad"
       (write-scad
