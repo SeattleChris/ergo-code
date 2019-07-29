@@ -33,7 +33,7 @@
   (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
   (>= column 4) [0 -5.18 3.39]             ; original [0 -5.8 5.64], [0 -12 5.64]
   :else [0 0 0]))
-(def keyboard-z-offset 1)               ; controls overall height; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
+(def keyboard-z-offset 0)               ; controls overall height; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
@@ -1227,13 +1227,13 @@
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow)) ; if row is lastrow (or greater), but column is not 0 or lastcol 
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position 
-        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-67 0 -38 ]))  ; [-85 0 -38]
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-70 7 -36]))  ; [-72 5 -32]
+        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-75 0 -38 ]))  ; [-85 0 -38]
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-72 7 -34]))  ; [-72 5 -32]
             (if shift-up     (key-position column row (map + (wall-locate2  -0.5  -0.5) [0 (/ mount-height 2) 2]))
-                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-7 (/ mount-height 2) -14]))   ; [-1 (/ mount-height 2) 11]
+                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))
                     (if (and shift-left (>= row cornerrow)) (map + (left-key-position row 1) (wall-locate3 0 0) [-9 2 0])  
-                    (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0) [3 (/ mount-height 2) 11])
-                        (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) 2) 0 -3]))))))))]  ; [(+ (/ mount-width 2) 0) 0 0 ]
+                    (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0))
+                        (key-position column row (map + (wall-locate2  0  1) [(/ mount-width 2) 0 0]))))))))]
     (->> (screw-insert-shape bottom-radius top-radius height)
          (translate [(first position) (second position) (/ height 2)])
     )))
