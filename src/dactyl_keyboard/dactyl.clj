@@ -5,15 +5,12 @@
             [scad-clj.model :refer :all]
             [unicode-math.core :refer :all]))
 
-(defn deg2rad [degrees]
+(defn deg2rad [degrees]   ; 1 pi radians = 180 degrees
   (* (/ degrees 180) pi))
-; rad = pi * deg / 180
-; 180 * rad / pi = deg
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
-
 (def nrows 5)
 (def ncols 5)
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max 
@@ -28,13 +25,15 @@
 (def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 (def column-style
   (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
+(def cherry-brand-keyswitch false)
+(def clip-keyswitch 
+  (if (= cherry-brand-keyswitch true) 1.0 0.5))
 (defn column-offset [column] (cond
-  (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
-  (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
-  (>= column 4) [0 -5.18 3.39]           ; original [0 -5.8 5.64], [0 -12 5.64]
-  :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
+                               (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
+                               (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
+                               (>= column 4) [0 -5.18 3.39]           ; original [0 -5.8 5.64], [0 -12 5.64]
+                               :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
 (def keyboard-z-offset 0)               ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
-
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
 ;;   http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
@@ -48,7 +47,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
-
 (def lastrow (dec nrows))
 (def cornerrow (dec lastrow))
 (def lastcol (dec ncols))
@@ -59,26 +57,26 @@
 (def keyswitch-height 14.4) ;; Was 14.1, then 14.25, then 14.4 
 (def keyswitch-width 14.4)  ; Was 14.4 
 (def sa-profile-key-height 12.7)
-(def plate-thickness 4)
+(def plate-thickness 4)  ; TODO: Decide - Should this be 1.5? according to keyswitch specifications, should be 1.5
 ; For key spacing (on flat layout) 19.05mm x 19.05mm is standard placeholder per key
 ; Standard keycaps are about 18mm x 18mm 
 (def mount-width (+ keyswitch-width 3))     
 (def mount-height (+ keyswitch-height 3))
-
+(def mount-wall-thickness 1.5)  
 (def single-plate
-  (let [top-wall (->> (cube mount-width 1.5 plate-thickness)
+  (let [top-wall (->> (cube mount-width mount-wall-thickness plate-thickness)
                       (translate [0
-                                  (+ (/ 1.5 2) (/ keyswitch-height 2))
+                                  (+ (/ mount-wall-thickness 2) (/ keyswitch-height 2))
                                   (/ plate-thickness 2)]))
-        left-wall (->> (cube 1.5 mount-height plate-thickness)
-                       (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+        left-wall (->> (cube mount-wall-thickness mount-height plate-thickness)
+                       (translate [(+ (/ mount-wall-thickness 2) (/ keyswitch-width 2))
                                    0
                                    (/ plate-thickness 2)]))
-        side-nub (->> (binding [*fn* 30] (cylinder 0.5 2.75))  ;; for Cherry switch: (cylinder 1 2.75)
+        side-nub (->> (binding [*fn* 30] (cylinder clip-keyswitch 2.75))
                       (rotate (/ π 2) [1 0 0])
                       (translate [(+ (/ keyswitch-width 2)) 0 1])
-                      (hull (->> (cube 1.5 2.75 plate-thickness)
-                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                      (hull (->> (cube mount-wall-thickness 2.75 plate-thickness)
+                                 (translate [(+ (/ mount-wall-thickness 2) (/ keyswitch-width 2))
                                              0
                                              (/ plate-thickness 2)]))))
         plate-half (union top-wall left-wall (with-fn 100 side-nub))]
@@ -92,7 +90,7 @@
 ;;;;;;;;;;;;;;;;
 (def key-base-lift (+ 5 plate-thickness))
 (def key-depth 12)
-(def sa-length 18.25)  ; originally 18.25
+(def sa-length 18)  ; originally 18.25
 (def default-spacing 19.05)  ; Normal keyboards have a placeholder space of 19.05mm for 1u keys
 (def key-gap (- default-spacing sa-length))  
 (def sa-double-length (+ key-gap (* 2 sa-length)))
@@ -328,13 +326,15 @@
   (map + (key-position 0 lastrow [(* -1 mount-width) (* -0 mount-height) (* 0 mount-height)])  ; [(* -2 mount-width) (/ mount-height -20) (/ mount-height -2)]
        thumb-offsets))  ; original: (map + (key-position 1 cornerrow thumb-offsets)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def larger-plate
+(defn larger-plate [orientation]
   (let [plate-height (/ (- sa-double-length mount-height) 3)
         top-plate (->> (cube mount-width plate-height web-thickness)
                        (translate [0 (/ (+ plate-height mount-height) 2)
                                    (- plate-thickness (/ web-thickness 2))]))
+        rotated (if (= orientation 1) 0 (/ π 2))
         ]
-    (union top-plate (mirror [0 1 0] top-plate))))
+    (rotate rotated [0 0  1] (union top-plate (mirror [0 1 0] top-plate)))
+    ))
 (defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
 (defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
 (def key-ttl-height (+ key-base-lift key-depth))
@@ -469,28 +469,28 @@
 (defn thumb-upper-layout [shape]
   (union
    (thumb-tl-place shape)
-   (thumb-tr-place shape) ; (rotate (/ π (* -2 rollin)) [0 1 0] shape))
+   (thumb-tr-place shape) 
    ))
 (def thumbcaps
   (union
-   (thumb-lower-layout (sa-cap 1) )
-   (thumb-upper-layout (sa-cap 1) )  ; (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)) )  ; 
+   (thumb-lower-layout (sa-cap 1))
+   (thumb-upper-layout (sa-cap 1))  ; (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)))  ; 
    )) 
 (def thumb
   (union
    (thumb-lower-layout single-plate)
    (thumb-upper-layout single-plate)
-    ; (thumb-upper-layout larger-plate)
+  ;  (thumb-upper-layout (larger-plate 1))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; These define edges when we use the bigger key plate ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Use if thumb-upper-layout is only unsing 1u caps. 
 (def thumb-post-tr web-post-tr)
 (def thumb-post-tl web-post-tl)
 (def thumb-post-bl web-post-bl)
 (def thumb-post-br web-post-br)
-
 
 ; Original, if using large plate for buttons tl & tr
 ; (def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.15) post-adj) 0] web-post))
@@ -525,21 +525,21 @@
     (thumb-tl-place thumb-post-br)
     )
    (triangle-hulls  ; row gap on left, between top and middle
-    (thumb-tl-place web-post-br)
+    (thumb-tl-place thumb-post-br)
     (thumb-ml-place web-post-tr)
-    (thumb-tl-place web-post-bl)
+    (thumb-tl-place thumb-post-bl)
     (thumb-ml-place web-post-tl)
     )
    (triangle-hulls    ; row gap on right, between top and middle
-    (thumb-tr-place web-post-bl)
+    (thumb-tr-place thumb-post-bl)
     (thumb-mr-place web-post-tl)
-    (thumb-tr-place web-post-br)
+    (thumb-tr-place thumb-post-br)
     (thumb-mr-place web-post-tr)
     )
   ;  (triangle-hulls    ; Old version (tl & tr are rotated from lower): top two to the middle two, starting on the left
   ;   (thumb-tl-place thumb-post-tl)
   ;   (thumb-ml-place web-post-tl)
-  ;   (thumb-tl-place web-post-bl)
+  ;   (thumb-tl-place thumb-post-bl)
   ;   (thumb-ml-place web-post-tr)
   ;   (thumb-tl-place thumb-post-br)
   ;   (thumb-mr-place web-post-tl)
@@ -612,8 +612,8 @@
          (wall-brace thumb-ml-place -1 1 web-post-bl thumb-bl-place -1 0 web-post-tl)  ; outside left wall between lower & middle
                       ; (wall-brace thumb-bl-place -1 1 web-post-tl thumb-ml-place -1 0 web-post-bl)  ; outside left wall between lower & middle
          (wall-brace thumb-ml-place -1 0 web-post-bl thumb-ml-place -1 -1 web-post-tl)  ; outside left middle wall
-                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 web-post-bl)  ; outside left between middle and top
-                      ; (wall-brace thumb-tl-place -1 0 web-post-bl thumb-tl-place -1 0 web-post-tl)  ; outside left upper wall
+                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 thumb-post-bl)  ; outside left between middle and top
+                      ; (wall-brace thumb-tl-place -1 0 thumb-post-bl thumb-tl-place -1 0 thumb-post-tl)  ; outside left upper wall
                       ; (wall-brace thumb-br-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-br)  ; outside of lower right
                       ; (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-tr)  ; outside right middle wall
                       ; (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall between middle and top thumbs
@@ -712,8 +712,8 @@
    (wall-brace thumb-ml-place -1 1 web-post-bl thumb-bl-place -1 0 web-post-tl)  ; outside left wall between lower & middle
                       ; (wall-brace thumb-bl-place -1 1 web-post-tl thumb-ml-place -1 0 web-post-bl)  ; outside left wall between lower & middle
    (wall-brace thumb-ml-place -1 0 web-post-bl thumb-ml-place -1 -1 web-post-tl)  ; outside left middle wall
-                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 web-post-bl)  ; outside left between middle and top
-                      ; (wall-brace thumb-tl-place -1 0 web-post-bl thumb-tl-place -1 0 web-post-tl)  ; outside left upper wall
+                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 thumb-post-bl)  ; outside left between middle and top
+                      ; (wall-brace thumb-tl-place -1 0 thumb-post-bl thumb-tl-place -1 0 thumb-post-tl)  ; outside left upper wall
                       ; (wall-brace thumb-br-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-br)  ; outside of lower right
                       ; (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-tr)  ; outside right middle wall
                       ; (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall between middle and top thumbs
@@ -901,7 +901,7 @@
     (key-place 4 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
     )
    (bottom-hull  ; front wall of extra keys and final main section. 
-    (thumb-tl-place web-post-tl)
+    (thumb-tl-place thumb-post-tl)
     ; (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
     ; (key-place 3 lastrow (translate (wall-locate3 0.5 -1) web-post-br))
     (key-place 4 cornerrow (translate (wall-locate3 0 -1) web-post-bl)))
@@ -1031,11 +1031,11 @@
    (wall-brace thumb-br-place  0 -1 web-post-br thumb-br-place  1.5  1 web-post-tr)  ; outside left lower wall cornering to front wall
    (wall-brace thumb-br-place  1.5  1 web-post-tr thumb-mr-place 1  1 web-post-br)  ; front wall
    (wall-brace thumb-mr-place  1  1 web-post-br thumb-mr-place  1  -1.5 web-post-tr)  ; front wall
-   (wall-brace thumb-mr-place  1  -1.5 web-post-tr thumb-tr-place  0.5  1 web-post-br)  ; front wall
-   (wall-brace thumb-tr-place  0.5  1 web-post-br thumb-tr-place  0  1 web-post-tr)  ; front wall
-   (wall-brace thumb-tr-place  0  1 web-post-tr thumb-tr-place  0  1 web-post-tl)  ; right wall of thumb, front section
-   (wall-brace thumb-tr-place  0  1 web-post-tl thumb-tl-place  0  1 web-post-tr)  ; right wall of thumb, middle section
-   (wall-brace thumb-tl-place  0  1 web-post-tr thumb-tl-place  6  1 web-post-tl)  ; right wall of thumb, upper section
+   (wall-brace thumb-mr-place  1  -1.5 web-post-tr thumb-tr-place  0.5  1 thumb-post-br)  ; front wall
+   (wall-brace thumb-tr-place  0.5  1 thumb-post-br thumb-tr-place  0  1 thumb-post-tr)  ; front wall
+   (wall-brace thumb-tr-place  0  1 thumb-post-tr thumb-tr-place  0  1 thumb-post-tl)  ; right wall of thumb, front section
+   (wall-brace thumb-tr-place  0  1 thumb-post-tl thumb-tl-place  0  1 thumb-post-tr)  ; right wall of thumb, middle section
+   (wall-brace thumb-tl-place  0  1 thumb-post-tr thumb-tl-place  6  1 thumb-post-tl)  ; right wall of thumb, upper section
   ;  (bottom-hull  ; only if thumb-wall cuts in tight:  wall connection of bottom left keys to thumb left-side section. 
   ;  ;;; Check ;;;    
   ;   (left-key-place cornerrow -1 (translate (wall-locate1 -1 1) web-post))
