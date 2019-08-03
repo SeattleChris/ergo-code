@@ -38,12 +38,14 @@ The 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short impl
 
 ### Generating a Design
 
-**Setting up the Clojure environment**
+#### Setting up the Clojure environment
+
 * [Install the Clojure runtime](https://clojure.org)
 * [Install the Leiningen project manager](http://leiningen.org/)
 * [Install OpenSCAD](http://www.openscad.org/)
 
-**Generating the design**
+#### Generating the design
+
 * Run `lein repl`
 * Load the file `(load-file "src/dactyl_keyboard/dactyl.clj")`
 * This will regenerate the `things/*.scad` files
@@ -51,10 +53,12 @@ The 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short impl
 * Make changes to design, repeat the above `load-file` command, OpenSCAD will watch for changes and rerender.
 * When done, use OpenSCAD to export STL files
 
-**Tips**
+##### Tips
+
 * [Example designing with clojure](http://adereth.github.io/blog/2014/04/09/3d-printing-with-clojure/)
 
 ### Printing
+
 Pregenerated STL files are available in the [things/](things/) directory.
 When a model is generated, it also generates a `.scad` model for a bottom plate.
 This can be exported to a DXF file in OpenSCAD.
@@ -69,11 +73,15 @@ On one print, the RJ-9 holder was squished, so I had to cut down my connector to
 
 If printed at Shapeways or other professional shops, I would not expect such problems.
 
-### Thingiverse
+#### Thingiverse
 
 [The 4x5 STL left/right pair](https://www.thingiverse.com/thing:2349390) from the [things/](things/) directory is in the thingiverse for public printing
 
-### Wiring
+### Build Notes
+
+For guidance from previous versions, see the instructions for wiring and general build for the [original Dactyl](/guide/) and for [Tom Short's Manuform](/manuform/).
+
+#### Wiring
 
 Here are materials I used for wiring.
 
@@ -99,14 +107,14 @@ You need something on the bottom to keep the keyboard from sliding around such a
 This is how the rows/columns wire to the keys and the ProMicro
 ![Wire Diagram](https://docs.google.com/drawings/d/1s9aAg5bXBrhtb6Xw-sGOQQEndRNOqpBRyUyHkgpnSps/pub?w=1176&h=621)
 
-#### Alternative row-driven wiring diagram for ProMicro:
+##### Alternative row-driven wiring diagram for ProMicro
 
 NOTE: you also make sure the firmware is set up correctly (ex: change row pins with col pins)
 
 ![Left Wire Diagram](/resources/dactyl_manuform_left_wire_diagram.png)
 ![Left Wire Diagram](/resources/dactyl_manuform_right_wire_diagram.png)
 
-### Firmware
+#### Firmware
 
 Firmware goes hand in hand with how you wire the circuit. Some firmware options include:
 
