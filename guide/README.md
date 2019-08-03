@@ -1,3 +1,4 @@
+
 * Preparation and Cost
   Get all the parts / raw material:
   - For the 3D printing there are two options:
