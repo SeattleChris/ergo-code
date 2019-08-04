@@ -14,26 +14,26 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(def nrows 4)
+(def nrows 5)
 (def ncols 5)
-(def α (deg2rad 36))                    ; (/ π 5) ; curvature of the columns - 5 or 6?
-(def β (deg2rad 6))                     ; (/ π 30) ; curvature of the rows - 30 or 36?
-(def extra-width 2)                   ; extra space between the base of keys; original= 2, 2.5; to spec when flat is 1.65
-(def extra-height 0.5)                  ; original= 0.5, then 1.0; to spec when flat is 1.65
+(def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max 
+(def β (deg2rad 6))                     ; curvature of the rows (left to right) - adds to tenting
+(def extra-width 2)                     ; extra space between the base of keys; Normal specification when flat is 1.65
+(def extra-height 0.5)                  ; original= 0.5; to spec when flat is 1.65
 (def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 2)                  ; wall thickness parameter; originally 5, 2
-(def tilt-pivotrow (- nrows 1 (/ nrows 2)))             ; controls front-back tilt - 3
-(def tent-pivotcol 5 )                       ; controls left-right tilt / tenting (higher number is more tenting) - 4
-(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control - 12
+(def wall-thickness 2)                  ; wall thickness parameter
+(def tilt-pivotrow (- nrows 1 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up. 
+(def tent-pivotcol 5 )                       ; controls left-right tilt / tenting (higher number is more tenting)
+(def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 (def column-style
   (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (defn column-offset [column] (cond
   (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
   (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
   (>= column 4) [0 -5.18 3.39]             ; original [0 -5.8 5.64], [0 -12 5.64]
-  :else [0 0 0]))
-(def keyboard-z-offset 1)               ; controls overall height; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
+  :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
+(def keyboard-z-offset 0)               ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
@@ -56,8 +56,8 @@
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
-(def keyswitch-height 14.4) ;; Was 14.1, then 14.25, 14.4 before clc
-(def keyswitch-width 14.4)  ; 14.4 before clc
+(def keyswitch-height 14.4) ;; Was 14.1, then 14.25, then 14.4 
+(def keyswitch-width 14.4)  ; Was 14.4 
 (def sa-profile-key-height 12.7)
 (def plate-thickness 4)
 ; For key spacing (on flat layout) 19.05mm x 19.05mm is standard per key
@@ -74,7 +74,7 @@
                        (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
                                    0
                                    (/ plate-thickness 2)]))
-        side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
+        side-nub (->> (binding [*fn* 30] (cylinder 0.5 2.75))
                       (rotate (/ π 2) [1 0 0])
                       (translate [(+ (/ keyswitch-width 2)) 0 1])
                       (hull (->> (cube 1.5 2.75 plate-thickness)
@@ -92,16 +92,19 @@
 ;;;;;;;;;;;;;;;;
 (def key-base-lift (+ 5 plate-thickness))
 (def key-depth 12)
-(def sa-length 18.25)
-(def sa-double-length 37.5)
-(def sa-cap {1 (let [bl2 (/ 18.5 2)
+(def sa-length 18.25)  ; originally 18.25
+(def default-spacing 19.05)  ; Normal keyboards have a placeholder space of 19.05mm for 1u keys
+(def key-gap (- default-spacing sa-length))  
+(def sa-double-length (+ key-gap (* 2 sa-length)))
+(def sa-cap {1 (let [bl2 (/ sa-length 2)
                      m (/ 17 2)
+                     lt2 (* 2 (/ bl2 3))
                      key-cap (hull (->> (polygon [[bl2 bl2] [bl2 (- bl2)] [(- bl2) (- bl2)] [(- bl2) bl2]])
                                         (extrude-linear {:height 0.1 :twist 0 :convexity 0})
                                         (translate [0 0 0.05]))
                                    (->> (polygon [[m m] [m (- m)] [(- m) (- m)] [(- m) m]])
                                         (extrude-linear {:height 0.1 :twist 0 :convexity 0})
-                                        (translate [0 0 6]))
+                                        (translate [0 0 (/ key-depth 2)]))
                                    (->> (polygon [[6 6] [6 -6] [-6 -6] [-6 6]])
                                         (extrude-linear {:height 0.1 :twist 0 :convexity 0})
                                         (translate [0 0 key-depth])))]
@@ -109,7 +112,7 @@
                       (translate [0 0 key-base-lift])
                       (color [220/255 163/255 163/255 1])))
              2 (let [bl2 (/ sa-double-length 2)
-                     bw2 (/ 18.25 2)
+                     bw2 (/ sa-length 2)
                      key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
                                         (extrude-linear {:height 0.1 :twist 0 :convexity 0})
                                         (translate [0 0 0.05]))
@@ -119,8 +122,8 @@
                  (->> key-cap
                       (translate [0 0 key-base-lift])
                       (color [230/255 193/255 169/255 1])))
-             1.5 (let [bl2 (/ 18.25 2)
-                       bw2 (/ 28 2)
+             1.5 (let [bl2 (/ sa-length 2)
+                       bw2 (/ (- (* default-spacing 1.5) key-gap) 2)  ; (/ 28 2)
                        key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
                                           (extrude-linear {:height 0.1 :twist 0 :convexity 0})
                                           (translate [0 0 0.05]))
@@ -130,8 +133,8 @@
                    (->> key-cap
                         (translate [0 0 key-base-lift])
                         (color [240/255 223/255 175/255 1])))
-             1.25 (let [bl2 (/ 18.25 2)
-                       bw2 (/ 45 4)
+             1.25 (let [bl2 (/ sa-length 2)
+                       bw2 (/ (- (* default-spacing 1.25) key-gap) 2)
                        key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
                                           (extrude-linear {:height 0.1 :twist 0 :convexity 0})
                                           (translate [0 0 0.05]))
@@ -170,7 +173,7 @@
                           (translate-fn [0 0 column-radius])
                           (translate-fn (column-offset column)))
         column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
-        placed-shape-ortho (->> shape
+        placed-shape-ortho (->> shape  
                                 (translate-fn [0 0 (- row-radius)])
                                 (rotate-x-fn  (* α (- tilt-pivotrow row)))
                                 (translate-fn [0 0 row-radius])
@@ -1093,6 +1096,9 @@
     (thumb-bl-place (translate (wall-locate3 0 0) web-post-bl))
     (key-place 0 cornerrow web-post-bl)
     (left-key-place cornerrow 1 web-post)
+    (key-place 0 cornerrow web-post-tl)
+    
+    ; (left-key-place cornerrow 1 web-post)
     )   
   ;  (triangle-hulls  ; cover up the gaps due to the displaced edge for wall-brace
   ;   (thumb-br-place (translate (map + (wall-locate3 -1 -1) [(- (displacement-edge rollin-default) base-offset) 0 4]) web-post-bl))
@@ -1142,7 +1148,7 @@
    (for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 web-post-br lastcol y 1 0 web-post-tr))
    (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow 1 0 web-post-br)
    ; left wall
-   (for [y (range 0 lastrow)] (union (wall-brace (partial left-key-place y 1)       -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
+   (for [y (range 0 cornerrow)] (union (wall-brace (partial left-key-place y 1)       -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
                                      (hull (key-place 0 y web-post-tl)
                                            (key-place 0 y web-post-bl)
                                            (left-key-place y  1 web-post)
@@ -1227,20 +1233,20 @@
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow)) ; if row is lastrow (or greater), but column is not 0 or lastcol 
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position 
-        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-67 0 -38 ]))  ; [-85 0 -38]
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-70 7 -36]))  ; [-72 5 -32]
+        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-85 0 -38] ))  ; [-85 0 -38]  ;  [-67 0 -38]  
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-72 5 -32] ))  ; [-72 5 -32]  ;  [-70 7 -36]
             (if shift-up     (key-position column row (map + (wall-locate2  -0.5  -0.5) [0 (/ mount-height 2) 2]))
-                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-7 (/ mount-height 2) -14]))   ; [-1 (/ mount-height 2) 11]
+                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))   ; [-1 (/ mount-height 2) 11]  ; [-7 (/ mount-height 2) -14]
                     (if (and shift-left (>= row cornerrow)) (map + (left-key-position row 1) (wall-locate3 0 0) [-9 2 0])  
                     (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0) [3 (/ mount-height 2) 11])
-                        (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) 2) 0 -3]))))))))]  ; [(+ (/ mount-width 2) 0) 0 0 ]
+                        (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) 0) 0 0] ))))))))]  ; [(+ (/ mount-width 2) 0) 0 0 ] ; [(+ (/ mount-width 2) 2) 0 -3]
     (->> (screw-insert-shape bottom-radius top-radius height)
          (translate [(first position) (second position) (/ height 2)])
     )))
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union 
-   (screw-insert 0 0.8         bottom-radius top-radius height)  ; back/top left
+   (screw-insert 0 (+ 0.3 (* 0.5 (- nrows 3)))         bottom-radius top-radius height)  ; back/top left  ;; rows=4, x=0.8, rows=5, x=1.3
    (screw-insert 0 (+ cornerrow 0.4)   bottom-radius top-radius height)  ; front/bottom left
    (screw-insert 2 (+ lastrow 0)  bottom-radius top-radius height)  ; front/bottom right
    (screw-insert 2 0         bottom-radius top-radius height)  ; back/top center
@@ -1267,15 +1273,15 @@
 
 (def wire-posts
   (union
-     (thumb-ml-place (translate [-5 0 -2] (wire-post  1 0)))
-     (thumb-ml-place (translate [ 0 0 -2.5] (wire-post -1 6)))
-     (thumb-ml-place (translate [ 5 0 -2] (wire-post  1 0)))
-     (for [column (range 0 lastcol)
-           row (range 0 cornerrow)]
-       (union
-        (key-place column row (translate [-5 0 0] (wire-post 1 0)))
-        (key-place column row (translate [0 0 0] (wire-post -1 6)))
-        (key-place column row (translate [5 0 0] (wire-post  1 0)))))))
+   (thumb-ml-place (translate [-5 0 -2] (wire-post  1 0)))
+   (thumb-ml-place (translate [0 0 -2.5] (wire-post -1 6)))
+   (thumb-ml-place (translate [5 0 -2] (wire-post  1 0)))
+   (for [column (range 0 lastcol)
+         row (range 0 cornerrow)]
+     (union
+      (key-place column row (translate [-5 0 0] (wire-post 1 0)))
+      (key-place column row (translate [0 0 0] (wire-post -1 6)))
+      (key-place column row (translate [5 0 0] (wire-post  1 0)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Main Model (used for both sides) ;;;
@@ -1340,32 +1346,38 @@
 
 (spit "things/right-plate.scad"
       (write-scad
-       (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
-                       (cut
-                        (translate [0 0 (* -1 wall-thickness)]
-                                   (difference
-                                ; (bottom-hull 
-                                    (union case-walls
-                                           thumb-walls
-                                           teensy-holder
+
+      ;  (translate [0 0 10] (union case-walls thumb-walls teensy-holder screw-insert-outers))
+       (union
+        (translate [0 0 (* 0 wall-thickness)]
+                   (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
+                                   (cut
+                                    (translate [0 0 (* -1 wall-thickness)]
+                                               (difference
+                                                (union case-walls
+                                                       thumb-walls
+                                                       teensy-holder
                                           ; rj9-holder
-                                           screw-insert-outers)
-                                ;  )
-                                    (translate [0 0 -10] screw-insert-screw-holes)))))))
+                                                       screw-insert-outers)
+                                                (translate [0 0 -10] screw-insert-screw-holes))))  ; end cut
+                                   )  ; end extrude-linear
+                   )
+;        (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
+;                        (cut
+;                         (translate [0 0 (* -1 wall-thickness)]
+;                                    (difference
+;                                     (union (hull case-walls)
+;                                            (hull thumb-walls)
+;                                            teensy-holder
+;                                           ; rj9-holder
+;                                            screw-insert-outers)
+;                                     (translate [0 0 -10] screw-insert-screw-holes))))  ; end cut
+; )  ; end extrude-linear
+        )))
 
 (spit "things/test.scad"
       (write-scad
          (difference usb-holder usb-holder-hole)))
-
-(spit "things/pad.scad"
-      (write-scad
-          (union
-           thumb
-          ;  thumbcaps
-           thumb-connectors
-           thumb-walls
-          ;  case-walls
-           )))
 
 (spit "things/pad.scad"
       (write-scad
@@ -1376,16 +1388,5 @@
         thumb-walls
           ;  case-walls
         )))
-
-(spit "things/thumbpad.scad"
-      (write-scad
-       (union
-        thumb
-        thumb-connectors
-        thumbcaps
-        ; thumb-walls
-        )
-                                          ; ))))
-       ))
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch

@@ -5,15 +5,12 @@
             [scad-clj.model :refer :all]
             [unicode-math.core :refer :all]))
 
-(defn deg2rad [degrees]
+(defn deg2rad [degrees]   ; 1 pi radians = 180 degrees
   (* (/ degrees 180) pi))
-; rad = pi * deg / 180
-; 180 * rad / pi = deg
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
-
 (def nrows 5)
 (def ncols 5)
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max 
@@ -22,19 +19,19 @@
 (def extra-height 0.5)                  ; original= 0.5; to spec when flat is 1.65
 (def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 2)                  ; wall thickness parameter
+(def wall-thickness 3.5)                  ; Was 2; wall thickness parameter
 (def tilt-pivotrow (- nrows 1 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up. 
 (def tent-pivotcol 5 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 (def column-style
   (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
+(def cherry-brand-keyswitch false)
 (defn column-offset [column] (cond
-  (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
-  (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
-  (>= column 4) [0 -5.18 3.39]             ; original [0 -5.8 5.64], [0 -12 5.64]
-  :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
+                               (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
+                               (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
+                               (>= column 4) [0 -5.18 3.39]           ; original [0 -5.8 5.64], [0 -12 5.64]
+                               :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
 (def keyboard-z-offset 0)               ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
-
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
 ;;   http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
@@ -48,7 +45,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
-
 (def lastrow (dec nrows))
 (def cornerrow (dec lastrow))
 (def lastcol (dec ncols))
@@ -56,29 +52,30 @@
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
-(def keyswitch-height 14.4) ;; Was 14.1, then 14.25, then 14.4 
-(def keyswitch-width 14.4)  ; Was 14.4 
+(def keyswitch-height (if (= cherry-brand-keyswitch true) 14.4 14.35)) ; try 14.15, 14.25 ; Was 14.1, then 14.25, then 14.4 
+(def keyswitch-width  (if (= cherry-brand-keyswitch true) 14.4 14.35 ))  ; try ?? ; Was 14.4 
+(def clip-keyswitch   (if (= cherry-brand-keyswitch true)  1.0  0.5 ))  ; Was 1 for cherry, for others: 0.5 with width at 14.4 was too loose. 
 (def sa-profile-key-height 12.7)
-(def plate-thickness 4)
-; For key spacing (on flat layout) 19.05mm x 19.05mm is standard per key
+(def plate-thickness 3.5)  ; was 4 ; TODO: Decide - Should this be 1.5? according to keyswitch specifications, should be 1.5
+; For key spacing (on flat layout) 19.05mm x 19.05mm is standard placeholder per key
 ; Standard keycaps are about 18mm x 18mm 
 (def mount-width (+ keyswitch-width 3))     
 (def mount-height (+ keyswitch-height 3))
-
+(def mount-wall-thickness 1.5)  
 (def single-plate
-  (let [top-wall (->> (cube mount-width 1.5 plate-thickness)
+  (let [top-wall (->> (cube mount-width mount-wall-thickness plate-thickness)
                       (translate [0
-                                  (+ (/ 1.5 2) (/ keyswitch-height 2))
+                                  (+ (/ mount-wall-thickness 2) (/ keyswitch-height 2))
                                   (/ plate-thickness 2)]))
-        left-wall (->> (cube 1.5 mount-height plate-thickness)
-                       (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+        left-wall (->> (cube mount-wall-thickness mount-height plate-thickness)
+                       (translate [(+ (/ mount-wall-thickness 2) (/ keyswitch-width 2))
                                    0
                                    (/ plate-thickness 2)]))
-        side-nub (->> (binding [*fn* 30] (cylinder 0.5 2.75))
+        side-nub (->> (binding [*fn* 30] (cylinder clip-keyswitch 2.75))
                       (rotate (/ π 2) [1 0 0])
                       (translate [(+ (/ keyswitch-width 2)) 0 1])
-                      (hull (->> (cube 1.5 2.75 plate-thickness)
-                                 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+                      (hull (->> (cube mount-wall-thickness 2.75 plate-thickness)
+                                 (translate [(+ (/ mount-wall-thickness 2) (/ keyswitch-width 2))
                                              0
                                              (/ plate-thickness 2)]))))
         plate-half (union top-wall left-wall (with-fn 100 side-nub))]
@@ -92,7 +89,7 @@
 ;;;;;;;;;;;;;;;;
 (def key-base-lift (+ 5 plate-thickness))
 (def key-depth 12)
-(def sa-length 18.25)  ; originally 18.25
+(def sa-length 18)  ; originally 18.25
 (def default-spacing 19.05)  ; Normal keyboards have a placeholder space of 19.05mm for 1u keys
 (def key-gap (- default-spacing sa-length))  
 (def sa-double-length (+ key-gap (* 2 sa-length)))
@@ -318,25 +315,25 @@
 (def thumb-tent (* 1 (+ tenting-angle (* β (- tent-pivotcol 1)) )))
 (def slope-thumb (deg2rad -60))
 (def deflect (deg2rad -90))  ; (/ π -3)
-(def half-width (+ (/ mount-width 2) 0 ))
+(def half-width (/ mount-width 2))
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
 (def base-offset (+ half-width test-column-space) )     ; original was 14 or 15
 (def row-offset (+ mount-height test-row-space) )
 (def deflect-fudge [0 0 0])  ; previoiusly: (def deflect-fudge [-6 7 4])
-; (def sa-width sa-length )    ; 18.25 for sa-length
 (def thumb-offsets [(* -2 half-width) (* -1.0 mount-height) (* -3.5 mount-height)])            ; original [6 -3 7], [20 -3 7]
-; (def thumborigin [0 0 0])
 (def thumborigin
   (map + (key-position 0 lastrow [(* -1 mount-width) (* -0 mount-height) (* 0 mount-height)])  ; [(* -2 mount-width) (/ mount-height -20) (/ mount-height -2)]
        thumb-offsets))  ; original: (map + (key-position 1 cornerrow thumb-offsets)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def larger-plate
+(defn larger-plate [orientation]
   (let [plate-height (/ (- sa-double-length mount-height) 3)
         top-plate (->> (cube mount-width plate-height web-thickness)
                        (translate [0 (/ (+ plate-height mount-height) 2)
                                    (- plate-thickness (/ web-thickness 2))]))
+        rotated (if (= orientation 1) 0 (/ π 2))
         ]
-    (union top-plate (mirror [0 1 0] top-plate))))
+    (rotate rotated [0 0  1] (union top-plate (mirror [0 1 0] top-plate)))
+    ))
 (defn coord-y [plate ra rb] (* (/ plate 2) (+ (Math/sin ra) (Math/sin rb))) )
 (defn coord-x [plate ra rb] (* (/ plate 2) (+ (Math/cos ra) (Math/cos rb))) )
 (def key-ttl-height (+ key-base-lift key-depth))
@@ -347,10 +344,6 @@
 (defn displacement-edge [angle]
   (- (* x-point (Math/cos angle)) (* y-point (Math/sin angle)) x-point )  ; older: (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
 )
-; (defn tilt-displacement-edge [tilt]
-;   (- (* x-point (Math/cos tilt)) (* y-point (Math/sin tilt)) x-point) )
-; (defn displacement [rollin x-point y-point]
-;   (- (* x-point (Math/cos rollin)) (* y-point (Math/sin rollin)) x-point ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Thumb Placement Functions          ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -475,28 +468,28 @@
 (defn thumb-upper-layout [shape]
   (union
    (thumb-tl-place shape)
-   (thumb-tr-place shape) ; (rotate (/ π (* -2 rollin)) [0 1 0] shape))
+   (thumb-tr-place shape) 
    ))
 (def thumbcaps
   (union
-   (thumb-lower-layout (sa-cap 1) )
-   (thumb-upper-layout (sa-cap 1) )  ; (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)) )  ; 
-   )) ; (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
+   (thumb-lower-layout (sa-cap 1))
+   (thumb-upper-layout (sa-cap 1))  ; (thumb-upper-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.25)))  ; 
+   )) 
 (def thumb
   (union
    (thumb-lower-layout single-plate)
    (thumb-upper-layout single-plate)
-    ; (thumb-upper-layout larger-plate)
+  ;  (thumb-upper-layout (larger-plate 1))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; These define edges when we use the bigger key plate ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Use if thumb-upper-layout is only unsing 1u caps. 
 (def thumb-post-tr web-post-tr)
 (def thumb-post-tl web-post-tl)
 (def thumb-post-bl web-post-bl)
 (def thumb-post-br web-post-br)
-
 
 ; Original, if using large plate for buttons tl & tr
 ; (def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.15) post-adj) 0] web-post))
@@ -531,115 +524,37 @@
     (thumb-tl-place thumb-post-br)
     )
    (triangle-hulls  ; row gap on left, between top and middle
-    (thumb-tl-place web-post-br)
+    (thumb-tl-place thumb-post-br)
     (thumb-ml-place web-post-tr)
-    (thumb-tl-place web-post-bl)
+    (thumb-tl-place thumb-post-bl)
     (thumb-ml-place web-post-tl)
     )
    (triangle-hulls    ; row gap on right, between top and middle
-    (thumb-tr-place web-post-bl)
+    (thumb-tr-place thumb-post-bl)
     (thumb-mr-place web-post-tl)
-    (thumb-tr-place web-post-br)
+    (thumb-tr-place thumb-post-br)
     (thumb-mr-place web-post-tr)
     )
   ;  (triangle-hulls    ; Old version (tl & tr are rotated from lower): top two to the middle two, starting on the left
   ;   (thumb-tl-place thumb-post-tl)
   ;   (thumb-ml-place web-post-tl)
-  ;   (thumb-tl-place web-post-bl)
+  ;   (thumb-tl-place thumb-post-bl)
   ;   (thumb-ml-place web-post-tr)
   ;   (thumb-tl-place thumb-post-br)
   ;   (thumb-mr-place web-post-tl)
   ;   (thumb-tr-place thumb-post-bl)
   ;   (thumb-mr-place web-post-tr)
   ;   (thumb-tr-place thumb-post-br))
-   (triangle-hulls  ; Row gap on left thumb
+   (triangle-hulls  ; Row gap on left, between middle and bottom 
     (thumb-ml-place web-post-bl)
     (thumb-bl-place web-post-tl)
     (thumb-ml-place web-post-br)
     (thumb-bl-place web-post-tr))
-   (triangle-hulls  ; Row gap on right thumb
+   (triangle-hulls  ; Row gap on right, between middle and bottom
     (thumb-mr-place web-post-br)
     (thumb-br-place web-post-tr)
     (thumb-mr-place web-post-bl)
     (thumb-br-place web-post-tl))
-  ;  (triangle-hulls  ; seems to connect the lastrow key hole (left side)
-  ;   (key-place 1 cornerrow web-post-br)
-  ;   (key-place 2 lastrow web-post-tl)
-  ;   (key-place 2 cornerrow web-post-bl)
-  ;   (key-place 2 lastrow web-post-tr)
-  ;   (key-place 2 cornerrow web-post-br)
-  ;   (key-place 3 cornerrow web-post-bl))
-  ;  (triangle-hulls  ; seems to connect the lastrow key hole (right side)
-  ;   (key-place 3 lastrow web-post-tr)
-  ;   (key-place 3 lastrow web-post-br)
-  ;   (key-place 3 lastrow web-post-tr)
-  ;   (key-place 4 cornerrow web-post-bl))
-
-  ;  (triangle-hulls ; alternative? attaching thumb section to main keyboard. Starting on left)
-  ;   (thumb-ml-place web-post-tl)
-  ;   (key-place 0 cornerrow web-post-bl)
-  ;   (thumb-tl-place thumb-post-tl)
-  ;   (key-place 0 cornerrow web-post-br)
-  ;   (thumb-tl-place thumb-post-tr)
-  ;   (key-place 1 cornerrow web-post-bl)
-  ;   (thumb-tr-place thumb-post-tl)
-  ;   (key-place 1 cornerrow web-post-br)
-  ;   (thumb-tr-place thumb-post-tr)
-  ;   (key-place 2 lastrow web-post-tl)
-  ;   (key-place 2 lastrow web-post-bl)
-  ;   (thumb-tr-place thumb-post-tr)
-  ;  )    
-   
-  ; Original: 
-  ;  (triangle-hulls    ; Orig when rotated upper to lower: top two to the main keyboard, starting on the left
-  ;   (thumb-tl-place thumb-post-tl)
-  ;   (key-place 0 cornerrow web-post-bl)
-  ;   (thumb-tl-place thumb-post-tr)
-  ;   (key-place 0 cornerrow web-post-br)
-  ;   (thumb-tr-place thumb-post-tl)
-  ;   (key-place 1 cornerrow web-post-bl)
-  ;   (thumb-tr-place thumb-post-tr)
-  ;   (key-place 1 cornerrow web-post-br)
-  ;   (key-place 2 lastrow web-post-tl)
-  ;   (key-place 2 lastrow web-post-bl)
-  ;   (thumb-tr-place thumb-post-tr)
-  ;   (key-place 2 lastrow web-post-bl)
-  ;   (thumb-tr-place thumb-post-br)
-  ;   (key-place 2 lastrow web-post-br)
-  ;   (key-place 3 lastrow web-post-bl)
-  ;   (key-place 2 lastrow web-post-tr)
-  ;   (key-place 3 lastrow web-post-tl)
-  ;   (key-place 3 cornerrow web-post-bl)
-  ;   (key-place 3 lastrow web-post-tr)
-  ;   (key-place 3 cornerrow web-post-br)
-  ;   (key-place 4 cornerrow web-post-bl))
-   
-  ;  (triangle-hulls  ; when thumb are normal aligned - connect thumb section to main
-  ;   (key-place 0 cornerrow web-post-bl)
-  ;   (thumb-tl-place thumb-post-tl)
-  ;   (key-place 0 cornerrow web-post-br)
-  ;   (key-place 1 cornerrow web-post-bl)
-  ;   (thumb-tl-place thumb-post-tr)
-    ; (key-place 1 cornerrow web-post-br)
-    ; (key-place 2 lastrow web-post-tl)
-    ; (thumb-tl-place thumb-post-tr)
-    ; (key-place 2 lastrow web-post-bl)
-    ; (thumb-tr-place thumb-post-tl)
-    ; (key-place 2 lastrow web-post-br)
-    ; (key-place 3 lastrow web-post-bl)
-    ; (thumb-tr-place thumb-post-tl)
-    ; (thumb-tr-place thumb-post-tr)
-    ; )
-  ;  (triangle-hulls    ; old & not needed: bottom two on the right
-  ;   (thumb-br-place web-post-tl)   ; (thumb-br-place web-post-br)
-  ;   (thumb-br-place web-post-bl)   ; (thumb-br-place web-post-tr)
-  ;   (thumb-mr-place web-post-bl)   ; (thumb-mr-place web-post-tl)
-  ;   (thumb-mr-place web-post-tl))  ; (thumb-mr-place web-post-bl))
-  ;  (triangle-hulls    ; old & not needed: bottom two on the left
-  ;   (thumb-bl-place web-post-tr)
-  ;   (thumb-bl-place web-post-br)
-  ;   (thumb-ml-place web-post-tr)
-  ;   (thumb-ml-place web-post-br))
    ))
 
 ;;;;;;;;;;
@@ -696,8 +611,8 @@
          (wall-brace thumb-ml-place -1 1 web-post-bl thumb-bl-place -1 0 web-post-tl)  ; outside left wall between lower & middle
                       ; (wall-brace thumb-bl-place -1 1 web-post-tl thumb-ml-place -1 0 web-post-bl)  ; outside left wall between lower & middle
          (wall-brace thumb-ml-place -1 0 web-post-bl thumb-ml-place -1 -1 web-post-tl)  ; outside left middle wall
-                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 web-post-bl)  ; outside left between middle and top
-                      ; (wall-brace thumb-tl-place -1 0 web-post-bl thumb-tl-place -1 0 web-post-tl)  ; outside left upper wall
+                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 thumb-post-bl)  ; outside left between middle and top
+                      ; (wall-brace thumb-tl-place -1 0 thumb-post-bl thumb-tl-place -1 0 thumb-post-tl)  ; outside left upper wall
                       ; (wall-brace thumb-br-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-br)  ; outside of lower right
                       ; (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-tr)  ; outside right middle wall
                       ; (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall between middle and top thumbs
@@ -796,8 +711,8 @@
    (wall-brace thumb-ml-place -1 1 web-post-bl thumb-bl-place -1 0 web-post-tl)  ; outside left wall between lower & middle
                       ; (wall-brace thumb-bl-place -1 1 web-post-tl thumb-ml-place -1 0 web-post-bl)  ; outside left wall between lower & middle
    (wall-brace thumb-ml-place -1 0 web-post-bl thumb-ml-place -1 -1 web-post-tl)  ; outside left middle wall
-                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 web-post-bl)  ; outside left between middle and top
-                      ; (wall-brace thumb-tl-place -1 0 web-post-bl thumb-tl-place -1 0 web-post-tl)  ; outside left upper wall
+                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 thumb-post-bl)  ; outside left between middle and top
+                      ; (wall-brace thumb-tl-place -1 0 thumb-post-bl thumb-tl-place -1 0 thumb-post-tl)  ; outside left upper wall
                       ; (wall-brace thumb-br-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-br)  ; outside of lower right
                       ; (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-tr)  ; outside right middle wall
                       ; (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall between middle and top thumbs
@@ -985,7 +900,7 @@
     (key-place 4 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
     )
    (bottom-hull  ; front wall of extra keys and final main section. 
-    (thumb-tl-place web-post-tl)
+    (thumb-tl-place thumb-post-tl)
     ; (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
     ; (key-place 3 lastrow (translate (wall-locate3 0.5 -1) web-post-br))
     (key-place 4 cornerrow (translate (wall-locate3 0 -1) web-post-bl)))
@@ -1000,7 +915,6 @@
   ;   (thumb-bl-place web-post-bl)
   ;   (left-key-place cornerrow -1 web-post)
   ;   (thumb-bl-place (translate (wall-locate3 0 0) web-post-bl))
-    
   ;   )
    (hull  ;; Thumb bottom left edge to main section
     (thumb-ml-place web-post-bl)
@@ -1009,7 +923,6 @@
     (key-place 0 cornerrow web-post-bl)
     ; (left-key-place cornerrow left-thumb-intercept web-post)
     ; (thumb-bl-place (translate (wall-locate2 0 -0.5) web-post-br))
-    ;;; thumb-here ;;;
     )
   ;  (hull  ;; when thumb wall cuts in tight - cap over left outside ridge between thumb and main
   ;   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
@@ -1117,11 +1030,11 @@
    (wall-brace thumb-br-place  0 -1 web-post-br thumb-br-place  1.5  1 web-post-tr)  ; outside left lower wall cornering to front wall
    (wall-brace thumb-br-place  1.5  1 web-post-tr thumb-mr-place 1  1 web-post-br)  ; front wall
    (wall-brace thumb-mr-place  1  1 web-post-br thumb-mr-place  1  -1.5 web-post-tr)  ; front wall
-   (wall-brace thumb-mr-place  1  -1.5 web-post-tr thumb-tr-place  0.5  1 web-post-br)  ; front wall
-   (wall-brace thumb-tr-place  0.5  1 web-post-br thumb-tr-place  0  1 web-post-tr)  ; front wall
-   (wall-brace thumb-tr-place  0  1 web-post-tr thumb-tr-place  0  1 web-post-tl)  ; right wall of thumb, front section
-   (wall-brace thumb-tr-place  0  1 web-post-tl thumb-tl-place  0  1 web-post-tr)  ; right wall of thumb, middle section
-   (wall-brace thumb-tl-place  0  1 web-post-tr thumb-tl-place  6  1 web-post-tl)  ; right wall of thumb, upper section
+   (wall-brace thumb-mr-place  1  -1.5 web-post-tr thumb-tr-place  0.5  1 thumb-post-br)  ; front wall
+   (wall-brace thumb-tr-place  0.5  1 thumb-post-br thumb-tr-place  0  1 thumb-post-tr)  ; front wall
+   (wall-brace thumb-tr-place  0  1 thumb-post-tr thumb-tr-place  0  1 thumb-post-tl)  ; right wall of thumb, front section
+   (wall-brace thumb-tr-place  0  1 thumb-post-tl thumb-tl-place  0  1 thumb-post-tr)  ; right wall of thumb, middle section
+   (wall-brace thumb-tl-place  0  1 thumb-post-tr thumb-tl-place  6  1 thumb-post-tl)  ; right wall of thumb, upper section
   ;  (bottom-hull  ; only if thumb-wall cuts in tight:  wall connection of bottom left keys to thumb left-side section. 
   ;  ;;; Check ;;;    
   ;   (left-key-place cornerrow -1 (translate (wall-locate1 -1 1) web-post))
@@ -1174,8 +1087,8 @@
 (def rj9-space  (translate rj9-position rj9-cube))
 (def rj9-holder (translate rj9-position
                   (difference rj9-cube
-                              (union (translate [0 2 0] (cube 10.78  9 18.38))
-                                     (translate [0 0 5] (cube 10.78 13  5))))))
+                              (union (translate [0 2 0] (cube 10.78  9 18.38))   ; add 1mm for y value? 
+                                     (translate [0 0 5] (cube 10.78 13  5))))))  ; add 1mm for y value? 
 
 (def usb-holder-position (key-position 1 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
 (def usb-holder-size [6.5 10.0 13.6])
@@ -1185,7 +1098,7 @@
          (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))
 (def usb-holder-hole
     (->> (apply cube usb-holder-size)
-         (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))
+         (translate [(first usb-holder-position) (second usb-holder-position) (/ (+ (last usb-holder-size) usb-holder-thickness) 2)])))  ; Maybe add 1mm on z direction for usb holder hole
 
 (def teensy-width 20)
 (def teensy-height 12)
@@ -1233,26 +1146,26 @@
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow)) ; if row is lastrow (or greater), but column is not 0 or lastcol 
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position 
-        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-85 0 -38] ))  ; [-85 0 -38]  ;  [-67 0 -38]  
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-72 5 -32] ))  ; [-72 5 -32]  ;  [-70 7 -36]
+        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-85 0 -38] ))   ; if nrows=4, [-67 0 -38]  
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-72 5 -32] ))  ; if nrows=4,  [-70 7 -36]
             (if shift-up     (key-position column row (map + (wall-locate2  -0.5  -0.5) [0 (/ mount-height 2) 2]))
-                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))   ; [-1 (/ mount-height 2) 11]  ; [-7 (/ mount-height 2) -14]
+                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))   ; if nrows=4, [-7 (/ mount-height 2) -14]
                     (if (and shift-left (>= row cornerrow)) (map + (left-key-position row 1) (wall-locate3 0 0) [-9 2 0])  
                     (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0) [3 (/ mount-height 2) 11])
-                        (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) 0) 0 0] ))))))))]  ; [(+ (/ mount-width 2) 0) 0 0 ] ; [(+ (/ mount-width 2) 2) 0 -3]
+                        (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) 0) 0 0] ))))))))]  ; if nrows=4, [(+ (/ mount-width 2) 2) 0 -3]
     (->> (screw-insert-shape bottom-radius top-radius height)
          (translate [(first position) (second position) (/ height 2)])
     )))
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union 
-   (screw-insert 0 (+ 0.3 (* 0.5 (- nrows 3)))         bottom-radius top-radius height)  ; back/top left  ;; rows=4, x=0.8, rows=5, x=1.3
-   (screw-insert 0 (+ cornerrow 0.4)   bottom-radius top-radius height)  ; front/bottom left
-   (screw-insert 2 (+ lastrow 0)  bottom-radius top-radius height)  ; front/bottom right
-   (screw-insert 2 0         bottom-radius top-radius height)  ; back/top center
-   (screw-insert lastcol 0   bottom-radius top-radius height)  ; back/top right
-   (screw-insert lastcol (+ lastrow 0.1) bottom-radius top-radius height)  ; thumb screw 
-   (screw-insert 0 (+ lastrow 0.1) bottom-radius top-radius height)  ; thumb screw 
+   (screw-insert 0 (+ 0.3 (* 0.5 (- nrows 3))) bottom-radius top-radius height)  ; back/top left  ;; rows=4, x=0.8, rows=5, x=1.3
+   (screw-insert 0 (+ cornerrow 0.4)           bottom-radius top-radius height)  ; front/bottom left
+   (screw-insert 2 (+ lastrow 0)               bottom-radius top-radius height)  ; front/bottom right
+   (screw-insert 2 0                           bottom-radius top-radius height)  ; back/top center
+   (screw-insert lastcol 0                     bottom-radius top-radius height)  ; back/top right
+   (screw-insert lastcol (+ lastrow 0.1)       bottom-radius top-radius height)  ; thumb screw 
+   (screw-insert 0 (+ lastrow 0.1)             bottom-radius top-radius height)  ; thumb screw 
    ))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
@@ -1304,7 +1217,7 @@
                                 usb-holder-hole
                                 screw-insert-holes)
                     rj9-holder
-                    wire-posts
+                    ; wire-posts
                     ; thumbcaps
                     ; caps
                     )
@@ -1321,33 +1234,13 @@
       (write-scad (mirror [-1 0 0] model-right)))
 
 (spit "things/right-test.scad"
-      (write-scad
-                   (union
-                    key-holes
-                    connectors
-                    thumb
-                    thumb-connectors
-                    case-walls
-                    thumb-walls
-                    thumbcaps
-                    caps
-                    teensy-holder
-                    rj9-holder
-                    usb-holder-hole
-                    ; usb-holder-hole
-                    ; ; teensy-holder-hole
-                    ;             screw-insert-outers
-                    ;             teensy-screw-insert-holes
-                    ;             teensy-screw-insert-outers
-                    ;             usb-cutout
-                    ;             rj9-space
-                                ; wire-posts
-                    )))
+      (write-scad (union model-right 
+                         thumbcaps 
+                         caps
+                  )))
 
 (spit "things/right-plate.scad"
       (write-scad
-
-      ;  (translate [0 0 10] (union case-walls thumb-walls teensy-holder screw-insert-outers))
        (union
         (translate [0 0 (* 0 wall-thickness)]
                    (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
@@ -1357,11 +1250,12 @@
                                                 (union case-walls
                                                        thumb-walls
                                                        teensy-holder
-                                          ; rj9-holder
+                                                       ; rj9-holder
                                                        screw-insert-outers)
                                                 (translate [0 0 -10] screw-insert-screw-holes))))  ; end cut
                                    )  ; end extrude-linear
                    )
+        ;; would like to add the filled in bottom plate here
 ;        (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
 ;                        (cut
 ;                         (translate [0 0 (* -1 wall-thickness)]
@@ -1372,20 +1266,16 @@
 ;                                           ; rj9-holder
 ;                                            screw-insert-outers)
 ;                                     (translate [0 0 -10] screw-insert-screw-holes))))  ; end cut
-; )  ; end extrude-linear
+;        )  ; end extrude-linear
         )))
 
-(spit "things/test.scad"
-      (write-scad
-         (difference usb-holder usb-holder-hole)))
-
-(spit "things/pad.scad"
+(spit "things/thumbpad.scad"
       (write-scad
        (union
         thumb
           ;  thumbcaps
         thumb-connectors
-        thumb-walls
+        ; thumb-walls
           ;  case-walls
         )))
 
