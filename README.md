@@ -38,13 +38,17 @@ The 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short impl
 
 * Plate thickness needs to be researched, as well as adjusting the size of the latching leaf.
 * All models: wall-thickness can be increased. Doesn't waste material since less support structure will be needed.
-* All future models: depth (z-offset) can be dropped even more.
+* All future models: depth (z-offset) can be dropped even more. May need to adjust tenting parameters.
 * Heavy Curve (5x5) model: fix the blank space for hood over thumb section.
 * Heavy Curve (5x5) model: fix the lastrow keys since the walls block the key (on column 4)
 * Heay Curve (5x5) model: adjust the column offset (middle finger is too low, some other tweaks).
-* Heavy Curve (5x5) model: move thumb cluster to not block the main section key switches (needs more depth).
+* Heavy Curve (5x5) model: move, or change wall/connector for thumb cluster to not block the main section key switches
 * Heavy Curve (5x5) model: raise the thumb cluster for better fit.
 * Generate a Heavy Curve with no Number/Function row (4x5).
+* Curvature between rows options
+  * Currently curves all rows
+  * Option to only curve rows outside of home columns
+
 * Modified variations of which columns have a lastrow button
   * Originally was columns 2 (middle finger) and 3 (ring finger)
   * Option for column 5 (pinkie finger home)
