@@ -19,15 +19,13 @@
 (def extra-height 0.5)                  ; original= 0.5; to spec when flat is 1.65
 (def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 2)                  ; wall thickness parameter
+(def wall-thickness 3.5)                  ; Was 2; wall thickness parameter
 (def tilt-pivotrow (- nrows 1 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up. 
 (def tent-pivotcol 5 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ π 12))            ; or, change this for more precise tenting control
 (def column-style
   (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def cherry-brand-keyswitch false)
-(def clip-keyswitch 
-  (if (= cherry-brand-keyswitch true) 1.0 0.5))
 (defn column-offset [column] (cond
                                (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
                                (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
@@ -54,10 +52,11 @@
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
-(def keyswitch-height 14.4) ;; Was 14.1, then 14.25, then 14.4 
-(def keyswitch-width 14.4)  ; Was 14.4 
+(def keyswitch-height (if (= cherry-brand-keyswitch true) 14.4 14.35)) ; try 14.15, 14.25 ; Was 14.1, then 14.25, then 14.4 
+(def keyswitch-width  (if (= cherry-brand-keyswitch true) 14.4 14.35 ))  ; try ?? ; Was 14.4 
+(def clip-keyswitch   (if (= cherry-brand-keyswitch true)  1.0  0.5 ))  ; Was 1 for cherry, for others: 0.5 with width at 14.4 was too loose. 
 (def sa-profile-key-height 12.7)
-(def plate-thickness 4)  ; TODO: Decide - Should this be 1.5? according to keyswitch specifications, should be 1.5
+(def plate-thickness 3.5)  ; was 4 ; TODO: Decide - Should this be 1.5? according to keyswitch specifications, should be 1.5
 ; For key spacing (on flat layout) 19.05mm x 19.05mm is standard placeholder per key
 ; Standard keycaps are about 18mm x 18mm 
 (def mount-width (+ keyswitch-width 3))     
@@ -1218,7 +1217,7 @@
                                 usb-holder-hole
                                 screw-insert-holes)
                     rj9-holder
-                    wire-posts
+                    ; wire-posts
                     ; thumbcaps
                     ; caps
                     )
@@ -1276,7 +1275,7 @@
         thumb
           ;  thumbcaps
         thumb-connectors
-        thumb-walls
+        ; thumb-walls
           ;  case-walls
         )))
 
