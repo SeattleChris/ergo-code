@@ -34,6 +34,33 @@ The 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short impl
 * [Heavy Curve (5x5)](https://github.com/SeattleChris/dactyl-keyboard/blob/master/things/heavy-curve-5x5.stl)
 * [Current Model](https://github.com/SeattleChris/dactyl-keyboard/blob/master/things/chris/right.stl)
 
+## Features and Patches currently being worked on
+
+* Plate thickness needs to be researched, as well as adjusting the size of the latching leaf.
+* All models: wall-thickness can be increased. Doesn't waste material since less support structure will be needed.
+* All future models: depth (z-offset) can be dropped even more.
+* Heavy Curve (5x5) model: fix the blank space for hood over thumb section.
+* Heavy Curve (5x5) model: fix the lastrow keys since the walls block the key (on column 4)
+* Heay Curve (5x5) model: adjust the column offset (middle finger is too low, some other tweaks).
+* Heavy Curve (5x5) model: move thumb cluster to not block the main section key switches (needs more depth).
+* Heavy Curve (5x5) model: raise the thumb cluster for better fit.
+* Generate a Heavy Curve with no Number/Function row (4x5).
+* Modified variations of which columns have a lastrow button
+  * Originally was columns 2 (middle finger) and 3 (ring finger)
+  * Option for column 5 (pinkie finger home)
+  * Option for column 1 (pointer finger home)
+* Modified variations, allowing some columns NOT to have their top row key.
+  * Originally all columns got top row
+  * Column 5 (pinkie finger home) may not want a top row key
+  * Any additional columns after the pinkie home row may not want a top row key
+  * Column 0 (reaching with pointer finger) may not want a top row key
+* Improve screw hole placement method.
+* Create different thumb cluster categories to allow different designs for thumb keys.
+  * Original Dactyl
+  * Original Manuform
+  * Manuform with thumb keys more normally aligned
+  * Thumb Bowl (rotated)
+
 ## Assembly
 
 ### Generating a Design
