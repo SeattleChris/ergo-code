@@ -438,6 +438,7 @@
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
   ))
+(rotate (map + [slope-thumb thumb-tent 0] [0 (deg2rad 90) (* -1 (deg2rad 90))])  )
 (defn thumb-br-place [shape]
   (def rollin rollin-default)
   (def tilt tilt-last)
@@ -973,10 +974,10 @@
     (thumb-ml-place web-post-tl)
     (thumb-bl-place web-post-bl)
     (thumb-tl-place thumb-post-tl)
-    (thumb-ml-place (translate (wall-locate1 -0.5 0) web-post-bl))
-    (thumb-ml-place (translate (wall-locate1 -0.5 0) web-post-tl))
-    (key-place 1 cornerrow (translate (wall-locate2 0 -1) web-post-br))
-    (key-place 0 cornerrow (translate (wall-locate2 0 -1) web-post-bl))
+    (thumb-ml-place (translate (wall-locate1 -0.3 0) web-post-bl))
+    (thumb-ml-place (translate (wall-locate1 -0.3 0) web-post-tl))
+    (key-place 1 cornerrow (translate (wall-locate2 0 -1) web-post-br))  ; -2.15 < second param wall-locate2 < 0.99
+    (key-place 0 cornerrow (translate (wall-locate2 0 -1) web-post-bl))  ; -2.15 < second param wall-locate2 < 0.99
     ; connects to main keys top wall - first two key columns
     )
   ;; end thumb-valley
@@ -1256,15 +1257,34 @@
 ;        )  ; end extrude-linear
         )))
 
+(defn reset-thumb-placement [object]
+  (translate [0 0 (* 0.25 mount-height)]
+  (rotate (deg2rad 15) [1 0 0] 
+          (rotate (deg2rad 63) [0 1 0]
+                  (rotate slope-thumb [-1 0 0]
+                          (rotate (+ thumb-tent (deg2rad 90)) [0 -1 0]
+                                  (rotate (deg2rad 90) [0 0 1]
+                                          ;; stuff 
+                                          (translate (map * [-1 -1 -1] thumborigin)
+                                                     object
+                                                     
+                                             ) ; end translate  
+                                  ))))) ; end nested rotates
+  )
+  )  ; end reset-thumb-placement
+
 (spit "things/thumbpad.scad"
       (write-scad
+       (reset-thumb-placement 
        (union
         thumb
-          ;  thumbcaps
         thumb-connectors
         thumb-valley
-        thumb-walls
-          ;  case-walls
-        )))
+        ;  thumbcaps
+        ; thumb-walls
+        ;  case-walls
+       )  ; end union 
+        )
+       )) 
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
