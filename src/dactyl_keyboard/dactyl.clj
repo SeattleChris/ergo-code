@@ -14,7 +14,7 @@
 (def nrows 5)
 (def ncols 5)
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max 
-(def β (deg2rad 3))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
+(def β (deg2rad 2))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
 (def extra-width 2)                     ; extra space between the base of keys; Normal specification when flat is 1.65
 (def extra-height 0.5)                  ; original= 0.5; to spec when flat is 1.65
 (def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
@@ -23,14 +23,14 @@
 (def tilt-pivotrow (- nrows 1 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up. 
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 30))            ; or, change this for more precise tenting control
-(def keyboard-z-offset 7)  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
+(def keyboard-z-offset 8)  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 (def column-style
   (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def cherry-brand-keyswitch false)
 (defn column-offset [column] (cond
-                               (= column 2) [0 14.82 -4.5]            ; original [0 2.82 -4.5]
-                               (= column 3) [0 7.82 -2.25]            ; original [0 0 0]
-                               (>= column 4) [0 -5.18 3.39]           ; original [0 -5.8 5.64], [0 -12 5.64]
+                               (= column 2)  [0 13.82 -3.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
+                               (= column 3)  [0  7.82 -2.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
+                               (>= column 4) [0 -5.18  2.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
                                :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
@@ -320,9 +320,9 @@
 (def base-offset (+ half-width test-column-space) )     ; original was 14 or 15
 (def row-offset (+ mount-height test-row-space) )
 (def deflect-fudge [0 0 0])  ; previoiusly: (def deflect-fudge [-6 7 4])
-(def thumb-offsets [(* -2 half-width) (* -1.0 mount-height) (* -3.5 mount-height)])            ; original [6 -3 7], [20 -3 7]
+(def thumb-offsets [(* -4 half-width) (* -1.0 mount-height) (* -2.5 mount-height)])            ; original [6 -3 7], [20 -3 7]
 (def thumborigin
-  (map + (key-position 0 lastrow [(* -1 mount-width) (* -0 mount-height) (* 0 mount-height)])  ; [(* -2 mount-width) (/ mount-height -20) (/ mount-height -2)]
+  (map + (key-position 0 lastrow [(* -0 mount-width) (* -0 mount-height) (* 0 mount-height)])  ; [(* -2 mount-width) (/ mount-height -20) (/ mount-height -2)]
        thumb-offsets))  ; original: (map + (key-position 1 cornerrow thumb-offsets)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn larger-plate [orientation]
@@ -1134,7 +1134,7 @@
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position 
         (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-85 0 -38] ))   ; if nrows=4, [-67 0 -38]  
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 1 1) [-72 5 -32] ))  ; if nrows=4,  [-70 7 -36]
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-72 5 -32] ))  ; if nrows=4,  [-70 7 -36]
             (if shift-up     (key-position column row (map + (wall-locate2  -0.5  -0.5) [0 (/ mount-height 2) 2]))
                 (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))   ; if nrows=4, [-7 (/ mount-height 2) -14]
                     (if (and shift-left (>= row cornerrow)) (map + (left-key-position row 1) (wall-locate3 0 0) [-9 2 0])  
