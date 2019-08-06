@@ -928,6 +928,23 @@
    )
 ; end of main-key-cleanup
 ))
+
+(def block-thumb-hood-top-wall
+  (hull  ;; thumb-hood top wall as a block: small section of thumb bl-bl to bl-bl of main. 
+   (key-place 0 cornerrow web-post-tl)
+   (key-place 0 cornerrow (translate (wall-locate1 0 0) web-post-tl))
+   (key-place 0 cornerrow web-post-bl)
+   (key-place 0 cornerrow (translate (wall-locate1 0 -0.5) web-post-bl))
+   (thumb-bl-place web-post-bl)
+   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
+   (thumb-bl-place (translate (wall-locate3 0 -1) web-post-bl))
+   (thumb-bl-place (translate (wall-locate2 0 -1) web-post-bl))
+   (key-place 0 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
+    ; Do we really want to fill in so much? 
+   )
+; End block-thumb-hood-top-wall  
+  )
+
 (def thumb-valley
   (union
    (hull  ;; main keys top wall - first two key columns, connecting to thumb section
@@ -956,18 +973,7 @@
     (key-place 0 cornerrow (translate (wall-locate1 0 -0.5) web-post-bl))
     ; connects other thumb-hood sections and main keys top wall
     )
-  ;  (hull  ;; thumb-hood top wall as a block: small section of thumb bl-bl to bl-bl of main. 
-  ;   (key-place 0 cornerrow web-post-tl)
-  ;   (key-place 0 cornerrow (translate (wall-locate1 0 0) web-post-tl))
-  ;   (key-place 0 cornerrow web-post-bl)
-  ;   (key-place 0 cornerrow (translate (wall-locate1 0 -0.5) web-post-bl))
-  ;   (thumb-bl-place web-post-bl)
-  ;   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
-  ;   (thumb-bl-place (translate (wall-locate3 0 -1) web-post-bl))
-  ;   (thumb-bl-place (translate (wall-locate2 0 -1) web-post-bl))
-  ;   (key-place 0 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
-  ;   ; Do we really want to fill in so much? 
-  ;   )
+  ;  block-thumb-hood-top-wall  ; alternative thumb-hood top wall 
    (hull  ;; Internal back wall of thumb section, connecting to main section top wall of first 2 columns 
     (thumb-ml-place web-post-bl)
     (thumb-ml-place web-post-tl)
@@ -1230,30 +1236,19 @@
       (write-scad
        (union
         (translate [0 0 (* 0 wall-thickness)]
-                   (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
+                   (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}  ; make height 0.1 if a 2d output is desired
                                    (cut
                                     (translate [0 0 (* -1 wall-thickness)]
                                                (difference
-                                                (union case-walls
-                                                       thumb-walls
+                                                (union case-walls   ; to fill in: (hull case-walls)
+                                                       thumb-walls  ; to fill in: (hull thumb-walls)
                                                        teensy-holder
                                                        ; rj9-holder
                                                        screw-insert-outers)
                                                 (translate [0 0 -10] screw-insert-screw-holes))))  ; end cut
                                    )  ; end extrude-linear
                    )
-        ;; would like to add the filled in bottom plate here
-;        (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
-;                        (cut
-;                         (translate [0 0 (* -1 wall-thickness)]
-;                                    (difference
-;                                     (union (hull case-walls)
-;                                            (hull thumb-walls)
-;                                            teensy-holder
-;                                           ; rj9-holder
-;                                            screw-insert-outers)
-;                                     (translate [0 0 -10] screw-insert-screw-holes))))  ; end cut
-;        )  ; end extrude-linear
+        ;; would like to add the filled in bottom plate here. The above notes to fill do not work when the walls curve back in. 
         )))
 
 (defn reset-thumb-placement [object]
@@ -1269,21 +1264,20 @@
                                                      
                                              ) ; end translate  
                                   ))))) ; end nested rotates
-  )
-  )  ; end reset-thumb-placement
+))  ; end reset-thumb-placement
 
 (spit "things/thumbpad.scad"
       (write-scad
-       (reset-thumb-placement 
-       (union
-        thumb
-        thumb-connectors
-        thumb-valley
-        ;  thumbcaps
-        ; thumb-walls
-        ;  case-walls
-       )  ; end union 
-        )
-       )) 
+       (reset-thumb-placement
+        (union
+         thumb
+         thumb-connectors
+         thumb-valley
+         ;  thumbcaps
+         ; thumb-walls
+         ;  case-walls
+        )  ; end union 
+       )  ; end reset-thumb-placement
+))  
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
