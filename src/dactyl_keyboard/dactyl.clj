@@ -536,16 +536,6 @@
     (thumb-tr-place thumb-post-br)
     (thumb-mr-place web-post-tr)
     )
-  ;  (triangle-hulls    ; Old version (tl & tr are rotated from lower): top two to the middle two, starting on the left
-  ;   (thumb-tl-place thumb-post-tl)
-  ;   (thumb-ml-place web-post-tl)
-  ;   (thumb-tl-place thumb-post-bl)
-  ;   (thumb-ml-place web-post-tr)
-  ;   (thumb-tl-place thumb-post-br)
-  ;   (thumb-mr-place web-post-tl)
-  ;   (thumb-tr-place thumb-post-bl)
-  ;   (thumb-mr-place web-post-tr)
-  ;   (thumb-tr-place thumb-post-br))
    (triangle-hulls  ; Row gap on left, between middle and bottom 
     (thumb-ml-place web-post-bl)
     (thumb-bl-place web-post-tl)
@@ -855,6 +845,31 @@
     )
   ) ; end union 
 )  ;; end tight-column-cleanup
+(defn connect-adjacent [a b] 
+  " Usually used to connect the 'extra' keys of the lastrow to 
+    the corner of the adjent column "
+  
+  )
+(defn key-wall [row side]
+  " Usually used to create a left or right wall for the 'extra' 
+    keys of the lastrow (that aren't connected when generated)"
+  (let [p1 (if (= side 'left') 0 -0.3)
+        p2 (if (= side 'left') 0.3 0)
+        top-post (if (= side 'left') web-post-tl web-post-tr)
+        bottom-post (if (= side 'left') web-post-bl web-post-br)
+        ]
+    (hull
+     (key-place row lastrow top-post)
+     (key-place row lastrow   (translate (wall-locate1 p1 p2) top-post))
+     (key-place row lastrow   (translate (wall-locate2 p1 p2) top-post))
+     (key-place row lastrow   (translate (wall-locate3 0  0 ) top-post))
+     (key-place row lastrow bottom-post)
+     (key-place row lastrow   (translate (wall-locate1 p1 p2) bottom-post))
+     (key-place row lastrow   (translate (wall-locate2 p1 p2) bottom-post))
+     (key-place row lastrow   (translate (wall-locate3 0  0 ) bottom-post))
+  ; End key-wall 
+)))
+
 (def main-key-cleanup 
   (union
    (triangle-hulls  ;; Extra keys (column 2 & 3) row gap
@@ -868,20 +883,13 @@
     (key-place 3 lastrow web-post-tr))
    (hull  ;; First extra key (column 2) connect to adjacent key
     (key-place 2 cornerrow web-post-bl)
-    (key-place 2 lastrow web-post-tl)
-    (key-place 1 cornerrow web-post-br)
     (key-place 2 cornerrow (translate (wall-locate1 0  0) web-post-bl))
+    (key-place 2 lastrow web-post-tl)
     (key-place 2 lastrow   (translate (wall-locate1 0  0.3) web-post-tl))
+    (key-place 1 cornerrow web-post-br)
     (key-place 1 cornerrow (translate (wall-locate1 0 -0.5) web-post-br)))
    (hull  ; First extra key (column 2) left wall
-    (key-place 2 lastrow web-post-tl)
-    (key-place 2 lastrow   (translate (wall-locate1 0    0.3) web-post-tl))
-    (key-place 2 lastrow   (translate (wall-locate2 0    0.3) web-post-tl))
-    (key-place 2 lastrow   (translate (wall-locate3 0    0) web-post-tl))
-    (key-place 2 lastrow web-post-bl)
-    (key-place 2 lastrow   (translate (wall-locate1 0    0.3) web-post-bl))
-    (key-place 2 lastrow   (translate (wall-locate2 0    0.3) web-post-bl))
-    (key-place 2 lastrow   (translate (wall-locate3 0    0) web-post-bl))
+    (key-wall 2 'left')
     ; Then it connects to what?
     (key-place 1 cornerrow web-post-br)
     (key-place 1 cornerrow (translate (wall-locate1 0   -0.5) web-post-br))
@@ -890,27 +898,20 @@
     )
    (hull  ;; Second extra key (column 3) connect to adjacent key
     (key-place 3 cornerrow web-post-br)
-    (key-place 3 lastrow web-post-tr)
-    ; (key-place 3 lastrow web-post-br)
-    (key-place 4 cornerrow web-post-bl)
     (key-place 3 cornerrow (translate (wall-locate1  0    0  ) web-post-br))
+    (key-place 3 lastrow web-post-tr)
     (key-place 3 lastrow   (translate (wall-locate1 -0.3  0  ) web-post-tr))
+    (key-place 4 cornerrow web-post-bl)
     (key-place 4 cornerrow (translate (wall-locate1  0   -0.5) web-post-bl))
+    ; (key-place 3 lastrow web-post-br)
     )
    (hull  ; Second extra key (column 3) right wall
-    (key-place 3 lastrow web-post-tr)
-    (key-place 3 lastrow   (translate (wall-locate1 -0.3  0  ) web-post-tr))
-    (key-place 3 lastrow   (translate (wall-locate2 -0.3  0  ) web-post-tr))
-    (key-place 3 lastrow   (translate (wall-locate3  0    0  ) web-post-tr))
-    (key-place 3 lastrow web-post-br)
-    (key-place 3 lastrow   (translate (wall-locate1  -0.3   0  ) web-post-br))
-    (key-place 3 lastrow   (translate (wall-locate2  -0.3   0  ) web-post-br))
-    (key-place 3 lastrow   (translate (wall-locate3   0     0  ) web-post-br))
+      (key-wall 3 'right')    
     ;              ; Then it connects to what? 
     (key-place 4 cornerrow web-post-bl)
-    (key-place 4 cornerrow (translate (wall-locate1  0 -0.5  ) web-post-bl))
-    (key-place 4 cornerrow (translate (wall-locate2 -0.3 -1  ) web-post-bl))
-    (key-place 4 cornerrow (translate (wall-locate3  0   -1  ) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
+    (key-place 4 cornerrow (translate (wall-locate1  0 -0.5) web-post-bl))
+    (key-place 4 cornerrow (translate (wall-locate2 -0.3 -1) web-post-bl))
+    (key-place 4 cornerrow (translate (wall-locate3  0   -1) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
     ; ; temp hidden 
     ; ; working 
     )
