@@ -30,7 +30,7 @@
 (defn column-offset [column] (cond
                                (= column 2)  [0 13.82 -3.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
                                (= column 3)  [0  7.82 -2.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
-                               (>= column 4) [0 -5.18  2.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
+                               (>= column 4) [0 -5.18  1.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
                                :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
