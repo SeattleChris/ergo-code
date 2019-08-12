@@ -14,7 +14,8 @@
 (def nrows 5)
 (def column-per-finger [2 1 1 1])
 (def ncols (reduce + column-per-finger))
-(def has-lastrow       [2 3])
+(def middle-finger-col (get column-per-finger 0))
+(def has-lastrow       [middle-finger-col (+ 1 middle-finger-col)])
 (def is-stretch-column [0 5])  ; 5 ignored if ncols=5, but is there just in case we add a second pinkie column. 
 ; (def ncols 5)
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max 
@@ -34,10 +35,10 @@
   (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def cherry-brand-keyswitch false)
 (defn column-offset [column] (cond
-                               (= column 2)  [0 13.82 -2.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
-                               (= column 3)  [0  7.82 -1.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
-                               (>= column 4) [0 -5.18  1.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
-                               :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
+                               (= column  (+ 0 middle-finger-col)) [0 13.82 -2.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
+                               (= column  (+ 1 middle-finger-col)) [0  7.82 -1.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
+                               (>= column (+ 2 middle-finger-col)) [0 -5.18  1.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
+                               :else [0 0 0]))  ; The pointer finger
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
 ;;   http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
@@ -189,14 +190,14 @@
                           (translate-fn [0 0 column-radius])
                           (translate-fn (column-offset column)))
         column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
-        stretch-col-z-adjust (* 1 (Math/cos (- γ β )))
+        stretch-col-z-adjust (Math/cos (- γ β ))
         placed-shape-ortho (->> shape
                                 (translate-fn [0 0 (- row-radius)])
                                 (rotate-x-fn  (* α (- tilt-pivotrow row)))
                                 (translate-fn [0 0 row-radius])
                                 (rotate-y-fn  column-angle)
-                                (rotate-y-fn  (if (.contains is-stretch-column column) (* (if (< column (/ ncols 2)) 1 -1) (- γ β)) 0))
-                                (translate-fn (if (.contains is-stretch-column column) [(- (* (if (< column (/ ncols 2)) 1 -1) (- column-x-delta stretch-column-x-delta))) 0 stretch-col-z-adjust] [0 0 0]))
+                                (rotate-y-fn  (if (.contains is-stretch-column column) (* (if (< column middle-finger-col) 1 -1) (- γ β)) 0))
+                                (translate-fn (if (.contains is-stretch-column column) [(- (* (if (< column middle-finger-col) 1 -1) (- column-x-delta stretch-column-x-delta))) 0 stretch-col-z-adjust] [0 0 0]))
                                 (translate-fn [(- (* (- column tent-pivotcol) column-x-delta)) 0 column-z-delta])
                                 (translate-fn (column-offset column)))
         placed-shape-fixed (->> shape
