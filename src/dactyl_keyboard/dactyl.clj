@@ -12,10 +12,10 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 (def nrows 5)
-(def column-per-finger [2 1 1 2])
+(def column-per-finger [2 1 1 1])
 (def ncols (reduce + column-per-finger))
 (def has-lastrow       [2 3])
-(def is-stretch-column [0 6])
+(def is-stretch-column [0 5])  ; 5 ignored if ncols=5, but is there just in case we add a second pinkie column. 
 ; (def ncols 5)
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max 
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
@@ -189,15 +189,14 @@
                           (translate-fn [0 0 column-radius])
                           (translate-fn (column-offset column)))
         column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
-        stretch-col-z-adjust (Math/cos (- γ β ))
+        stretch-col-z-adjust (* 1 (Math/cos (- γ β )))
         placed-shape-ortho (->> shape
                                 (translate-fn [0 0 (- row-radius)])
                                 (rotate-x-fn  (* α (- tilt-pivotrow row)))
                                 (translate-fn [0 0 row-radius])
                                 (rotate-y-fn  column-angle)
-                                (rotate-y-fn  (if (= column 0) (* 1 (- γ β)) 0))
-                                (translate-fn (if (= column 0) [(- (* 1 (- column-x-delta stretch-column-x-delta))) 0 stretch-col-z-adjust] [0 0 0]))
-                                
+                                (rotate-y-fn  (if (.contains is-stretch-column column) (* (if (< column (/ ncols 2)) 1 -1) (- γ β)) 0))
+                                (translate-fn (if (.contains is-stretch-column column) [(- (* (if (< column (/ ncols 2)) 1 -1) (- column-x-delta stretch-column-x-delta))) 0 stretch-col-z-adjust] [0 0 0]))
                                 (translate-fn [(- (* (- column tent-pivotcol) column-x-delta)) 0 column-z-delta])
                                 (translate-fn (column-offset column)))
         placed-shape-fixed (->> shape
@@ -711,14 +710,14 @@
    (key-top-wall (get has-lastrow 0)  0   -0.6)
    (key-top-wall (get has-lastrow 1) -0.6  0  )
    (triangle-hulls  ; First extra key (column 2) front wall to thumb corner 
-    thumb-lastrow-connect    ;; Comment out if no thumb section printing. 
+    ; thumb-lastrow-connect    ;; Comment out if no thumb section printing. 
     (key-place (get has-lastrow 0) lastrow (translate (wall-locate3 0 0) web-post-bl))
     (key-place (get has-lastrow 1) lastrow (translate (wall-locate3 0 0) web-post-bl)))) ; end union 
   )  ;; end tight-column-cleanup
 (defn connect-adjacent [column side]
   " Usually used to connect the 'extra' keys of the lastrow to 
     the corner of the adjent column "
-  (let [p1 (if (= side 'left') 0   -0.3)
+  (let [p1 (if (= side 'left') 0 -0.3)
         p2 (if (= side 'left') 0.3  0)
         top-post (if (= side 'left') web-post-tl web-post-tr)
         bottom-post (if (= side 'left') web-post-bl web-post-br)
@@ -733,7 +732,7 @@
      (key-place adjacent cornerrow adj-post)
      (key-place adjacent cornerrow (translate (wall-locate1 0 -0.5) adj-post))
 ; end connect-adjacent
-)))
+     )))
 (defn key-wall [column side]
   " Usually used to create a left or right wall for the 'extra' 
     keys of the lastrow (that aren't connected when generated)"
@@ -772,7 +771,7 @@
     ; Then it connects to what?
     (key-place (dec (get has-lastrow 0)) cornerrow web-post-br)
     (key-place (dec (get has-lastrow 0)) cornerrow (translate (wall-locate1 0   -0.5) web-post-br))
-    thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
+    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
     )
    (connect-adjacent (get has-lastrow 1) 'right')
    (hull  ; Second extra key (column 3) right wall
@@ -786,14 +785,14 @@
    )
    (hull ; Front wall for some of 1st, but most 2nd extra keys (columns 2 & 3).
     (key-place (get has-lastrow 1) lastrow   (translate (wall-locate3 0 0) web-post-bl))
-    thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
+    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
     (key-place (get has-lastrow 1) lastrow   (translate (wall-locate3 0 0) web-post-br))
     (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3 0 -1) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
     )
   ;  extra-key-top-gap  ; if there is a gap between first & second extra keys (column 2 & 3)
    tight-column-cleanup  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
    (bottom-hull  ; front wall of extra keys and final main section. 
-    thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
+    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
     (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
    )
 ; end of main-key-cleanup
