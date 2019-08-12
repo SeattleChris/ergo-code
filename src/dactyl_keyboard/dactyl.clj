@@ -17,7 +17,6 @@
 (def middle-finger-col (get column-per-finger 0))
 (def has-lastrow       [middle-finger-col (+ 1 middle-finger-col)])
 (def is-stretch-column [0 5])  ; 5 ignored if ncols=5, but is there just in case we add a second pinkie column. 
-; (def ncols 5)
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max 
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
 (def γ (deg2rad 6))
@@ -26,7 +25,6 @@
 (def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 3.5)                  ; Was 2; wall thickness parameter
-; (def tilt-pivotrow (- nrows 2))
 (def tilt-pivotrow (- nrows 1 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up. 
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
@@ -167,17 +165,8 @@
                                  (Math/sin (/ γ 2)))
                               cap-top-height)
   )
-; (def col-radius )
-; (def col-angle  [
-;                  (+ (* β (- tent-pivotcol 0 1)) (* γ 1) )
-;                  (+ (* β (- tent-pivotcol 1 1)) (* γ 1) )
-;                  (+ (* β (- tent-pivotcol 2)) )
-;                  (+ (* β (- tent-pivotcol 3)) )
-;                  (+ (* β (- tent-pivotcol 4)) )
-;                  ])
 (def column-x-delta (+ -1 (- (* column-radius (Math/sin β)))))
 (def stretch-column-x-delta (+ -1 (- (* stretch-column-radius (Math/sin γ)))))
-; (def column-base-angle (* β (- tent-pivotcol 2)))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
   (let [column-angle (* β (- tent-pivotcol column))
@@ -215,42 +204,6 @@
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))
     ; end apply-key-geometry
-    ))
-
-
-(defn old-apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
-  (let [column-angle (* β (- tent-pivotcol column))
-        placed-shape (->> shape
-                          (translate-fn [0 0 (- row-radius)])
-                          (rotate-x-fn  (* α (- tilt-pivotrow row)))
-                          (translate-fn [0 0 row-radius])
-                          (translate-fn [0 0 (- column-radius)])
-                          (rotate-y-fn  column-angle)
-                          (translate-fn [0 0 column-radius])
-                          (translate-fn (column-offset column)))
-        column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
-        placed-shape-ortho (->> shape  
-                                (translate-fn [0 0 (- row-radius)])
-                                (rotate-x-fn  (* α (- tilt-pivotrow row)))
-                                (translate-fn [0 0 row-radius])
-                                (rotate-y-fn  column-angle)
-                                (translate-fn [(- (* (- column tent-pivotcol) column-x-delta)) 0 column-z-delta])
-                                (translate-fn (column-offset column)))
-        placed-shape-fixed (->> shape
-                                (rotate-y-fn  (nth fixed-angles column))
-                                (translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
-                                (translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
-                                (rotate-x-fn  (* α (- tilt-pivotrow row)))
-                                (translate-fn [0 0 (+ row-radius (nth fixed-z column))])
-                                (rotate-y-fn  fixed-tenting)
-                                (translate-fn [0 (second (column-offset column)) 0])
-                                )]
-    (->> (case column-style
-           :orthographic placed-shape-ortho
-           :fixed        placed-shape-fixed
-           placed-shape)
-         (rotate-y-fn  tenting-angle)
-         (translate-fn [0 0 keyboard-z-offset]))
     ))
 
 (defn key-place [column row shape]
@@ -711,7 +664,7 @@
    (key-top-wall (get has-lastrow 0)  0   -0.6)
    (key-top-wall (get has-lastrow 1) -0.6  0  )
    (triangle-hulls  ; First extra key (column 2) front wall to thumb corner 
-    ; thumb-lastrow-connect    ;; Comment out if no thumb section printing. 
+    thumb-lastrow-connect    ;; Comment out if no thumb section printing. 
     (key-place (get has-lastrow 0) lastrow (translate (wall-locate3 0 0) web-post-bl))
     (key-place (get has-lastrow 1) lastrow (translate (wall-locate3 0 0) web-post-bl)))) ; end union 
   )  ;; end tight-column-cleanup
@@ -772,7 +725,7 @@
     ; Then it connects to what?
     (key-place (dec (get has-lastrow 0)) cornerrow web-post-br)
     (key-place (dec (get has-lastrow 0)) cornerrow (translate (wall-locate1 0   -0.5) web-post-br))
-    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
+    thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
     )
    (connect-adjacent (get has-lastrow 1) 'right')
    (hull  ; Second extra key (column 3) right wall
@@ -786,34 +739,18 @@
    )
    (hull ; Front wall for some of 1st, but most 2nd extra keys (columns 2 & 3).
     (key-place (get has-lastrow 1) lastrow   (translate (wall-locate3 0 0) web-post-bl))
-    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
+    thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
     (key-place (get has-lastrow 1) lastrow   (translate (wall-locate3 0 0) web-post-br))
     (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3 0 -1) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
     )
   ;  extra-key-top-gap  ; if there is a gap between first & second extra keys (column 2 & 3)
    tight-column-cleanup  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
    (bottom-hull  ; front wall of extra keys and final main section. 
-    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
+    thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
     (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
    )
 ; end of main-key-cleanup
 ))
-
-(def block-thumb-hood-top-wall
-  (hull  ;; thumb-hood top wall as a block: small section of thumb bl-bl to bl-bl of main. 
-   (key-place 0 cornerrow web-post-tl)
-   (key-place 0 cornerrow (translate (wall-locate1 0 0) web-post-tl))
-   (key-place 0 cornerrow web-post-bl)
-   (key-place 0 cornerrow (translate (wall-locate1 0 -0.5) web-post-bl))
-   (thumb-bl-place web-post-bl)
-   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
-   (thumb-bl-place (translate (wall-locate3 0 -1) web-post-bl))
-   (thumb-bl-place (translate (wall-locate2 0 -1) web-post-bl))
-   (key-place 0 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
-    ; Do we really want to fill in so much? 
-   )
-; End block-thumb-hood-top-wall  
-  )
 
 (def thumb-valley
   (union
@@ -1068,9 +1005,9 @@
                     key-holes
                     connectors
                     case-walls
-                    ; thumb-walls
-                    ; thumb
-                    ; thumb-connectors
+                    thumb-walls
+                    thumb
+                    thumb-connectors
                     ; (difference (union case-walls
                     ;                    thumb-walls
                     ;                    screw-insert-outers
@@ -1100,7 +1037,7 @@
 
 (spit "things/right-test.scad"
       (write-scad (union model-right 
-                        ;  thumbcaps 
+                         thumbcaps 
                          caps
                   )))
 

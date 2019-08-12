@@ -197,3 +197,54 @@
     (key-place 2 lastrow web-post-tr)
     (key-place 3 lastrow web-post-bl)
     (key-place 3 lastrow web-post-tl))))  ;; end extra-key-top-gap
+
+
+(def block-thumb-hood-top-wall
+  (hull  ;; thumb-hood top wall as a block: small section of thumb bl-bl to bl-bl of main. 
+   (key-place 0 cornerrow web-post-tl)
+   (key-place 0 cornerrow (translate (wall-locate1 0 0) web-post-tl))
+   (key-place 0 cornerrow web-post-bl)
+   (key-place 0 cornerrow (translate (wall-locate1 0 -0.5) web-post-bl))
+   (thumb-bl-place web-post-bl)
+   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
+   (thumb-bl-place (translate (wall-locate3 0 -1) web-post-bl))
+   (thumb-bl-place (translate (wall-locate2 0 -1) web-post-bl))
+   (key-place 0 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
+    ; Do we really want to fill in so much? 
+   )
+; End block-thumb-hood-top-wall  
+  )
+
+
+(defn old-apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
+  (let [column-angle (* β (- tent-pivotcol column))
+        placed-shape (->> shape
+                          (translate-fn [0 0 (- row-radius)])
+                          (rotate-x-fn  (* α (- tilt-pivotrow row)))
+                          (translate-fn [0 0 row-radius])
+                          (translate-fn [0 0 (- column-radius)])
+                          (rotate-y-fn  column-angle)
+                          (translate-fn [0 0 column-radius])
+                          (translate-fn (column-offset column)))
+        column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
+        placed-shape-ortho (->> shape
+                                (translate-fn [0 0 (- row-radius)])
+                                (rotate-x-fn  (* α (- tilt-pivotrow row)))
+                                (translate-fn [0 0 row-radius])
+                                (rotate-y-fn  column-angle)
+                                (translate-fn [(- (* (- column tent-pivotcol) column-x-delta)) 0 column-z-delta])
+                                (translate-fn (column-offset column)))
+        placed-shape-fixed (->> shape
+                                (rotate-y-fn  (nth fixed-angles column))
+                                (translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
+                                (translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
+                                (rotate-x-fn  (* α (- tilt-pivotrow row)))
+                                (translate-fn [0 0 (+ row-radius (nth fixed-z column))])
+                                (rotate-y-fn  fixed-tenting)
+                                (translate-fn [0 (second (column-offset column)) 0]))]
+    (->> (case column-style
+           :orthographic placed-shape-ortho
+           :fixed        placed-shape-fixed
+           placed-shape)
+         (rotate-y-fn  tenting-angle)
+         (translate-fn [0 0 keyboard-z-offset]))))
