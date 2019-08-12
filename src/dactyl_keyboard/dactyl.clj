@@ -12,26 +12,33 @@
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 (def nrows 5)
-(def ncols 5)
+(def column-per-finger [2 1 1 1])
+(def ncols (reduce + column-per-finger))
+(def middle-finger-col (get column-per-finger 0))
+(def has-lastrow       [middle-finger-col (+ 1 middle-finger-col)])
+(def is-stretch-column [0 5])  ; 5 ignored if ncols=5, but is there just in case we add a second pinkie column. 
+; (def ncols 5)
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max 
-(def β (deg2rad 2))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
-(def extra-width 2)                     ; extra space between the base of keys; Normal specification when flat is 1.65
+(def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
+(def γ (deg2rad 6))
+(def extra-width 1.5)                     ; extra space between the base of keys; Normal specification when flat is 1.65
 (def extra-height 0.5)                  ; original= 0.5; to spec when flat is 1.65
 (def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 3.5)                  ; Was 2; wall thickness parameter
+; (def tilt-pivotrow (- nrows 2))
 (def tilt-pivotrow (- nrows 1 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up. 
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (deg2rad 30))            ; or, change this for more precise tenting control
-(def keyboard-z-offset 8)  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
+(def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
+(def keyboard-z-offset (+ 2 (* 13 (- ncols tent-pivotcol))))  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 (def column-style
   (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def cherry-brand-keyswitch false)
 (defn column-offset [column] (cond
-                               (= column 2)  [0 13.82 -3.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
-                               (= column 3)  [0  7.82 -2.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
-                               (>= column 4) [0 -5.18  2.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
-                               :else [0 0 0]))  ; Column 0 & 1 are the pointer finger
+                               (= column  (+ 0 middle-finger-col)) [0 13.82 -2.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
+                               (= column  (+ 1 middle-finger-col)) [0  7.82 -1.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
+                               (>= column (+ 2 middle-finger-col)) [0 -5.18  1.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
+                               :else [0 0 0]))  ; The pointer finger
 ;; Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings
 ;;   http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
@@ -156,10 +163,62 @@
 (def column-radius (+ (/ (/ (+ mount-width extra-width) 2)
                          (Math/sin (/ β 2)))
                       cap-top-height))
+(def stretch-column-radius (+ (/ (/ (+ mount-width extra-width) 2)
+                                 (Math/sin (/ γ 2)))
+                              cap-top-height)
+  )
+; (def col-radius )
+; (def col-angle  [
+;                  (+ (* β (- tent-pivotcol 0 1)) (* γ 1) )
+;                  (+ (* β (- tent-pivotcol 1 1)) (* γ 1) )
+;                  (+ (* β (- tent-pivotcol 2)) )
+;                  (+ (* β (- tent-pivotcol 3)) )
+;                  (+ (* β (- tent-pivotcol 4)) )
+;                  ])
 (def column-x-delta (+ -1 (- (* column-radius (Math/sin β)))))
-(def column-base-angle (* β (- tent-pivotcol 2)))
+(def stretch-column-x-delta (+ -1 (- (* stretch-column-radius (Math/sin γ)))))
+; (def column-base-angle (* β (- tent-pivotcol 2)))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
+  (let [column-angle (* β (- tent-pivotcol column))
+        placed-shape (->> shape
+                          (translate-fn [0 0 (- row-radius)])
+                          (rotate-x-fn  (* α (- tilt-pivotrow row)))
+                          (translate-fn [0 0 row-radius])
+                          (translate-fn [0 0 (- column-radius)])
+                          (rotate-y-fn  column-angle)
+                          (translate-fn [0 0 column-radius])
+                          (translate-fn (column-offset column)))
+        column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
+        stretch-col-z-adjust (Math/cos (- γ β ))
+        placed-shape-ortho (->> shape
+                                (translate-fn [0 0 (- row-radius)])
+                                (rotate-x-fn  (* α (- tilt-pivotrow row)))
+                                (translate-fn [0 0 row-radius])
+                                (rotate-y-fn  column-angle)
+                                (rotate-y-fn  (if (.contains is-stretch-column column) (* (if (< column middle-finger-col) 1 -1) (- γ β)) 0))
+                                (translate-fn (if (.contains is-stretch-column column) [(- (* (if (< column middle-finger-col) 1 -1) (- column-x-delta stretch-column-x-delta))) 0 stretch-col-z-adjust] [0 0 0]))
+                                (translate-fn [(- (* (- column tent-pivotcol) column-x-delta)) 0 column-z-delta])
+                                (translate-fn (column-offset column)))
+        placed-shape-fixed (->> shape
+                                (rotate-y-fn  (nth fixed-angles column))
+                                (translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
+                                (translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
+                                (rotate-x-fn  (* α (- tilt-pivotrow row)))
+                                (translate-fn [0 0 (+ row-radius (nth fixed-z column))])
+                                (rotate-y-fn  fixed-tenting)
+                                (translate-fn [0 (second (column-offset column)) 0]))]
+    (->> (case column-style
+           :orthographic placed-shape-ortho
+           :fixed        placed-shape-fixed
+           placed-shape)
+         (rotate-y-fn  tenting-angle)
+         (translate-fn [0 0 keyboard-z-offset]))
+    ; end apply-key-geometry
+    ))
+
+
+(defn old-apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
   (let [column-angle (* β (- tent-pivotcol column))
         placed-shape (->> shape
                           (translate-fn [0 0 (- row-radius)])
@@ -187,9 +246,9 @@
                                 (translate-fn [0 (second (column-offset column)) 0])
                                 )]
     (->> (case column-style
-          :orthographic placed-shape-ortho
-          :fixed        placed-shape-fixed
-                        placed-shape)
+           :orthographic placed-shape-ortho
+           :fixed        placed-shape-fixed
+           placed-shape)
          (rotate-y-fn  tenting-angle)
          (translate-fn [0 0 keyboard-z-offset]))
     ))
@@ -221,7 +280,7 @@
   (apply union
          (for [column columns
                row rows
-               :when (or (.contains [2 3] column)
+               :when (or (.contains has-lastrow column)
                          (not= row lastrow))]
            (->> single-plate
                 (key-place column row)))))
@@ -229,7 +288,7 @@
   (apply union
          (for [column columns
                row rows
-               :when (or (.contains [2 3] column)
+               :when (or (.contains has-lastrow column)
                          (not= row lastrow))]
            (->> (sa-cap (if (= column 5) 1 1))
                 (key-place column row)))))
@@ -312,15 +371,15 @@
 (def tilt-top (deg2rad 40) )
 (def tilt-default (deg2rad 0) )            ; tilt settings are also in radians
 (def tilt-last (deg2rad -40))   ; TODO: parameterize to allow deciding what angle the bottom section ends at.
-(def thumb-tent (* 1 (+ tenting-angle (* β (- tent-pivotcol 1)) )))
+(def thumb-tent (* -0.25 (+ tenting-angle (* β (- tent-pivotcol 1)) )))
 (def slope-thumb (deg2rad -60))
-(def deflect (deg2rad -90))  ; (/ π -3)
+(def deflect (deg2rad 20))  ; (/ π -3)
 (def half-width (/ mount-width 2))
 (def larger-plate-height (/ (+ sa-double-length keyswitch-height) 2) )
 (def base-offset (+ half-width test-column-space) )     ; original was 14 or 15
 (def row-offset (+ mount-height test-row-space) )
 (def deflect-fudge [0 0 0])  ; previoiusly: (def deflect-fudge [-6 7 4])
-(def thumb-offsets [(* -4 half-width) (* -1.0 mount-height) (* -2.5 mount-height)])            ; original [6 -3 7], [20 -3 7]
+(def thumb-offsets [(* -2 half-width) (* -1.25 mount-height) (* -3.5 mount-height)])            ; original [6 -3 7], [20 -3 7]
 (def thumborigin
   (map + (key-position 0 lastrow [(* -0 mount-width) (* -0 mount-height) (* 0 mount-height)])  ; [(* -2 mount-width) (/ mount-height -20) (/ mount-height -2)]
        thumb-offsets))  ; original: (map + (key-position 1 cornerrow thumb-offsets)))
@@ -364,7 +423,7 @@
        (rotate (deg2rad 90) [0 0 -1])
        (rotate slope-thumb [1 0 0])
        (rotate thumb-tent [0 1 0])
-      ;  (rotate deflect [0 0 1])
+       (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
        ))
@@ -382,7 +441,7 @@
        (rotate (deg2rad 90) [0 0 -1])
        (rotate slope-thumb [1 0 0])
        (rotate thumb-tent [0 1 0])
-      ;  (rotate deflect [0 0 1])
+       (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
   ))
@@ -399,7 +458,7 @@
        (rotate (deg2rad 90) [0 0 -1])
        (rotate slope-thumb [1 0 0])
        (rotate thumb-tent [0 1 0])
-      ;  (rotate deflect [0 0 1])
+       (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
   ))
@@ -416,7 +475,7 @@
        (rotate (deg2rad 90) [0 0 -1])
        (rotate slope-thumb [1 0 0])
        (rotate thumb-tent [0 1 0])
-      ;  (rotate deflect [0 0 1])
+       (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
   ))
@@ -434,10 +493,11 @@
        (rotate (deg2rad 90) [0 0 -1])
        (rotate slope-thumb [1 0 0])
        (rotate thumb-tent [0 1 0])
-      ;  (rotate deflect [0 0 1])
+       (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
   ))
+(rotate (map + [slope-thumb thumb-tent 0] [0 (deg2rad 90) (* -1 (deg2rad 90))])  )
 (defn thumb-br-place [shape]
   (def rollin rollin-default)
   (def tilt tilt-last)
@@ -452,7 +512,7 @@
        (rotate (deg2rad 90) [0 0 -1])
        (rotate slope-thumb [1 0 0])
        (rotate thumb-tent [0 1 0])
-      ;  (rotate deflect [0 0 1])
+       (rotate deflect [0 0 1])
       ;  (translate (map * [-1 1 1] (deflect-offset deflect)))
        (translate thumborigin)
        ))
@@ -535,16 +595,6 @@
     (thumb-tr-place thumb-post-br)
     (thumb-mr-place web-post-tr)
     )
-  ;  (triangle-hulls    ; Old version (tl & tr are rotated from lower): top two to the middle two, starting on the left
-  ;   (thumb-tl-place thumb-post-tl)
-  ;   (thumb-ml-place web-post-tl)
-  ;   (thumb-tl-place thumb-post-bl)
-  ;   (thumb-ml-place web-post-tr)
-  ;   (thumb-tl-place thumb-post-br)
-  ;   (thumb-mr-place web-post-tl)
-  ;   (thumb-tr-place thumb-post-bl)
-  ;   (thumb-mr-place web-post-tr)
-  ;   (thumb-tr-place thumb-post-br))
    (triangle-hulls  ; Row gap on left, between middle and bottom 
     (thumb-ml-place web-post-bl)
     (thumb-bl-place web-post-tl)
@@ -578,7 +628,6 @@
 (defn left-key-place [row direction shape]
   (translate (left-key-position row direction) shape))
 
-
 (defn wall-locate1 [dx dy] [(* dx wall-thickness) (* dy wall-thickness) -1])
 (defn wall-locate2 [dx dy] [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
 (defn wall-locate3 [dx dy] [(* dx (+ wall-xy-offset wall-thickness)) (* dy (+ wall-xy-offset wall-thickness)) wall-z-offset])
@@ -605,329 +654,167 @@
   (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
 
-(def thumb-walls-normal-align 
-        (union
-         (wall-brace thumb-bl-place -1 0 web-post-bl thumb-bl-place -1 1 web-post-tl)  ; outside left lower wall
-         (wall-brace thumb-ml-place -1 1 web-post-bl thumb-bl-place -1 0 web-post-tl)  ; outside left wall between lower & middle
-                      ; (wall-brace thumb-bl-place -1 1 web-post-tl thumb-ml-place -1 0 web-post-bl)  ; outside left wall between lower & middle
-         (wall-brace thumb-ml-place -1 0 web-post-bl thumb-ml-place -1 -1 web-post-tl)  ; outside left middle wall
-                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 thumb-post-bl)  ; outside left between middle and top
-                      ; (wall-brace thumb-tl-place -1 0 thumb-post-bl thumb-tl-place -1 0 thumb-post-tl)  ; outside left upper wall
-                      ; (wall-brace thumb-br-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-br)  ; outside of lower right
-                      ; (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-tr)  ; outside right middle wall
-                      ; (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall between middle and top thumbs
-                      ; (wall-brace thumb-tr-place  0  -1 thumb-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall under top row (when not rotated)
-                      ; (wall-brace thumb-bl-place -1  0 web-post-br thumb-br-place -1  0 web-post-bl)  ; center middle to floor
-                      ; (wall-brace thumb-bl-place -1  -1 web-post-br thumb-bl-place -1 -1 web-post-bl)  ; left lower to floor
-                      ; (wall-brace thumb-br-place  0  -1 web-post-br thumb-br-place  0 -1 web-post-bl)  ; right lower to floor
-                      ; (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)  ; inside of lower right thumb to floor 
-         (wall-brace thumb-tr-place  0 -1 thumb-post-tr (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; When lower rotated from upper - Connect back right corner to keys
-                      ; (wall-brace thumb-tr-place  0 -1 thumb-post-tr (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; When lower & upper is normal aligned. - Connect back right corner to keys
-                      ;  clunky bit on the top left thumb connection  (normal connectors don't work well)
-         (bottom-hull  ; wall connection of bottom left keys to thumb left-side section. 
-          (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-          (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-          (thumb-ml-place thumb-post-tl)
-          (thumb-tl-place thumb-post-bl)
-          (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post)))
-         (triangle-hulls
-          (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-          (thumb-tl-place thumb-post-bl)
-          (key-place 0 cornerrow web-post-bl)
-          (thumb-tl-place thumb-post-tl)
-          (key-place 0 cornerrow web-post-br)
-          (key-place 1 cornerrow web-post-bl))
-         (triangle-hulls
-          (thumb-tl-place thumb-post-tl)
-          (key-place 1 cornerrow web-post-bl)
-          (thumb-tl-place thumb-post-tr))
-         (triangle-hulls
-          (key-place 1 cornerrow web-post-br)
-          (thumb-tr-place thumb-post-tl)
-          (key-place 2 lastrow web-post-bl)
-          (key-place 2 lastrow web-post-br))
-         (thumb-tl-place thumb-post-tl)
-         (thumb-tl-place thumb-post-tr)
-         (key-place 1 cornerrow web-post-br)
-                        ; (left-key-place cornerrow -1 web-post)    
-         (triangle-hulls  ; left of thumb valley
-          (thumb-ml-place web-post-tl)
-          (thumb-ml-place (translate (wall-locate2 -1.2 0) web-post-tl))
-          (thumb-tl-place thumb-post-bl)
-          (thumb-tl-place (translate (wall-locate2 -1.2 0) thumb-post-bl))
-          (thumb-tl-place thumb-post-tl))
-         (triangle-hulls  ; left of thumb valley to first lastrow (middle finger)
-          (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-          (thumb-tl-place (translate (wall-locate2 -1.2 0) thumb-post-bl))
-          (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-          (key-place 0 cornerrow (translate (wall-locate1 -1 0) web-post-bl))
-          (key-place 0 cornerrow web-post-bl)
-          (thumb-tl-place (translate (wall-locate2 -1.2 0) thumb-post-bl))
-          (key-place 0 cornerrow web-post-br)
-          (thumb-tl-place thumb-post-tl)
-          (key-place 1 cornerrow web-post-bl)
-          (thumb-tl-place thumb-post-tr)
-          (key-place 1 cornerrow web-post-br)
-          (thumb-tr-place thumb-post-tl)
-          (key-place 2 lastrow web-post-tl)
-          (key-place 2 lastrow (translate (wall-locate3 0 -1) web-post-bl))
-          (key-place 2 lastrow web-post-bl))
-         (hull  ; extend base of row 2 (middle finger)
-          (key-place 2 lastrow web-post-bl)
-          (key-place 2 lastrow (translate (wall-locate1 0 -1) web-post-bl))
-          (key-place 2 lastrow (translate (wall-locate2 0 -1) web-post-bl))
-          (key-place 2 lastrow (translate (wall-locate3 0 -1) web-post-bl))
-                       ; (key-place 3 lastrow web-post-bl)
-          (key-place 2 lastrow (translate (wall-locate3 -1.25 -1) web-post-br))
-          (key-place 2 lastrow (translate (wall-locate2 -1.25 -1) web-post-br))
-          (key-place 2 lastrow (translate (wall-locate1 0 -1) web-post-br))
-          (key-place 2 lastrow web-post-br))
-         (hull ; gap fill behind middle finger
-          (key-place 2 lastrow (translate (wall-locate3 0 -1) web-post-bl))
-          (key-place 2 lastrow (translate (wall-locate3 -1.25 -1) web-post-br))
-          (thumb-tr-place thumb-post-tl)
-          (thumb-tr-place thumb-post-tr))
-         (hull
-          (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-          (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-          (thumb-tl-place thumb-post-bl))
-         (hull  ; outside edge of main connecting to top of top thumb row
-          (left-key-place cornerrow -1 web-post)
-          (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-          (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-          (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-          (thumb-tl-place thumb-post-tl))
-         (hull  ; outside edge of main (upper part) to top of top thumb row
-          (left-key-place cornerrow -1 web-post)
-          (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-          (key-place 0 cornerrow web-post-bl)
-          (key-place 0 cornerrow (translate (wall-locate1 -1 0) web-post-bl))
-          (thumb-tl-place thumb-post-tl))
-         )  ; end union for normal-align
-  )
-(def thumb-walls-early 
-  (union
-   (wall-brace thumb-bl-place -1 0 web-post-bl thumb-bl-place -1 1 web-post-tl)  ; outside left lower wall
-   (wall-brace thumb-ml-place -1 1 web-post-bl thumb-bl-place -1 0 web-post-tl)  ; outside left wall between lower & middle
-                      ; (wall-brace thumb-bl-place -1 1 web-post-tl thumb-ml-place -1 0 web-post-bl)  ; outside left wall between lower & middle
-   (wall-brace thumb-ml-place -1 0 web-post-bl thumb-ml-place -1 -1 web-post-tl)  ; outside left middle wall
-                      ; (wall-brace thumb-ml-place -1 1 web-post-tl thumb-tl-place -1 0 thumb-post-bl)  ; outside left between middle and top
-                      ; (wall-brace thumb-tl-place -1 0 thumb-post-bl thumb-tl-place -1 0 thumb-post-tl)  ; outside left upper wall
-                      ; (wall-brace thumb-br-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-br)  ; outside of lower right
-                      ; (wall-brace thumb-mr-place  0 -1 web-post-tr thumb-br-place  0 -1 web-post-tr)  ; outside right middle wall
-                      ; (wall-brace thumb-mr-place  0  -1 web-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall between middle and top thumbs
-                      ; (wall-brace thumb-tr-place  0  -1 thumb-post-tr thumb-tr-place  0 -1 thumb-post-br)  ; right wall under top row (when not rotated)
-                      ; (wall-brace thumb-bl-place -1  0 web-post-br thumb-br-place -1  0 web-post-bl)  ; center middle to floor
-                      ; (wall-brace thumb-bl-place -1  -1 web-post-br thumb-bl-place -1 -1 web-post-bl)  ; left lower to floor
-                      ; (wall-brace thumb-br-place  0  -1 web-post-br thumb-br-place  0 -1 web-post-bl)  ; right lower to floor
-                      ; (wall-brace thumb-br-place -1  0 web-post-bl thumb-br-place  0 -1 web-post-bl)  ; inside of lower right thumb to floor 
-   (wall-brace thumb-tr-place  0 -1 thumb-post-tr (partial key-place 3 lastrow)  0 -1 web-post-bl)  ; When lower rotated from upper - Connect back right corner to keys
-                      ;  clunky bit on the top left thumb connection  (normal connectors don't work well)
-   (bottom-hull  ; wall connection of bottom left keys to thumb left-side section. 
-    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-    (thumb-ml-place thumb-post-tl)
-    (thumb-tl-place thumb-post-bl)
-    (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post)))
-   (triangle-hulls
-    (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-    (thumb-tl-place thumb-post-bl)
-    (key-place 0 cornerrow web-post-bl)
-    (thumb-tl-place thumb-post-tl)
-    (key-place 0 cornerrow web-post-br)
-    (key-place 1 cornerrow web-post-bl))
-   (triangle-hulls
-    (thumb-tl-place thumb-post-tl)
-    (key-place 1 cornerrow web-post-bl)
-    (thumb-tl-place thumb-post-tr))
-   (hull  ; When lower is rotated from upper - connect main to above ml key 
-    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-    (thumb-ml-place web-post-tl)
-    (thumb-ml-place (translate (wall-locate2 -1.2 0) web-post-tl))
-    (thumb-ml-place (translate (wall-locate3 -1.2 0) web-post-tl))
-    (thumb-tl-place thumb-post-tl))
-   (hull  ; outside edge of main connecting to top of top thumb row
-    (left-key-place cornerrow -1 web-post)
-    (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
-    (left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-    (thumb-tl-place thumb-post-tl))
-   (hull  ; outside edge of main (upper part) to top of top thumb row
-    (left-key-place cornerrow -1 web-post)
-    (left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
-    (key-place 0 cornerrow web-post-bl)
-    (key-place 0 cornerrow (translate (wall-locate1 -1 0) web-post-bl))
-    (thumb-tl-place thumb-post-tl))
-   (hull  ; original, currently not needed: under the tl thumb key
-    (thumb-ml-place web-post-tr)
-    (thumb-ml-place (translate (wall-locate1 -0.3 1) web-post-tr))
-    (thumb-ml-place (translate (wall-locate2 -0.3 1) web-post-tr))
-    (thumb-ml-place (translate (wall-locate3 -0.3 1) web-post-tr))
-    (thumb-tl-place thumb-post-tl))
-   )
-  )
-(def extra-key-top-gap
-  (union 
-   (hull  ; main keys - first extra key (column 2) top wall [only if gap to second extra key (column 3)]
-    (key-place 2 lastrow (translate (wall-locate1 0 0) web-post-bl))
-    (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
-    (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-bl))
-                  ; (key-place 2 lastrow web-post-br)
-    (key-place 2 lastrow (translate (wall-locate1 0 0) web-post-br))
-                ;  (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-br))
-                ;  (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-br))
-    (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
-
-                  ; Then it connext to what? 
-    )
-   (hull  ; main keys, first extra key (column 2) right wall
-    (key-place 2 lastrow web-post-tr)
-    (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-tr))
-    (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-tr))
-    (key-place 2 lastrow web-post-br)
-    (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-br))
-    (key-place 2 lastrow (translate (wall-locate2 0 0) web-post-br))
-                 ; Then it connects to what? 
-                ;  (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
-    )
-   (hull  ; main keys, second extra key (column 3) left wall
-    (key-place 3 lastrow web-post-tl)
-    (key-place 3 lastrow (translate (wall-locate3 0 0) web-post-tl))
-    (key-place 3 lastrow (translate (wall-locate2 0 0) web-post-tl))
-    (key-place 3 lastrow web-post-bl)
-    (key-place 3 lastrow (translate (wall-locate3 0 -1) web-post-bl))
-    (key-place 3 lastrow (translate (wall-locate2 0 -1) web-post-bl))
-                 ; Then it connects to what? 
-                ;  (thumb-tl-place (translate (wall-locate1 0 0) thumb-post-tl))
-   )
+(def thumb-lastrow-connect (thumb-tl-place thumb-post-tl))
+(defn key-col-gap [a b]
+  " For the lastrow extra keys, fill the in the gap between columns a & b"
    (triangle-hulls  ;; Extra keys (column 2 & 3) column gap
-       (key-place 2 lastrow web-post-br)
-       (key-place 2 lastrow web-post-tr)
-       (key-place 3 lastrow web-post-bl)
-       (key-place 3 lastrow web-post-tl)
-   )
-))  ;; end extra-key-top-gap
+    (key-place a lastrow web-post-br)
+    (key-place b lastrow (translate (wall-locate1 -0.6 0) web-post-bl))
+    (key-place a lastrow web-post-tr)
+    (key-place b lastrow (translate (wall-locate1 -0.6 0) web-post-tl))
+    (key-place b lastrow web-post-tl)
+    (key-place b lastrow (translate (wall-locate1 -0.6 0) web-post-bl))
+    (key-place b lastrow web-post-bl)
+  ))
+(defn key-top-wall [col adj-l adj-r]
+  (union
+   (hull  ; main keys top wall - first extra key (column 2) top wall sloped to second extra key (column 3) top wall
+    (key-place col lastrow web-post-bl)
+    (if (not= adj-l 0) (key-place col lastrow (translate (wall-locate1 adj-l 0) web-post-bl)))
+    (key-place col lastrow (translate (wall-locate1  adj-l    0.3) web-post-bl))
+    (key-place col lastrow (translate (wall-locate2  0    0.3) web-post-bl))
+    (key-place col lastrow (translate (wall-locate3  0    0) web-post-bl))
+    (if (and (not= adj-r 0) (.contains has-lastrow (inc col)))
+      (key-place (inc col) lastrow (translate (wall-locate1 adj-r  0) web-post-bl))
+      (key-place col       lastrow web-post-br)
+      ) ; here
+    (if (and (not= adj-r 0) (.contains has-lastrow (inc col)))
+      (key-place (inc col) lastrow (translate (wall-locate1 adj-r 0.3) web-post-bl))
+      (key-place col       lastrow (translate (wall-locate1   0   0.3) web-post-br))
+      )
+    (if (and (not= adj-r 0) (.contains has-lastrow (inc col)))
+      (key-place (inc col) lastrow (translate (wall-locate2   0   0.3) web-post-bl))
+      (key-place col       lastrow (translate (wall-locate2   0   0.3) web-post-br))
+      )
+    (if (and (not= adj-r 0) (.contains has-lastrow (inc col)))
+      (key-place (inc col) lastrow (translate (wall-locate3   0   0) web-post-bl))
+      (key-place col       lastrow (translate (wall-locate3   0   0) web-post-br))
+      )
+   ; end hull 
+    )
+    (if (and (not= adj-r 0) (.contains has-lastrow (inc col)))
+     (hull  ;; main key top wall - gap fixer for transition between 1st & 2nd extra keys (columns 2 & 3) 
+      (key-place col       lastrow web-post-bl)
+      (key-place col       lastrow (translate (wall-locate1  0    0.3) web-post-bl))
+      (key-place col       lastrow web-post-br)
+      (key-place col       lastrow (translate (wall-locate1  0    0.3) web-post-br))
+      (key-place (inc col) lastrow (translate (wall-locate1 adj-r  0 ) web-post-bl))
+      (key-place (inc col) lastrow (translate (wall-locate1 adj-r 0.3) web-post-bl)))
+    ; end if
+     )
+  ; end key-top-wall
+  ))
+
 (def tight-column-cleanup  ;; coumn gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
   (union
-   (triangle-hulls  ;; Extra keys (column 2 & 3) column gap
-    (key-place 2 lastrow web-post-br)
-    (key-place 3 lastrow (translate (wall-locate1 -0.6 0) web-post-bl))
-    (key-place 2 lastrow web-post-tr)
-    (key-place 3 lastrow (translate (wall-locate1 -0.6 0) web-post-tl))
-    (key-place 3 lastrow web-post-tl)
-    (key-place 3 lastrow (translate (wall-locate1 -0.6 0) web-post-bl))
-    (key-place 3 lastrow web-post-bl))
-   (hull  ; main keys top wall - first extra key (column 2) top wall sloped to second extra key (column 3) top wall
-    (key-place 2 lastrow web-post-bl)
-    (key-place 2 lastrow (translate (wall-locate1  0    0.3) web-post-bl))
-    (key-place 2 lastrow (translate (wall-locate2  0    0.3) web-post-bl))
-    (key-place 2 lastrow (translate (wall-locate3  0    0  ) web-post-bl))
-    ; special case, not connecting to web-post-bl
-    (key-place 3 lastrow (translate (wall-locate1 -0.6  0  ) web-post-bl))
-    (key-place 3 lastrow (translate (wall-locate1 -0.6  0.3) web-post-bl))
-    (key-place 3 lastrow (translate (wall-locate2  0    0.3) web-post-bl))
-    (key-place 3 lastrow (translate (wall-locate3  0    0) web-post-bl)))
-   (hull  ;; main key top wall - gap fixer for transition between 1st & 2nd extra keys (columns 2 & 3) 
-    (key-place 2 lastrow web-post-bl)
-    (key-place 2 lastrow (translate (wall-locate1  0    0.3) web-post-bl))
-    (key-place 2 lastrow web-post-br)
-    (key-place 2 lastrow (translate (wall-locate1  0    0.3) web-post-br))
-    (key-place 3 lastrow (translate (wall-locate1 -0.6  0  ) web-post-bl))
-    (key-place 3 lastrow (translate (wall-locate1 -0.6  0.3) web-post-bl)))
-   (hull  ; main keys top wall - second extra key (column 3)
-    (key-place 3 lastrow web-post-bl)
-    (key-place 3 lastrow (translate (wall-locate1 -0.6  0) web-post-bl))  ; special for tight columns
-    (key-place 3 lastrow (translate (wall-locate1 -0.6  0.3) web-post-bl))
-    (key-place 3 lastrow (translate (wall-locate2  0    0.3) web-post-bl))
-    (key-place 3 lastrow (translate (wall-locate3  0    0  ) web-post-bl))
-    (key-place 3 lastrow web-post-br)
-    (key-place 3 lastrow (translate (wall-locate1  0    0.3) web-post-br))
-    (key-place 3 lastrow (translate (wall-locate2  0    0.3) web-post-br))
-    (key-place 3 lastrow (translate (wall-locate3  0    0  ) web-post-br))
-                  ; Then it connext to what? 
-    )
+   (key-col-gap (get has-lastrow 0) (get has-lastrow 1))
+   (key-top-wall (get has-lastrow 0)  0   -0.6)
+   (key-top-wall (get has-lastrow 1) -0.6  0  )
    (triangle-hulls  ; First extra key (column 2) front wall to thumb corner 
-    (thumb-tl-place thumb-post-tl)
-    (key-place 2 lastrow (translate (wall-locate3 0 0) web-post-bl))
-    (key-place 3 lastrow (translate (wall-locate3 0 0) web-post-bl))
-    )
-  ) ; end union 
-)  ;; end tight-column-cleanup
+    ; thumb-lastrow-connect    ;; Comment out if no thumb section printing. 
+    (key-place (get has-lastrow 0) lastrow (translate (wall-locate3 0 0) web-post-bl))
+    (key-place (get has-lastrow 1) lastrow (translate (wall-locate3 0 0) web-post-bl)))) ; end union 
+  )  ;; end tight-column-cleanup
+(defn connect-adjacent [column side]
+  " Usually used to connect the 'extra' keys of the lastrow to 
+    the corner of the adjent column "
+  (let [p1 (if (= side 'left') 0 -0.3)
+        p2 (if (= side 'left') 0.3  0)
+        top-post (if (= side 'left') web-post-tl web-post-tr)
+        bottom-post (if (= side 'left') web-post-bl web-post-br)
+        adjacent (if (= side 'left') (dec column) (inc column))
+        adj-post (if (= side 'left') web-post-br web-post-bl)
+        ]
+    (hull
+     (key-place column cornerrow bottom-post)
+     (key-place column cornerrow (translate (wall-locate1 0  0) bottom-post))
+     (key-place column lastrow top-post)
+     (key-place column lastrow   (translate (wall-locate1 p1  p2) top-post))
+     (key-place adjacent cornerrow adj-post)
+     (key-place adjacent cornerrow (translate (wall-locate1 0 -0.5) adj-post))
+; end connect-adjacent
+     )))
+(defn key-wall [column side]
+  " Usually used to create a left or right wall for the 'extra' 
+    keys of the lastrow (that aren't connected when generated)"
+  (let [p1 (if (= side 'left') 0 -0.3)
+        p2 (if (= side 'left') 0.3 0)
+        top-post (if (= side 'left') web-post-tl web-post-tr)
+        bottom-post (if (= side 'left') web-post-bl web-post-br)
+        ]
+    (hull
+     (key-place column lastrow top-post)
+     (key-place column lastrow   (translate (wall-locate1 p1 p2) top-post))
+     (key-place column lastrow   (translate (wall-locate2 p1 p2) top-post))
+     (key-place column lastrow   (translate (wall-locate3 0  0 ) top-post))
+     (key-place column lastrow bottom-post)
+     (key-place column lastrow   (translate (wall-locate1 p1 p2) bottom-post))
+     (key-place column lastrow   (translate (wall-locate2 p1 p2) bottom-post))
+     (key-place column lastrow   (translate (wall-locate3 0  0 ) bottom-post))
+  ; End key-wall 
+     )))
+
 (def main-key-cleanup 
   (union
    (triangle-hulls  ;; Extra keys (column 2 & 3) row gap
-    (key-place 2 cornerrow web-post-bl)
-    (key-place 2 lastrow web-post-tl)
-    (key-place 2 cornerrow web-post-br)
-    (key-place 2 lastrow web-post-tr)
-    (key-place 3 cornerrow web-post-bl)
-    (key-place 3 lastrow web-post-tl)
-    (key-place 3 cornerrow web-post-br)
-    (key-place 3 lastrow web-post-tr))
-   (hull  ;; First extra key (column 2) connect to adjacent key
-    (key-place 2 cornerrow web-post-bl)
-    (key-place 2 lastrow web-post-tl)
-    (key-place 1 cornerrow web-post-br)
-    (key-place 2 cornerrow (translate (wall-locate1 0  0) web-post-bl))
-    (key-place 2 lastrow   (translate (wall-locate1 0  0.3) web-post-tl))
-    (key-place 1 cornerrow (translate (wall-locate1 0 -0.5) web-post-br)))
+    (key-place (get has-lastrow 0) cornerrow web-post-bl)
+    (key-place (get has-lastrow 0) lastrow web-post-tl)
+    (key-place (get has-lastrow 0) cornerrow web-post-br)
+    (key-place (get has-lastrow 0) lastrow web-post-tr)
+    (key-place (get has-lastrow 1) cornerrow web-post-bl)
+    (key-place (get has-lastrow 1) lastrow web-post-tl)
+    (key-place (get has-lastrow 1) cornerrow web-post-br)
+    (key-place (get has-lastrow 1) lastrow web-post-tr)
+   )
+   (connect-adjacent (get has-lastrow 0) 'left')
    (hull  ; First extra key (column 2) left wall
-    (key-place 2 lastrow web-post-tl)
-    (key-place 2 lastrow   (translate (wall-locate1 0    0.3) web-post-tl))
-    (key-place 2 lastrow   (translate (wall-locate2 0    0.3) web-post-tl))
-    (key-place 2 lastrow   (translate (wall-locate3 0    0) web-post-tl))
-    (key-place 2 lastrow web-post-bl)
-    (key-place 2 lastrow   (translate (wall-locate1 0    0.3) web-post-bl))
-    (key-place 2 lastrow   (translate (wall-locate2 0    0.3) web-post-bl))
-    (key-place 2 lastrow   (translate (wall-locate3 0    0) web-post-bl))
+    (key-wall (get has-lastrow 0) 'left')
     ; Then it connects to what?
-    (key-place 1 cornerrow web-post-br)
-    (key-place 1 cornerrow (translate (wall-locate1 0   -0.5) web-post-br))
-    (thumb-tl-place thumb-post-tl)
-    ; (thumb-tl-place (translate (wall-locate1 0.3 0.3) thumb-post-tl))  ; ?? check this
+    (key-place (dec (get has-lastrow 0)) cornerrow web-post-br)
+    (key-place (dec (get has-lastrow 0)) cornerrow (translate (wall-locate1 0   -0.5) web-post-br))
+    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
     )
-   (hull  ;; Second extra key (column 3) connect to adjacent key
-    (key-place 3 cornerrow web-post-br)
-    (key-place 3 lastrow web-post-tr)
-    ; (key-place 3 lastrow web-post-br)
-    (key-place 4 cornerrow web-post-bl)
-    (key-place 3 cornerrow (translate (wall-locate1  0    0  ) web-post-br))
-    (key-place 3 lastrow   (translate (wall-locate1 -0.3  0  ) web-post-tr))
-    (key-place 4 cornerrow (translate (wall-locate1  0   -0.5) web-post-bl))
-    )
+   (connect-adjacent (get has-lastrow 1) 'right')
    (hull  ; Second extra key (column 3) right wall
-    (key-place 3 lastrow web-post-tr)
-    (key-place 3 lastrow   (translate (wall-locate1 -0.3  0  ) web-post-tr))
-    (key-place 3 lastrow   (translate (wall-locate2 -0.3  0  ) web-post-tr))
-    (key-place 3 lastrow   (translate (wall-locate3  0    0  ) web-post-tr))
-    (key-place 3 lastrow web-post-br)
-    (key-place 3 lastrow   (translate (wall-locate1  -0.3   0  ) web-post-br))
-    (key-place 3 lastrow   (translate (wall-locate2  -0.3   0  ) web-post-br))
-    (key-place 3 lastrow   (translate (wall-locate3   0     0  ) web-post-br))
-    ;              ; Then it connects to what? 
-    (key-place 4 cornerrow web-post-bl)
-    (key-place 4 cornerrow (translate (wall-locate1  0 -0.5  ) web-post-bl))
-    (key-place 4 cornerrow (translate (wall-locate2 -0.3 -1  ) web-post-bl))
-    (key-place 4 cornerrow (translate (wall-locate3  0   -1  ) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
-    ; ; temp hidden 
-    ; ; working 
-    )
+    (key-wall (get has-lastrow 1) 'right')    
+    ; Then it connects to what? 
+    (key-place (inc (get has-lastrow 1)) cornerrow web-post-bl)
+    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate1  0 -0.5) web-post-bl))
+    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate2 -0.3 -1) web-post-bl))
+    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3  0   -1) web-post-bl)) 
+    ; connects to default front wall of key-place 4 cornerrow
+   )
    (hull ; Front wall for some of 1st, but most 2nd extra keys (columns 2 & 3).
-    (key-place 3 lastrow   (translate (wall-locate3 0 0) web-post-bl))
-    (thumb-tl-place thumb-post-tl)
-    (key-place 3 lastrow   (translate (wall-locate3 0 0) web-post-br))
-    (key-place 4 cornerrow (translate (wall-locate3 0 -1) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
+    (key-place (get has-lastrow 1) lastrow   (translate (wall-locate3 0 0) web-post-bl))
+    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
+    (key-place (get has-lastrow 1) lastrow   (translate (wall-locate3 0 0) web-post-br))
+    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3 0 -1) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
     )
-   tight-column-cleanup  ; column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
-   ;; if there is a gap between first & second extra keys (column 2 & 3) then: 
-  ;  extra-key-top-gap
+  ;  extra-key-top-gap  ; if there is a gap between first & second extra keys (column 2 & 3)
+   tight-column-cleanup  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
    (bottom-hull  ; front wall of extra keys and final main section. 
-    (thumb-tl-place thumb-post-tl)
-    (key-place 4 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
-    )
-   ; end of main-key-cleanup
-   ))
+    ; thumb-lastrow-connect  ;; Comment out if no thumb section printing. 
+    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
+   )
+; end of main-key-cleanup
+))
+
+(def block-thumb-hood-top-wall
+  (hull  ;; thumb-hood top wall as a block: small section of thumb bl-bl to bl-bl of main. 
+   (key-place 0 cornerrow web-post-tl)
+   (key-place 0 cornerrow (translate (wall-locate1 0 0) web-post-tl))
+   (key-place 0 cornerrow web-post-bl)
+   (key-place 0 cornerrow (translate (wall-locate1 0 -0.5) web-post-bl))
+   (thumb-bl-place web-post-bl)
+   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
+   (thumb-bl-place (translate (wall-locate3 0 -1) web-post-bl))
+   (thumb-bl-place (translate (wall-locate2 0 -1) web-post-bl))
+   (key-place 0 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
+    ; Do we really want to fill in so much? 
+   )
+; End block-thumb-hood-top-wall  
+  )
+
 (def thumb-valley
   (union
    (hull  ;; main keys top wall - first two key columns, connecting to thumb section
@@ -956,27 +843,16 @@
     (key-place 0 cornerrow (translate (wall-locate1 0 -0.5) web-post-bl))
     ; connects other thumb-hood sections and main keys top wall
     )
-  ;  (hull  ;; thumb-hood top wall as a block: small section of thumb bl-bl to bl-bl of main. 
-  ;   (key-place 0 cornerrow web-post-tl)
-  ;   (key-place 0 cornerrow (translate (wall-locate1 0 0) web-post-tl))
-  ;   (key-place 0 cornerrow web-post-bl)
-  ;   (key-place 0 cornerrow (translate (wall-locate1 0 -0.5) web-post-bl))
-  ;   (thumb-bl-place web-post-bl)
-  ;   (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-bl))
-  ;   (thumb-bl-place (translate (wall-locate3 0 -1) web-post-bl))
-  ;   (thumb-bl-place (translate (wall-locate2 0 -1) web-post-bl))
-  ;   (key-place 0 cornerrow (translate (wall-locate3 0 -1) web-post-bl))
-  ;   ; Do we really want to fill in so much? 
-  ;   )
+  ;  block-thumb-hood-top-wall  ; alternative thumb-hood top wall 
    (hull  ;; Internal back wall of thumb section, connecting to main section top wall of first 2 columns 
     (thumb-ml-place web-post-bl)
     (thumb-ml-place web-post-tl)
     (thumb-bl-place web-post-bl)
     (thumb-tl-place thumb-post-tl)
-    (thumb-ml-place (translate (wall-locate1 -0.5 0) web-post-bl))
-    (thumb-ml-place (translate (wall-locate1 -0.5 0) web-post-tl))
-    (key-place 1 cornerrow (translate (wall-locate2 0 -1) web-post-br))
-    (key-place 0 cornerrow (translate (wall-locate2 0 -1) web-post-bl))
+    (thumb-ml-place (translate (wall-locate1 -0.3 0) web-post-bl))
+    (thumb-ml-place (translate (wall-locate1 -0.3 0) web-post-tl))
+    (key-place 1 cornerrow (translate (wall-locate2 0 -1) web-post-br))  ; -2.15 < second param wall-locate2 < 0.99
+    (key-place 0 cornerrow (translate (wall-locate2 0 -1) web-post-bl))  ; -2.15 < second param wall-locate2 < 0.99
     ; connects to main keys top wall - first two key columns
     )
   ;; end thumb-valley
@@ -1192,18 +1068,20 @@
                     key-holes
                     connectors
                     case-walls
-                    thumb-walls
-                    thumb
-                    thumb-connectors
-                    (difference (union case-walls
-                                       thumb-walls
-                                       screw-insert-outers
-                                       teensy-holder
-                                       usb-holder)
-                                rj9-space
-                                usb-holder-hole
-                                screw-insert-holes)
-                    rj9-holder
+                    ; thumb-walls
+                    ; thumb
+                    ; thumb-connectors
+                    ; (difference (union case-walls
+                    ;                    thumb-walls
+                    ;                    screw-insert-outers
+                    ;                    teensy-holder
+                    ;                    usb-holder
+                    ;                    )
+                    ;             rj9-space
+                    ;             usb-holder-hole
+                    ;             screw-insert-holes
+                    ;             )
+                    ; rj9-holder
                     ; wire-posts
                     ; thumbcaps
                     ; caps
@@ -1222,7 +1100,7 @@
 
 (spit "things/right-test.scad"
       (write-scad (union model-right 
-                         thumbcaps 
+                        ;  thumbcaps 
                          caps
                   )))
 
@@ -1230,41 +1108,48 @@
       (write-scad
        (union
         (translate [0 0 (* 0 wall-thickness)]
-                   (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
+                   (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}  ; make height 0.1 if a 2d output is desired
                                    (cut
                                     (translate [0 0 (* -1 wall-thickness)]
                                                (difference
-                                                (union case-walls
-                                                       thumb-walls
+                                                (union case-walls   ; to fill in: (hull case-walls)
+                                                       thumb-walls  ; to fill in: (hull thumb-walls)
                                                        teensy-holder
                                                        ; rj9-holder
                                                        screw-insert-outers)
                                                 (translate [0 0 -10] screw-insert-screw-holes))))  ; end cut
                                    )  ; end extrude-linear
                    )
-        ;; would like to add the filled in bottom plate here
-;        (extrude-linear {:height (* 1 wall-thickness) :twist 0 :convexity 0}
-;                        (cut
-;                         (translate [0 0 (* -1 wall-thickness)]
-;                                    (difference
-;                                     (union (hull case-walls)
-;                                            (hull thumb-walls)
-;                                            teensy-holder
-;                                           ; rj9-holder
-;                                            screw-insert-outers)
-;                                     (translate [0 0 -10] screw-insert-screw-holes))))  ; end cut
-;        )  ; end extrude-linear
+        ;; would like to add the filled in bottom plate here. The above notes to fill do not work when the walls curve back in. 
         )))
+
+(defn reset-thumb-placement [object]
+  (translate [0 0 (* 0.25 mount-height)]
+  (rotate (deg2rad 15) [1 0 0] 
+          (rotate (deg2rad 63) [0 1 0]
+                  (rotate slope-thumb [-1 0 0]
+                          (rotate (+ thumb-tent (deg2rad 90)) [0 -1 0]
+                                  (rotate (deg2rad 90) [0 0 1]
+                                          ;; stuff 
+                                          (translate (map * [-1 -1 -1] thumborigin)
+                                                     object
+                                                     
+                                             ) ; end translate  
+                                  ))))) ; end nested rotates
+))  ; end reset-thumb-placement
 
 (spit "things/thumbpad.scad"
       (write-scad
-       (union
-        thumb
-          ;  thumbcaps
-        thumb-connectors
-        thumb-valley
-        thumb-walls
-          ;  case-walls
-        )))
+       (reset-thumb-placement
+        (union
+         thumb
+         thumb-connectors
+         thumb-valley
+         ;  thumbcaps
+         ; thumb-walls
+         ;  case-walls
+        )  ; end union 
+       )  ; end reset-thumb-placement
+))  
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
