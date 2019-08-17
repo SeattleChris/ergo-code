@@ -15,7 +15,7 @@
 (def column-per-finger [2 1 1 1])
 (def ncols (reduce + column-per-finger))
 (def middle-finger-col (get column-per-finger 0))
-(def has-lastrow       [middle-finger-col (+ 1 middle-finger-col)])
+(def has-lastrow       [middle-finger-col (+ 1 middle-finger-col) ])  ; (+ 2 middle-finger-col)
 (def is-stretch-column [0 5])  ; 5 ignored if ncols=5, but is there just in case we add a second pinkie column.
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
@@ -28,7 +28,7 @@
 (def tilt-pivotrow (- nrows 1 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up.
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
-(def keyboard-z-offset (+ 2 (* 12 (- ncols tent-pivotcol))))  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
+(def keyboard-z-offset (+ 2 (* 13 (- ncols tent-pivotcol))))  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 (def column-style
   (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def cherry-brand-keyswitch false)
