@@ -7,7 +7,6 @@
 
 (defn deg2rad [degrees]   ; 1 pi radians = 180 degrees
   (* (/ degrees 180) pi))
-
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -29,24 +28,19 @@
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
 (def keyboard-z-offset (+ 2 (* 13 (- ncols tent-pivotcol))))  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
-(def column-style
-  (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 (def cherry-brand-keyswitch false)
+(def plate-thickness 3.5)  ; was 4 ; 
 (defn column-offset [column] (cond
                                (= column  (+ 0 middle-finger-col)) [0 13.82 -2.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
                                (= column  (+ 1 middle-finger-col)) [0  7.82 -1.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
                                (>= column (+ 2 middle-finger-col)) [0 -5.18  1.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
                                :else [0 0 0]))  ; The pointer finger
-;; Settings for column-style == :fixed
-;; The defaults roughly match Maltron settings
-;;   http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
-;; Fixed-z overrides the z portion of the column ofsets above.
-;; NOTE: THIS DOESN'T WORK QUITE LIKE I'D HOPED.
+;; Doesn't work quite like was hoped - Settings for column-style == :fixed
+;; The defaults roughly match Maltron settings http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
 (def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])
 (def fixed-x [-41.5 -22.5 0 20.3 41.4 65.5 89.6])  ; relative to the middle finger
 (def fixed-z [12.1    8.3 0  5   10.7 14.5 17.5])
 (def fixed-tenting (deg2rad 0))
-
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -55,15 +49,15 @@
 (def lastcol (dec ncols))
 (def columns (range 0 ncols))
 (def rows (range 0 nrows))
-
+(def sa-profile-key-height 12.7)
+(def column-style
+  (if (> nrows 3) :orthographic :standard))  ; options include :standard, :orthographic, and :fixed
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
 (def keyswitch-height (if (= cherry-brand-keyswitch true) 14.4 14.35)) ; try 14.15, 14.25 ; Was 14.1, then 14.25, then 14.4
 (def keyswitch-width  (if (= cherry-brand-keyswitch true) 14.4 14.35 ))  ; try ?? ; Was 14.4
 (def clip-keyswitch   (if (= cherry-brand-keyswitch true)  1.0  0.5 ))  ; Was 1 for cherry, for others: 0.5 with width at 14.4 was too loose.
-(def sa-profile-key-height 12.7)
-(def plate-thickness 3.5)  ; was 4 ; 
 ; For key spacing (on flat layout) 19.05mm x 19.05mm is standard placeholder per key
 ; Standard keycaps are about 18mm x 18mm
 (def mount-width (+ keyswitch-width 3))
@@ -352,7 +346,7 @@
 (def row-offset (+ mount-height test-row-space) )
 (def deflect-fudge [0 0 0])  ; previoiusly: (def deflect-fudge [-6 7 4])
 (def thumb-offsets [(* -1 half-width) (* -1.1 mount-height) (* -3.5 mount-height)])            ; original [6 -3 7], [20 -3 7]
-;;; Corner posts for thumb keys. 
+;;;;;;;;;;;;; Corner posts for thumb keys. ;;;;;;;;;;;;;;;;;
 ; Use if thumb-upper-layout is only unsing 1u caps.
 (def thumb-post-tr web-post-tr)
 (def thumb-post-tl web-post-tl)
@@ -363,7 +357,7 @@
 ; (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  1.15) post-adj) 0] web-post))
 ; (def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
 ; (def thumb-post-br (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -1.15) post-adj) 0] web-post))
-;;;;;;;;; Derived Variables ;;;;;;;;;;;;;;;;;
+;;;;'''''';;;;; Derived Variables ;;;;;;;;;;;;;;;;;
 (def thumborigin
   (map + (key-position 0 lastrow [(* -0 mount-width) (* -0 mount-height) (* 0 mount-height)])  ; [(* -2 mount-width) (/ mount-height -20) (/ mount-height -2)]
        thumb-offsets))  ; original: (map + (key-position 1 cornerrow thumb-offsets)))
@@ -762,7 +756,7 @@
     )
   ;  extra-key-top-gap  ; if there is a gap between first & second extra keys (column 2 & 3)
    (tight-column-cleanup thumb)  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
-; end of main-key-cleanup
+  ; end of main-key-cleanup
    ))
 
 (def valley-clearance
@@ -1089,7 +1083,7 @@
                     ; caps
                     )
                    (translate [0 0 -20] (cube 350 350 40))
-                  ))
+                  ))  ; end model-right
 (defn reset-thumb-placement [object]
   (translate [0 0 (* 0.5 mount-height)]
              (rotate (deg2rad -40) [1 0 0]
@@ -1102,9 +1096,8 @@
                                                                      (rotate (deg2rad 90) [0 0 1]
                                                                              (translate (map * [-1 -1 -1] thumborigin)
                                                                                         object) ; end translate
-)))))))) ; end nested rotates
-  ; end reset-thumb-placement
-             ))
+                                                                             )))))))) ; end nested rotates
+  ))  ; end reset-thumb-placement
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create the SCAD files ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
