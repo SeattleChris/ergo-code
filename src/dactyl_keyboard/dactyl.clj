@@ -225,7 +225,6 @@
     [0 (Math/cos angle) (- (Math/sin angle))]
     [0 (Math/sin angle)    (Math/cos angle)]]
    position))
-
 (defn rotate-around-y [angle position]
   (mmul
    [[(Math/cos angle)     0 (Math/sin angle)]
@@ -345,13 +344,6 @@
 ;; Main: α (/ π 5), β (/ π 30), tilt-pivotrow (- nrows 3), tent-pivotcol 5, tenting-angle (/ π 12),
 ;; extra-width 2.5, extra-height 1.0, keyboard-z-offset 2, wall-z-offset -15
 ;;
-       (rotate thumb-tent [0 1 0])
-       (rotate slope-thumb [1 0 0])
-       (rotate deflect [0 0 1])
-       (translate thumborigin)
-       (rotate (deg2rad 90) [0 1 0])
-       (rotate (deg2rad 90) [0 0 -1])
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parameters for test thumb ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -600,24 +592,26 @@
 ;;;;;;;;;;
 ;; Case ;;
 ;;;;;;;;;;
+(def left-wall-x-offset 10)
+(def left-wall-z-offset  3)
+(def thumb-lastrow-connect (thumb-tl-place thumb-post-tr))
+(def thumb-left-connect (union
+                         (thumb-tl-place thumb-post-tl)
+                         (thumb-tl-place thumb-post-bl)
+                         ))
+; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 0.25 0) thumb-post-tr)))
+; (def thumb-lastrow-connect (key-place lastcol cornerrow (translate (wall-locate3 -2 -1) web-post-bl) ))
 
 (defn bottom [height p]
   (->> (project p)
        (extrude-linear {:height height :twist 0 :convexity 0})
        (translate [0 0 (- (/ height 2) 10)])))
-
 (defn bottom-hull [& p]
   (hull p (bottom 0.001 p)))
-
-(def left-wall-x-offset 10)
-(def left-wall-z-offset  3)
-
 (defn left-key-position [row direction]
   (map - (key-position 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0]) [left-wall-x-offset 0 left-wall-z-offset]) )
-
 (defn left-key-place [row direction shape]
   (translate (left-key-position row direction) shape))
-
 (defn wall-locate1 [dx dy] [(* dx wall-thickness) (* dy wall-thickness) -1])
 (defn wall-locate2 [dx dy] [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
 (defn wall-locate3 [dx dy] [(* dx (+ wall-xy-offset wall-thickness)) (* dy (+ wall-xy-offset wall-thickness)) wall-z-offset])
@@ -639,18 +633,9 @@
       (place2 (translate (wall-locate2 dx2 dy2) post2))
       (place2 (translate (wall-locate3 dx2 dy2) post2)))
       ))
-
 (defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
   (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
-
-(def thumb-lastrow-connect (thumb-tl-place thumb-post-tr))
-(def thumb-left-connect (union
-                         (thumb-tl-place thumb-post-tl)
-                         (thumb-tl-place thumb-post-bl)
-                         ))
-; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 0.25 0) thumb-post-tr)))
-; (def thumb-lastrow-connect (key-place lastcol cornerrow (translate (wall-locate3 -2 -1) web-post-bl) ))
 (defn key-top-wall [col row adj-l adj-r]
   (union
    (hull  ; main keys top wall - first extra key (column 2) top wall sloped to second extra key (column 3) top wall
@@ -689,7 +674,6 @@
      )
   ; end key-top-wall
   ))
-
 (defn tight-column-cleanup [thumb];; coumn gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
   (union
    (col-gap lastrow (get has-lastrow 0) (get has-lastrow 1) 'right')
