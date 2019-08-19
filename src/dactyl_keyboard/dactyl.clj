@@ -707,52 +707,56 @@
      )))
 
 (defn main-key-cleanup [thumb]
+  " Deals with lastrow keys formatting that is not automatically managed like other main section keys. "
   (union
+   (for [col columns :when (.contains has-lastrow col)]
+     (row-gap col cornerrow lastrow)
+     )
+  ;  (for [col (range 0 lastcol) :when (.contains has-lastrow col) ]
+     
+  ;    )
+   (connect-adjacent (get has-lastrow 0) 'left')
+  ;  (doseq [c has-lastrow] (row-gap c cornerrow lastrow))
+  ;  (row-gap (get has-lastrow 0) cornerrow lastrow)
+  ;  (row-gap (get has-lastrow 1) cornerrow lastrow)
+  ;  (row-gap (get has-lastrow 2) cornerrow lastrow)
   ;  (row-gap cornerrow (get has-lastrow 0) (get has-lastrow 1))
   ;  (row-gap lastrow (get has-lastrow 0) (get has-lastrow 1))
-   (triangle-hulls  ;; Extra keys (column 2 & 3) row gap
-    (key-place (get has-lastrow 0) cornerrow web-post-bl)
-    (key-place (get has-lastrow 0) lastrow web-post-tl)
-    (key-place (get has-lastrow 0) cornerrow web-post-br)
-    (key-place (get has-lastrow 0) lastrow web-post-tr)
-    (key-place (get has-lastrow 1) cornerrow web-post-bl)
-    (key-place (get has-lastrow 1) lastrow web-post-tl)
-    (key-place (get has-lastrow 1) cornerrow web-post-br)
-    (key-place (get has-lastrow 1) lastrow web-post-tr)
-    )
-   (connect-adjacent (get has-lastrow 0) 'left')
+  ;  (triangle-hulls  ;; Extra keys (column 2 & 3) row gap
+  ;   (key-place (get has-lastrow 0) cornerrow web-post-bl)
+  ;   (key-place (get has-lastrow 0) lastrow web-post-tl)
+  ;   (key-place (get has-lastrow 0) cornerrow web-post-br)
+  ;   (key-place (get has-lastrow 0) lastrow web-post-tr)
+  ;   (key-place (get has-lastrow 1) cornerrow web-post-bl)
+  ;   (key-place (get has-lastrow 1) lastrow web-post-tl)
+  ;   (key-place (get has-lastrow 1) cornerrow web-post-br)
+  ;   (key-place (get has-lastrow 1) lastrow web-post-tr)
+  ;   )
    (hull  ; First extra key (column 2) left wall
-    (key-wall (get has-lastrow 0) 'left')
-    ; Then it connects to what?
+    (key-wall (get has-lastrow 0) 'left')  ; Then it connects to what?
     (key-place (dec (get has-lastrow 0)) cornerrow web-post-br)
     (key-place (dec (get has-lastrow 0)) cornerrow (translate (wall-locate1 0   -0.5) web-post-br))
-    (if (= thumb true)
-      thumb-left-connect  ;; Comment out if no thumb section printing.
-      )
+    (if (= thumb true) thumb-left-connect)  ;; Comment out if no thumb section printing.
     )
-   (connect-adjacent (get has-lastrow 1) 'right')
+   (connect-adjacent (last has-lastrow) 'right')
    (hull  ; Second extra key (column 3) right wall
-    (key-wall (get has-lastrow 1) 'right')
+    (key-wall (last has-lastrow) 'right')
     ; Then it connects to what?
-    (key-place (inc (get has-lastrow 1)) cornerrow web-post-bl)
-    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate1  0 -0.5) web-post-bl))
-    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate2 -0.3 -1) web-post-bl))
-    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3  0   -1) web-post-bl))
+    (key-place (inc (last has-lastrow)) cornerrow web-post-bl)
+    (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate1  0 -0.5) web-post-bl))
+    (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate2 -0.3 -1) web-post-bl))
+    (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3  0   -1) web-post-bl))
     ; connects to default front wall of key-place 4 cornerrow
     )
    (hull ; Front wall for some of 1st, but most 2nd extra keys (columns 2 & 3).
-    (key-place (get has-lastrow 1) lastrow   (translate (wall-locate3 0 0) web-post-bl))
-    (key-place (get has-lastrow 1) lastrow   (translate (wall-locate3 0 0) web-post-br))
-    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3 0 -1) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
-    (if (= thumb true)
-      thumb-lastrow-connect  ;; Comment out if no thumb section printing.
-      )
+    (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-bl))
+    (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-br))
+    (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl)) ; connects to default front wall of key-place 4 cornerrow
+    (if (= thumb true) thumb-lastrow-connect)  ;; Comment out if no thumb section printing.
     )
    (bottom-hull  ; front wall of extra keys and final main section.
-    (key-place (inc (get has-lastrow 1)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
-    (if (= thumb true)
-      thumb-lastrow-connect  ;; Comment out if no thumb section printing.
-      )
+    (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
+    (if (= thumb true) thumb-lastrow-connect)  ;; Comment out if no thumb section printing.
     )
   ;  extra-key-top-gap  ; if there is a gap between first & second extra keys (column 2 & 3)
    (tight-column-cleanup thumb)  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
