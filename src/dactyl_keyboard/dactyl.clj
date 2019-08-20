@@ -1036,10 +1036,10 @@
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow)) ; if row is lastrow (or greater), but column is not 0 or lastcol
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position
-        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-85 0 -38] ))   ; if nrows=4, [-67 0 -38]
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-72 5 -32] ))  ; if nrows=4,  [-70 7 -36]
-            (if shift-up     (key-position column row (map + (wall-locate2  -0.5  -0.5) [0 (/ mount-height 2) 2]))
-                (if shift-down  (key-position column row (map - (wall-locate2  0 -15) [-1 (/ mount-height 2) 11]))   ; if nrows=4, [-7 (/ mount-height 2) -14]
+        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-75 -2 -38] ))   ; if nrows=4, [-67 0 -38]
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-70 6 -34] ))  ; if nrows=4,  [-70 7 -36]
+            (if shift-up     (key-position column row (map + (wall-locate2  -0  -0.5) [0 (/ mount-height 2) 2]))
+                (if shift-down  (key-position column row (map - (wall-locate2  0 -8) [-1 (/ mount-height 2) 11]))   ; if nrows=4, [-7 (/ mount-height 2) -14]
                     (if (and shift-left (>= row cornerrow)) (map + (left-key-position row 1) (wall-locate3 0 0) [-9 2 0])
                     (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0) [3 (/ mount-height 2) 11])
                         (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) 0) 0 0] ))))))))]  ; if nrows=4, [(+ (/ mount-width 2) 2) 0 -3]
@@ -1048,13 +1048,13 @@
     )))
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union
-   (screw-insert 0 (+ 0.3 (* 0.5 (- nrows 3))) bottom-radius top-radius height)  ; back/top left  ;; rows=4, x=0.8, rows=5, x=1.3
-   (screw-insert 0 (+ cornerrow 0.4)           bottom-radius top-radius height)  ; front/bottom left
-   (screw-insert 2 (+ lastrow 0)               bottom-radius top-radius height)  ; front/bottom right
-   (screw-insert 2 0                           bottom-radius top-radius height)  ; back/top center
-   (screw-insert lastcol 0                     bottom-radius top-radius height)  ; back/top right
-   (screw-insert lastcol (+ lastrow 0.1)       bottom-radius top-radius height)  ; thumb screw
-   (screw-insert 0 (+ lastrow 0.1)             bottom-radius top-radius height)  ; thumb screw
+   (screw-insert 0 (+ 0.3 (* 0.5 (- nrows 3))) bottom-radius top-radius height)  ; back/top left      => shift-left  ;; rows=4, x=0.8, rows=5, x=1.3
+   (screw-insert 0 (+ cornerrow 0.4)           bottom-radius top-radius height)  ; front/bottom left  => shift-left
+   (screw-insert 2 (+ lastrow 0)               bottom-radius top-radius height)  ; front/bottom right => shift-down
+   (screw-insert 2 0                           bottom-radius top-radius height)  ; back/top center    => shift-up
+   (screw-insert lastcol 0                     bottom-radius top-radius height)  ; back/top right     => shift-right
+   (screw-insert lastcol (+ lastrow 0.1)       bottom-radius top-radius height)  ; thumb screw        => shift-right & shift-thumb
+   (screw-insert 0 (+ lastrow 0.1)             bottom-radius top-radius height)  ; thumb screw        => shift-left & shift-thumb
    ))
 (def screw-insert-height 3.8)
 (def screw-insert-bottom-radius (/ 5.31 2))
@@ -1093,22 +1093,21 @@
                     connectors
                     case-walls
                     (main-key-cleanup true)
-                    ; model-right-no-thumb
                     thumb-walls
                     thumb
                     thumb-connectors
-                    ; (difference (union case-walls
-                    ;                    (main-key-cleanup true)
-                    ;                    thumb-walls
-                    ;                    screw-insert-outers
-                    ;                    teensy-holder
-                    ;                    usb-holder
-                    ;                    )
-                    ;             rj9-space
-                    ;             usb-holder-hole
-                    ;             screw-insert-holes
-                    ;             )
-                    ; rj9-holder
+                    (difference (union case-walls
+                                       (main-key-cleanup true)
+                                       thumb-walls
+                                       screw-insert-outers
+                                       teensy-holder
+                                       usb-holder
+                                       )
+                                rj9-space
+                                usb-holder-hole
+                                screw-insert-holes
+                                )
+                    rj9-holder
                     ; wire-posts
                     ; thumbcaps
                     ; caps
