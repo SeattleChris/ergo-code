@@ -14,7 +14,7 @@
 (def column-per-finger [2 1 1 2])
 (def ncols (reduce + column-per-finger))
 (def middle-finger-col (get column-per-finger 0))  ; First column is 0, and middle finger comes after the first (pointer) finger. 
-(def has-lastrow       [middle-finger-col (+ 1 middle-finger-col) (+ 2 middle-finger-col) (+ 3 middle-finger-col)])   
+(def has-lastrow       [middle-finger-col (+ 1 middle-finger-col) (+ 2 middle-finger-col) (+ 2 middle-finger-col)])   
 (def is-stretch-column [0 5 6 7])  ; 5 (or greater) ignored if ncols<=5, but is there just in case we add a second pinkie column.
 (def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
@@ -29,6 +29,7 @@
 (def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
 (def keyboard-z-offset (+ 2 (* 13 (- ncols tent-pivotcol))))  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 (def cherry-brand-keyswitch false)
+(def tight-extra-keys false)
 (def plate-thickness 3.5)  ; was 4 ; 
 (defn column-offset [column] (cond
                                (= column  (+ 0 middle-finger-col)) [0 13.82 -2.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
@@ -269,19 +270,19 @@
          (map (partial apply hull)
               (partition 3 1 shapes))))
 (defn col-gap [row a b tight]
-  " Fill between columns a & b on given row. Tight can be false or right"
+  " Fill between columns a & b on given row. Tight can be true (the column to right is close) or false. "
   (triangle-hulls  ;; Extra keys (column 2 & 3) column gap
    (key-place a row web-post-br)
-   (if (= tight 'right')
+   (if tight
      (key-place b row (translate (wall-locate1 -0.6 0) web-post-bl))
      (key-place b row web-post-bl))
    (key-place a row web-post-tr)
-   (if (= tight 'right')
+   (if tight
      (key-place b row (translate (wall-locate1 -0.6 0) web-post-tl))
      (key-place b row web-post-tl))
-   (if (= tight 'right') (key-place b row web-post-tl))
-   (if (= tight 'right') (key-place b row (translate (wall-locate1 -0.6 0) web-post-bl)))
-   (if (= tight 'right') (key-place b row web-post-bl))
+   (if tight (key-place b row web-post-tl))
+   (if tight (key-place b row (translate (wall-locate1 -0.6 0) web-post-bl)))
+   (if tight (key-place b row web-post-bl))
    ; (defn col-gap [row a b]  ; old definition doesn't work for tight columns
    ;   (triangle-hulls
    ;    (key-place b row web-post-tl)
@@ -657,23 +658,43 @@
    ))
 (defn top-wall-cleanup [thumb tight]  ;; column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
   " Lastrow extra keys may need a top wall. Input thumb is true or false, for connecting to thumb cluster. 
-    Input tight is false for normal column gaps or 'right' if these keys are very close together. "
+    Input tight is false for normal column gaps or true if these keys are very close together. "
   (union
-  ;  (for [col columns :when (.contains has-lastrow col)]
-  ;    (if (not tight)
-  ;      (key-top-wall col lastrow 0 0)
-  ;      (key-top-wall col lastrow (if (= col (get has-lastrow 0)) 0 -0.6) (if (= col (last has-lastrow)) 0 -0.6) )
-  ;      )
-  ;    ) ;temp 
    (hull  ; First extra key (column 2) front wall to thumb corner
-    (for [col columns :when (and (.contains has-lastrow col) (not (.contains is-stretch-column col)) ) ]
-      (key-place col lastrow (translate (wall-locate3 0 0) web-post-bl))
-      )
+    (for [col columns :when (and (.contains has-lastrow col) (not (.contains is-stretch-column col)))]
+      (key-place col lastrow (translate (wall-locate3 0 0) web-post-bl)))
     (if (= thumb true) (union thumb-lastrow-connect thumb-corner-connect))
-    ; done?
+    ; end hull 
     )
-   ) ; end union
-  )  ;; end top-wall-cleanup
+   (for [col columns :when (.contains has-lastrow col)]
+     (if tight
+       (key-top-wall col lastrow (if (= col (get has-lastrow 0)) 0 -0.6) (if (= col (last has-lastrow)) 0 -0.6))
+       (key-top-wall col lastrow 0 0)) ; end if else
+     ; end for loop
+   )
+   (if (not tight)
+     (for [col columns :when (and (.contains has-lastrow col) (.contains has-lastrow (inc col)))]
+       (union
+        (hull  ; fill in the edge from the back (locate3) of the top wall (some left empty by the connector to the thumb)
+         (key-place col lastrow (translate (wall-locate3 0 0) web-post-bl))
+         (key-place col lastrow (translate (wall-locate2 0 0.3) web-post-bl))
+         (key-place col lastrow (translate (wall-locate3 0 0) web-post-br))
+         (key-place col lastrow (translate (wall-locate2 0 0.3) web-post-br))
+         (key-place (inc col) lastrow (translate (wall-locate3 0 0) web-post-bl))
+         (key-place (inc col) lastrow (translate (wall-locate2 0 0.3) web-post-bl)))
+        (hull  ; fill in the column gap on the top wall (this is not an issue when tight is true)
+         (key-place col lastrow web-post-br)
+         (key-place col lastrow (translate (wall-locate1 0 0.3) web-post-br))
+         (key-place col lastrow (translate (wall-locate2 0 0.3) web-post-br))
+         (key-place col lastrow (translate (wall-locate3 0 0) web-post-br))
+         (key-place (inc col) lastrow web-post-bl)
+         (key-place (inc col) lastrow (translate (wall-locate1 0 0.3) web-post-bl))
+         (key-place (inc col) lastrow (translate (wall-locate2 0 0.3) web-post-bl))
+         (key-place (inc col) lastrow (translate (wall-locate3 0 0) web-post-bl)))))
+     ; end if not tight 
+     )
+   ; end union at top of the function
+   ))  ;; end top-wall-cleanup
 (defn connect-adjacent [column side]
   " Usually used to connect the 'extra' lastrow keys to the corner of the adjent column "
   (let [p1 (if (= side 'left') 0 -0.3)
@@ -720,7 +741,7 @@
      )
    (for [col (range 0 lastcol) :when (and (.contains has-lastrow (inc col)) (.contains has-lastrow col)) ]
      (union
-      (col-gap lastrow col (inc col) 'right')
+      (col-gap lastrow col (inc col) tight-extra-keys)
       (diag-gap col lastrow))
      )
    (connect-adjacent (get has-lastrow 0) 'left')
@@ -743,6 +764,16 @@
     (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3  0   -1) web-post-bl))
     ; connects to default front wall of the cornerrow for the next column to the right. 
     )
+   (if (.contains is-stretch-column (last has-lastrow))
+     (hull ; Front wall fill in: Capturing the gap on the non-stretch column (because the last lastrow key is on a stretch column). 
+      (key-place (dec (last has-lastrow)) lastrow   (translate (wall-locate3 0 0) web-post-bl))
+      (key-place (dec (last has-lastrow)) lastrow   (translate (wall-locate3 0 0) web-post-br))
+      (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-bl))
+      (if (= thumb true) thumb-lastrow-connect)  ;; Comment out if no thumb section printing.
+
+      ; done? 
+      )
+     )
    (hull ; Front wall for Last extra keys, then connect to thub-lastrow-connect. 
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-bl))
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-br))
@@ -755,8 +786,7 @@
       (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
       thumb-lastrow-connect  ;; Comment out if no thumb section printing.
       ))
-  ;  extra-key-top-gap  ; if there is a gap between first & second extra keys (column 2 & 3)
-   (top-wall-cleanup thumb 'right')  ; temp ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
+   (top-wall-cleanup thumb tight-extra-keys)  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
   ; end of main-key-cleanup
    ))
 
