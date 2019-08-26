@@ -51,11 +51,11 @@ What are the most popular characters and keys used in writing computer programs?
 
 ## Keyboard Parts
 
-- [Key Switches](/key-switches.md)
-- [Key Caps](/keycaps.md)
-- [Sound Dampening - O-Rings](/sound-dampen.md)
+- [Key Switches](key-switches.md)
+- [Key Caps](keycaps.md)
+- [Sound Dampening - O-Rings](sound-dampen.md)
 - Keyboard base
-- [Cable](/cable.md)
+- [Cable](cable.md)
 - Wrist pads
 - Tool: Key cap puller - The wire puller is better.
 
