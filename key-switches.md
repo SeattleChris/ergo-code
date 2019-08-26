@@ -75,21 +75,22 @@ Conductive Rubber - can be similiar feel to membrane, but easier to fix "in fiel
 
 ## Brands
 
-Cherry - Gold standard in mechanical switches (linear, tactile, clicky).
-Topre - see Topre type.
-Greetech and Kailh - Cherry imitation.
+- Cherry - Gold standard in mechanical switches (linear, tactile, clicky).
+- Topre - see Topre type.
+- Greetech and Kailh: Cherry imitation.
 
 ## Key Characterisitcs
 
-Key Travel Distance: Membrane typically is 3.5-4.0mm, or short down to 2.5mm
-Noise Level: Membrane are quiter than anything else.
-Durability: 1 million to 10 million, but other parts can wear out quicker.
-Key Activation Force: membrane tends to be in the 60-80 grams range.
-Tactility ('Feel'): membrane keys feel mushy.
+- Key Travel Distance: Membrane typically is 3.5-4.0mm, or short down to 2.5mm
+- Noise Level: Membrane are quiter than anything else.
+- Durability: 1 million to 10 million, but other parts can wear out quicker.
+- Key Activation Force: membrane tends to be in the 60-80 grams range.
+- Tactility ('Feel'): membrane keys feel mushy.
 
 ## Typical Key Switch Sizes
 
 |Param|Value  |Description|
+|-----|-------|-----------|
 |L    |18 mm  |Length|
 |W    |18 mm  |Width|
 |s    |30 mm  |Radius|
@@ -97,27 +98,3 @@ Tactility ('Feel'): membrane keys feel mushy.
 |q     |80° Left and Right tilt value in degrees|
 |HB     9 mm  Maximm height at the back|
 |HF     9.3 mm  Maximum height at the front|
-
-## Sound Dampening
-
-https://blog.wooting.nl/sound-dampen-your-mechanical-keyboard-noises/
-
-Most common approach seems to be O-rings (from braces) but also soft pads, GMK switch clip, awareness of table/surface and general board construction.
-
-### O-Rings
-
-Most common are 40A-L, 40A-R, and 50A-L. This classification represents [hardness]A-[thickness]. A higher hardness number is harder and more resistant to indentation. For thickness, 'R' is twice as thick as 'L'. The thickness shortens the travel distance, with 'L' taking off about 0.2mm, and 'R' removing 0.4mm (in theory).
-
-### Soft Pads
-
-A less tedious setup (if your keyboard has a standard shape) is to put this foam cloth as a landing pad for the switch caps. Common version of this has a similiar effect as the 50A-R o-rings.
-
-### GMK Switch Clip
-
-https://www.gmk-electronic-design.de/en
-
-Basically clips on to each switch and creates individual soft pad for each key.
-
-### Other Sound Considerations
-
-If your keyboard is on a wood or glass table, it will generally resonate louder. Putting a desk/mouse pad underneath your keyboard can quit this down. The physical structure of your keyboard, and other build details, can cause more or less noise depending on the flex, hardness, and resonance of how it is built.
