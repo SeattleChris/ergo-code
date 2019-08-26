@@ -1,23 +1,38 @@
-# The Dactyl-ManuForm Keyboard
+# The Dactyl Motus Keyboard
 
 This is a fork of the [Tom Short's ManuForm](https://github.com/tshort/dactyl-keyboard) keyboard, which itself is a fork of the [Dactyl](https://github.com/adereth/dactyl-keyboard), a parameterized, split-hand, concave, columnar, ergonomic keyboard. This work builds off of the ideas of the [ManuForm](https://github.com/jeffgran/ManuForm) by Jeff Gran with discussions on ([geekhack](https://geekhack.org/index.php?topic=46015.0)).
 
 ![Imgur](http://i.imgur.com/LdjEhrR.jpg)
+
+For additional background information about mechanical keyboard history and various parts and consideration check out the [Keyboard Information Doc](doc/).
+
+## New Features & Updates
+
+Can have different row curvature for home columns vs. extra "reach" columns.
+Any column can have the last row keys (previously only middle and ring finger had them).
+Can utilize an optimization setting if column gap is too tight on last row keys.
+Additional thumb cluster options (see below).
+Parameters for how the thumb cluster attaches to main, useful if designing new thumb cluster.
+Can create more rows and more columns compared to previous versions.
+Allow for Cherry MX or more generic key switch hole.
+Expanded what settings are computed instead of hard-coded options requiring multiple edits.
+Overall improved parameterization, fewer setting assumptions & leveraging computed settings.
 
 ## Thumb Cluster
 
 For ergonomic keyboards of this design there is a desire to make better use of the thumb, giving it multiple keys to press instead of how a traditional keyboard only has a single space bar button to be used by one or both thumbs.
 This fork introduced a new design for the keys pressed by the thumbs. This collection of extra keys for the thumbs has come to be referred to as the "Thumb Cluster" within the mechanical keyboard community.
 
-Here we are introducing the Thumb Bowl design for the thumb cluster. An option for the Manuform thumb cluster design.
+Here we are introducing the Thumb Bowl design for the thumb cluster. This code also has an option for the Manuform thumb cluster design.
 
-## Paramaterized Settings
+## Parameterized Settings
 
-The keyboard is paramaterized to allow adjusting the following:
+The keyboard is parameterized to allow adjusting the following:
 
 * Rows: 4 - 6 (or more)
 * Columns: 4 and up
-* Row curvature
+* Row curvature - Home columns
+* Row curvature - Reach columns
 * Column curvature
 * Row tilt (tenting)
 * Column tilt
@@ -26,6 +41,8 @@ The keyboard is paramaterized to allow adjusting the following:
 * Thumb cluster design style:
   * Manuform
   * Thumb-bowl
+* Thumb cluster positioning & attachment points
+  * useful if creating additional thumb cluster designs
 
 The 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short implement the Manuform thumb cluster design. The 40% version has a bit more tenting than the Dactyl. The Heavy Curve model (set as 5x5) is for those who want a deep bowl design for the See the following model files for configurations that may be most common:
 
@@ -36,39 +53,17 @@ The 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short impl
 
 ## Features and Patches currently being worked on
 
-* Plate thickness needs to be researched, as well as adjusting the size of the latching leaf.
-* Heavy Curve (5x5) model: raise the thumb cluster for better fit.
-* Generate a Heavy Curve with no Number/Function row (4x5).
-* Curvature between rows options
-  * Currently curves all rows
-  * Option to only curve rows outside of home columns
-* Modified variations of which columns have a lastrow button
-  * Originally was columns 2 (middle finger) and 3 (ring finger)
-  * Option for column 5 (pinkie finger home)
-  * Option for column 1 (pointer finger home)
-* Modified variations, allowing some columns NOT to have their top row key.
-  * Originally all columns got top row
-  * Column 5 (pinkie finger home) may not want a top row key
-  * Any additional columns after the pinkie home row may not want a top row key
-  * Column 0 (reaching with pointer finger) may not want a top row key
-* Improve screw hole placement method.
-* Create different thumb cluster categories to allow different designs for thumb keys.
-  * Original Dactyl
-  * Original Manuform
-  * Manuform with thumb keys more normally aligned
-  * Thumb Bowl (rotated)
+[Current ToDo](src/dactyl_keyboard/todo.md)
 
-## Assembly
+## Setup & Assembly
 
-### Generating a Design
-
-#### Setting up the Clojure environment
+### Setting up the Clojure environment
 
 * [Install the Clojure runtime](https://clojure.org)
 * [Install the Leiningen project manager](http://leiningen.org/)
 * [Install OpenSCAD](http://www.openscad.org/)
 
-#### Generating the design
+### Generating a Design
 
 * Run `lein repl`
 * Load the file `(load-file "src/dactyl_keyboard/dactyl.clj")`
@@ -77,29 +72,32 @@ The 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short impl
 * Make changes to design, repeat the above `load-file` command, OpenSCAD will watch for changes and rerender.
 * When done, use OpenSCAD to export STL files
 
-##### Tips
+#### Tips
 
 * [Example designing with clojure](http://adereth.github.io/blog/2014/04/09/3d-printing-with-clojure/)
 
 ### Printing
 
-Pregenerated STL files are available in the [things/](things/) directory.
+Pre-generated STL files are available in the [things/](things/) directory.
 When a model is generated, it also generates a `.scad` model for a bottom plate.
 This can be exported to a DXF file in OpenSCAD.
 The [things/](things/) directory also has DXF files for the bottom plate.
 When laser cut, some of the inside cuts will need to be removed.
 
-This model can be tricky to print.
-It's wide, so I've had problems with PLA on a Makerbot with edges warping.
+This model can be tricky to print, depending on your 3D printer.
+
+Printing with PLA on a Makerbot:
+It's wide, so there were problems with edges warping.
 This can cause the printer to think its head is jammed.
 Even if it successfully prints, warping can cause problems.
-On one print, the RJ-9 holder was squished, so I had to cut down my connector to fit.
+On one print, the RJ-9 holder was squished, requiring cutting down the connector to fit.
 
-If printed at Shapeways or other professional shops, I would not expect such problems.
+Printing with Shapeways or other professional shops:
+They probably won't have such difficulties.
 
-#### Thingiverse
-
-[The 4x5 STL left/right pair](https://www.thingiverse.com/thing:2349390) from the [things/](things/) directory is in the thingiverse for public printing
+Printing with PLA on a larger more robust 3D-printer:
+Higher quality PLA helps with fewer tangles or print errors.
+Larger print area means the print head doesn't have to go all the way to the edge.
 
 ### Build Notes
 
@@ -107,7 +105,7 @@ For guidance from previous versions, see the instructions for wiring and general
 
 #### Wiring
 
-Here are materials I used for wiring.
+Here are materials I expect to use for wiring.
 
 * Two Arduino Pro Micros
 * [Heat-set inserts](https://www.mcmaster.com/#94180a331/=16yfrx1)
