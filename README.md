@@ -8,15 +8,16 @@ For additional background information about mechanical keyboard history and vari
 
 ## New Features & Updates
 
-Can have different row curvature for home columns vs. extra "reach" columns.
-Any column can have the last row keys (previously only middle and ring finger had them).
-Can utilize an optimization setting if column gap is too tight on last row keys.
-Additional thumb cluster options (see below).
-Parameters for how the thumb cluster attaches to main, useful if designing new thumb cluster.
-Can create more rows and more columns compared to previous versions.
-Allow for Cherry MX or more generic key switch hole.
-Expanded what settings are computed instead of hard-coded options requiring multiple edits.
-Overall improved parameterization, fewer setting assumptions & leveraging computed settings.
+* Can have different row curvature for home columns vs. extra "reach" columns.
+* Any column can have the last row keys (previously only middle and ring finger had them).
+* Can utilize an optimization setting if column gap is too tight on last row keys.
+* Additional thumb cluster options (see below).
+* Parameters for how the thumb cluster attaches to main, useful if designing new thumb cluster.
+* Can create more rows and more columns compared to previous versions.
+* Allow for Cherry MX or more generic key switch hole.
+* Expanded what settings are computed instead of hard-coded options requiring multiple edits.
+* Overall improved parameterization, fewer setting assumptions & leveraging computed settings.
+* Added more documentation on mechanical keyboards and key map layout.
 
 ## Thumb Cluster
 
@@ -142,6 +143,14 @@ Firmware goes hand in hand with how you wire the circuit. Some firmware options 
 
 * Tom Short's adaptation of QMK firmware [here](https://github.com/tshort/qmk_firmware/tree/master/keyboards/dactyl-manuform). This allows each side to work separately or together, and shows connections for the Arduino Pro Micro controllers.
 * Keyboard firmware in Python [here](https://github.com/KMKfw/kmk_firmware)
+
+#### Key Map Layout
+
+[Keyboard Layout Editor](http://www.keyboard-layout-editor.com) is useful for designing how you want to map your keys.
+
+Currently, [here is my layout](http://www.keyboard-layout-editor.com/#/gists/47ad964ab133479c8171956357e286ae).
+
+![Layout Image](doc/kb-6col-5row-a.png)
 
 ## License
 
