@@ -16,7 +16,7 @@
 (def middle-finger-col (get column-per-finger 0))  ; First column is 0, and middle finger comes after the first (pointer) finger. 
 (def has-lastrow       [middle-finger-col (+ 1 middle-finger-col) (+ 2 middle-finger-col) (+ 2 middle-finger-col)])   
 (def is-stretch-column [0 5 6 7])  ; 5 (or greater) ignored if ncols<=5, but is there just in case we add a second pinkie column.
-(def α (deg2rad 36))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
+(def α (deg2rad 34))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
 (def γ (deg2rad 6))              ; Stretch columns (not the home columns) have a different curve.
 (def extra-width 1.5)                     ; extra space between the base of keys; Normal specification when flat is 1.65
@@ -24,7 +24,7 @@
 (def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 3.5)                  ; Was 2; wall thickness parameter. Extra thickness probably does not save print material. 
-(def tilt-pivotrow (- nrows 1 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up.
+(def tilt-pivotrow (- nrows 1.25 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up.
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
 (def keyboard-z-offset (+ 2 (* 13 (- ncols tent-pivotcol))))  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
