@@ -56,8 +56,8 @@
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
-(def keyswitch-height (if (= cherry-brand-keyswitch true) 14.4 14.15 )) ; try 14.15, 14.25 ; 14.3 was slightly loose; Was 14.1, then 14.25, then 14.4
-(def keyswitch-width  (if (= cherry-brand-keyswitch true) 14.4 14.15 ))  ; try ?? ; Was 14.4
+(def keyswitch-height (if (= cherry-brand-keyswitch true) 14.4 14.3 )) ; try 14.15, 14.25 ; Was 14.1, then 14.25, then 14.4
+(def keyswitch-width  (if (= cherry-brand-keyswitch true) 14.4 14.3 ))  ; try ?? ; Was 14.4
 (def clip-keyswitch   (if (= cherry-brand-keyswitch true)  1.0  0 ))  ; Was 1 for cherry, for others: 0.5 with width at 14.4 was too loose.
 ; For key spacing (on flat layout) 19.05mm x 19.05mm is standard placeholder per key
 ; Standard keycaps are about 18mm x 18mm
