@@ -48,8 +48,8 @@
 
 * [x] Slightly smaller/tighter key switch holes: old 14.3 | now 14.15
 * [x] Reduce curve (front to back) slightly: was 36 (makes 90) | now 34 (makes 85) | could be 33 (makes 82.5)
-* [x] Roll home row back (more trigger action) - now trigger row is perpendicular: was nrows - 3.5 | now nrows - 3.75
-* [ ] Pinkie home has no top row.
+* [x] Roll home row back (more trigger action) - lastrow is perpendicular: was nrows-3.5|now nrows-3.75
+* [x] Pinkie home has no top row.
 * [ ] Pinkie home has or does not have lastrow?
 * [ ] Pinkie bonus column has 2-3 keys
 * [ ] Fix blank wall: thumb slope off off to right wall
