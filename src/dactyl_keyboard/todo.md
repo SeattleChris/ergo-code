@@ -50,10 +50,11 @@
 * [x] Reduce curve (front to back) slightly: was 36 (makes 90) | now 34 (makes 85) | could be 33 (makes 82.5)
 * [x] Roll home row back (more trigger action) - lastrow is perpendicular: was nrows-3.5|now nrows-3.75
 * [x] Pinkie home has no top row.
-* [ ] Pinkie home has or does not have lastrow?
-* [ ] Pinkie bonus column has 2-3 keys
-* [ ] Fix blank wall: thumb slope off off to right wall
-* [ ] Adjust wall connection to thumb: Bonus row pinkie connect to thumb section
+* [x] Pinkie home has or does not have lastrow?
+* [x] Pinkie bonus column has 2-3 keys
 * [ ] Back Wall shape: Continue the left curve around top, connecting to middle finger left edge.
+* [ ] Adjust wall connection to thumb: Bonus row pinkie connect to thumb section
+* [ ] Fix blank wall: thumb slope off off to right wall
+* [ ] Can we fit a lastrow key for home pointer?
 
 ## Ready to test for fit
