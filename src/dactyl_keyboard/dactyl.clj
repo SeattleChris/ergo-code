@@ -322,13 +322,13 @@
   (apply union
          (concat
           ;; Row connections
-          (for [column (range 0 (dec ncols) ) :when (.contains has-firstrow column)
+          (for [column (range 0 (dec ncols) ) :when (.contains has-firstrow (+ column 1))
                 row (range 0 lastrow)]
             (union
              (col-gap row column (inc column) false)
              (if (not= row 0)
                (diag-gap column row))))
-          (for [column (range 0 (dec ncols)) :when (not (.contains has-firstrow column))
+          (for [column (range 0 (dec ncols)) :when (not (.contains has-firstrow (+ column 1)))
                 row (range 1 lastrow)]
             (union
               (col-gap row column (inc column) false)
@@ -1127,11 +1127,11 @@
                    (union
                     key-holes
                     connectors
-                    case-walls
                     (main-key-cleanup true)
                     thumb-walls
                     thumb
                     thumb-connectors
+                    ; case-walls
                     (difference (union case-walls
                                        (main-key-cleanup true)
                                        thumb-walls
