@@ -322,15 +322,24 @@
   (apply union
          (concat
           ;; Row connections
-          (for [column (range 0 (dec ncols))
+          (for [column (range 0 (dec ncols) ) :when (.contains has-firstrow column)
                 row (range 0 lastrow)]
             (union
              (col-gap row column (inc column) false)
              (if (not= row 0)
                (diag-gap column row))))
+          (for [column (range 0 (dec ncols)) :when (not (.contains has-firstrow column))
+                row (range 1 lastrow)]
+            (union
+              (col-gap row column (inc column) false)
+              (if (not= row 1)
+                (diag-gap column row))))
           ;; Column connections (except the bonus on lastrow)
-          (for [column columns
+          (for [column columns :when (.contains has-firstrow column)
                 row (range 0 cornerrow)]
+            (row-gap column row (inc row)))
+          (for [column columns :when (not (.contains has-firstrow column))
+                row (range 1 cornerrow)]
             (row-gap column row (inc row)))
           ;; Diagonal connections - currently done inside row connections
             ; (for [column (range 0 (dec ncols))
