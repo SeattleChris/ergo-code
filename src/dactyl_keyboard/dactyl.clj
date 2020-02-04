@@ -14,7 +14,9 @@
 (def column-per-finger [2 1 1 2])
 (def ncols (reduce + column-per-finger))
 (def middle-finger-col (get column-per-finger 0))  ; First column is 0, and middle finger comes after the first (pointer) finger. 
-(def has-lastrow       [middle-finger-col (+ 1 middle-finger-col) (+ 2 middle-finger-col) (+ 2 middle-finger-col)])   
+(def has-lastrow       [middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2) (+ middle-finger-col 2)])   
+(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1)])
+(def no-firstrow       [(+ middle-finger-col 2) (+ middle-finger-col 3)])
 (def is-stretch-column [0 5 6 7])  ; 5 (or greater) ignored if ncols<=5, but is there just in case we add a second pinkie column.
 (def α (deg2rad 34))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
@@ -228,8 +230,14 @@
   (apply union
          (for [column columns
                row rows
-               :when (or (.contains has-lastrow column)
-                         (not= row lastrow))]
+               :when (and
+                      (or
+                       (.contains has-lastrow column)
+                       (not= row lastrow))
+                      (or
+                       (.contains has-firstrow column)
+                       (not= row 0))
+                      )]
            (->> single-plate
                 (key-place column row)))))
 
@@ -245,8 +253,14 @@
   (apply union
          (for [column columns
                row rows
-               :when (or (.contains has-lastrow column)
-                         (not= row lastrow))]
+               :when (and
+                      (or
+                       (.contains has-lastrow column)
+                       (not= row lastrow))
+                      (or
+                       (.contains has-firstrow column)
+                       (not= row 0))
+                      )]
            (->> (sa-cap (if (= column 5) 1 1))
                 (key-place column row)))))
 
@@ -944,9 +958,12 @@
  ))  
 (def case-walls
   (union
-   ; back wall
-   (for [x (range 0 ncols)] (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
-   (for [x (range 1 ncols)] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
+   ; back wall for columns that have a firstrow key
+   (for [x (range 0 ncols) :when (.contains has-firstrow x)] (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
+   (for [x (range 1 ncols) :when (.contains has-firstrow x)] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
+   ; back wall for columns that DO NOT a firstrow key  HERE
+   (for [x (range 0 ncols) :when (not (.contains has-firstrow x))] (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
+   (for [x (range 1 ncols) :when (not (.contains has-firstrow x))] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
    (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
    ; right wall
    (for [y (range 0 lastrow)] (key-wall-brace lastcol y 1 0 web-post-tr lastcol y       1 0 web-post-br))
@@ -954,10 +971,10 @@
    (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow 1 0 web-post-br)
    ; left wall
    (for [y (range 0 cornerrow)] (union (wall-brace (partial left-key-place y 1)       -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
-                                     (hull (key-place 0 y web-post-tl)
-                                           (key-place 0 y web-post-bl)
-                                           (left-key-place y  1 web-post)
-                                           (left-key-place y -1 web-post))))
+                                       (hull (key-place 0 y web-post-tl)
+                                             (key-place 0 y web-post-bl)
+                                             (left-key-place y  1 web-post)
+                                             (left-key-place y -1 web-post))))
    (for [y (range 1 lastrow)] (union (wall-brace (partial left-key-place (dec y) -1) -1 0 web-post (partial left-key-place y  1) -1 0 web-post)
                                      (hull (key-place 0 y       web-post-tl)
                                            (key-place 0 (dec y) web-post-bl)
