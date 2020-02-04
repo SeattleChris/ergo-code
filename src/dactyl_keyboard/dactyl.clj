@@ -965,29 +965,33 @@
     (thumb-tr-place (translate (wall-locate3 0 0) thumb-post-tl)))  
   ; End union and thumb-walls
    ))  
+(def back-y-edge 1)
+(def right-x-edge 1)
 (def case-walls
   (union
    ; back wall for columns that have a firstrow key
-   (for [x (range 0 ncols) :when (.contains has-firstrow x)] (key-wall-brace x 0 0 1 web-post-tl x       0 0 1 web-post-tr))
-   (for [x (range 1 ncols) :when (.contains has-firstrow x)] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
-   ; back wall for columns that DO NOT a firstrow key  BACK WALL HERE
-   (for [x (range 0 ncols) :when (not (.contains has-firstrow x))] (key-wall-brace x 1 0 1 web-post-tl x       1 0 1 web-post-tr))
-   (for [x (range 1 ncols) :when (not (.contains has-firstrow x))] (key-wall-brace x 1 0 1 web-post-tl (dec x) 1 0 1 web-post-tr))
+   (for [x (range 0 ncols) :when (.contains has-firstrow x)] (key-wall-brace x 0 0 back-y-edge web-post-tl x       0 0 back-y-edge web-post-tr))
+   (for [x (range 1 ncols) :when (.contains has-firstrow x)] (key-wall-brace x 0 0 back-y-edge web-post-tl (dec x) 0 0 back-y-edge web-post-tr))
+   ; back wall for columns that DO NOT have a firstrow key  
+   (for [x (range 0 ncols) :when (not (.contains has-firstrow x))]       (key-wall-brace x 1 0 back-y-edge web-post-tl x       1 0 back-y-edge web-post-tr))
+   (for [x (range 1 ncols) :when (not (.contains has-firstrow (- x 1)))] (key-wall-brace x 1 0 back-y-edge web-post-tl (dec x) 1 0 back-y-edge web-post-tr))
    (if (.contains has-firstrow lastcol)
-     (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
-     (union 
-       (key-wall-brace lastcol 1 0 1 web-post-tr lastcol 1 1 0 web-post-tr)
-       (key-wall-brace (last has-firstrow) 0 0 1 web-post-tr (last has-firstrow) 0 1 0 web-post-tr)
+     (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
+     (union
+      (key-wall-brace lastcol 1 0 1 web-post-tr lastcol 1 1 0 web-post-tr)
+      ; (key-wall-brace (inc (last has-firstrow)) 1 0 back-y-edge web-post-tl (last has-firstrow) 1 0 back-y-edge web-post-tr)
+      (key-wall-brace (last has-firstrow) 1 right-x-edge 1 web-post-tr (inc (last has-firstrow)) 1 right-x-edge right-y-edge web-post-tl)
+      (key-wall-brace (last has-firstrow) 0 0 1 web-post-tr (last has-firstrow) 0 1 0 web-post-tr)
       )
      )
    ; right wall
-   (for [y (range 0 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol y 1 0 web-post-tr lastcol y       1 0 web-post-br))
-   (for [y (range 1 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol (dec y) 1 0 web-post-br lastcol y 1 0 web-post-tr))
-   (for [y (range 0 2)] (key-wall-brace (last has-firstrow) y 1 0 web-post-tr (last has-firstrow) y       1 0 web-post-br))
-   (for [y (range 1 2)] (key-wall-brace (last has-firstrow) (dec y) 1 0 web-post-br (last has-firstrow) y 1 0 web-post-tr))
-   (for [y (range 1 lastrow)] (key-wall-brace lastcol y 1 0 web-post-tr lastcol y       1 0 web-post-br))
-   (for [y (range 2 lastrow)] (key-wall-brace lastcol (dec y) 1 0 web-post-br lastcol y 1 0 web-post-tr))
-   (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow 1 0 web-post-br)
+   (for [y (range 0 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol y right-x-edge 0 web-post-tr lastcol y       right-x-edge 0 web-post-br))
+   (for [y (range 1 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol (dec y) right-x-edge 0 web-post-br lastcol y right-x-edge 0 web-post-tr))
+   (for [y (range 0 1)] (key-wall-brace (last has-firstrow) y right-x-edge 0 web-post-tr (last has-firstrow) y       right-x-edge 0 web-post-br))
+   (for [y (range 1 2)] (key-wall-brace (last has-firstrow) (dec y) right-x-edge 0 web-post-br (last has-firstrow) y right-x-edge 0 web-post-tr))
+   (for [y (range 1 lastrow)] (key-wall-brace lastcol y right-x-edge 0 web-post-tr lastcol y       right-x-edge 0 web-post-br))
+   (for [y (range 2 lastrow)] (key-wall-brace lastcol (dec y) right-x-edge 0 web-post-br lastcol y right-x-edge 0 web-post-tr))
+   (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow right-x-edge 0 web-post-br)
    ; left wall
    (for [y (range 0 cornerrow)] (union (wall-brace (partial left-key-place y 1)       -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
                                        (hull (key-place 0 y web-post-tl)
