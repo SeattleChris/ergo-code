@@ -970,20 +970,32 @@
 (def case-walls
   (union
    ; back wall for columns that have a firstrow key
-   (for [x (range 0 ncols) :when (.contains has-firstrow x)] (key-wall-brace x 0 0 back-y-edge web-post-tl x       0 0 back-y-edge web-post-tr))
-   (for [x (range 1 ncols) :when (.contains has-firstrow x)] (key-wall-brace x 0 0 back-y-edge web-post-tl (dec x) 0 0 back-y-edge web-post-tr))
+   (for [x (range 0 ncols) :when (and (.contains has-firstrow x) (not= x (- middle-finger-col 1)) (not= x middle-finger-col))] (key-wall-brace x 0 0 back-y-edge web-post-tl x       0 0 back-y-edge web-post-tr))
+   (for [x (range 1 ncols) :when (and (.contains has-firstrow x) (not= x (- middle-finger-col 1)) (not= x middle-finger-col))] (key-wall-brace x 0 0 back-y-edge web-post-tl (dec x) 0 0 back-y-edge web-post-tr))
    ; back wall for columns that DO NOT have a firstrow key  
-   (for [x (range 0 ncols) :when (not (.contains has-firstrow x))]       (key-wall-brace x 1 0 back-y-edge web-post-tl x       1 0 back-y-edge web-post-tr))
-   (for [x (range 1 ncols) :when (not (.contains has-firstrow (- x 1)))] (key-wall-brace x 1 0 back-y-edge web-post-tl (dec x) 1 0 back-y-edge web-post-tr))
+   (for [x (range 0 ncols) :when (not (or (.contains has-firstrow x) (= x (- middle-finger-col 1)) (= x middle-finger-col)))]       (key-wall-brace x 1 0 back-y-edge web-post-tl x       1 0 back-y-edge web-post-tr))
+   (for [x (range 1 ncols) :when (not (or (.contains has-firstrow (- x 1)) (= x (- middle-finger-col 1)) (= x middle-finger-col)))] (key-wall-brace x 1 0 back-y-edge web-post-tl (dec x) 1 0 back-y-edge web-post-tr))
+   (if (.contains has-firstrow middle-finger-col)
+     (union
+      (key-wall-brace (dec middle-finger-col) 0 0  back-y-edge web-post-tl (dec middle-finger-col)       0 -1 back-y-edge web-post-tr)
+      (key-wall-brace (dec middle-finger-col) 0 0 back-y-edge web-post-tl (dec (dec middle-finger-col)) 0   0 back-y-edge web-post-tr)
+      (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl middle-finger-col       0  0 back-y-edge web-post-tr)
+      (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl (dec middle-finger-col) 0 -1 back-y-edge web-post-tr)
+      )
+     (union
+      (key-wall-brace (dec middle-finger-col) 1 0 back-y-edge web-post-tl (dec middle-finger-col)       1 0 back-y-edge web-post-tr)
+      (key-wall-brace (dec middle-finger-col) 1 0 back-y-edge web-post-tl (dec (dec middle-finger-col)) 1 0 back-y-edge web-post-tr)
+     (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl middle-finger-col       1  0 back-y-edge web-post-tr)
+     (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl (dec middle-finger-col) 1 -1 back-y-edge web-post-tr)
+     )
+   ) 
    (if (.contains has-firstrow lastcol)
      (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
      (union
       (key-wall-brace lastcol 1 0 1 web-post-tr lastcol 1 1 0 web-post-tr)
       ; (key-wall-brace (inc (last has-firstrow)) 1 0 back-y-edge web-post-tl (last has-firstrow) 1 0 back-y-edge web-post-tr)
       (key-wall-brace (last has-firstrow) 1 right-x-edge 1 web-post-tr (inc (last has-firstrow)) 1 right-x-edge right-y-edge web-post-tl)
-      (key-wall-brace (last has-firstrow) 0 0 1 web-post-tr (last has-firstrow) 0 1 0 web-post-tr)
-      )
-     )
+      (key-wall-brace (last has-firstrow) 0 0 1 web-post-tr (last has-firstrow) 0 1 0 web-post-tr)))
    ; right wall
    (for [y (range 0 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol y right-x-edge 0 web-post-tr lastcol y       right-x-edge 0 web-post-br))
    (for [y (range 1 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol (dec y) right-x-edge 0 web-post-br lastcol y right-x-edge 0 web-post-tr))

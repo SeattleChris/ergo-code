@@ -53,6 +53,7 @@
 * [x] Pinkie home has or does not have lastrow?
 * [x] Pinkie bonus column has 2-3 keys
 * [ ] Back Wall shape: Continue the left curve around top, connecting to middle finger left edge.
+* [ ] Adjust pinkie and ring finger placement
 * [ ] Adjust wall connection to thumb: Bonus row pinkie connect to thumb section
 * [ ] Fix blank wall: thumb slope off off to right wall
 * [ ] Can we fit a lastrow key for home pointer?
