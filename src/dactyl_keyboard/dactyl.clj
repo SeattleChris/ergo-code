@@ -25,7 +25,7 @@
 (def extra-height 0.5)                  ; original= 0.5; to spec when flat is 1.65
 (def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
 (def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 3.5)                  ; Was 2; wall thickness parameter. Extra thickness probably does not save print material. 
+(def wall-thickness 2.5)                  ; Was 2; Jan 3.5; wall thickness parameter. Thickness probably has only moderate cost of material. 
 (def tilt-pivotrow (- nrows 1.25 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up.
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
@@ -966,36 +966,33 @@
   ; End union and thumb-walls
    ))  
 (def back-y-edge 1)
-(def right-x-edge 1)
+(def right-x-edge 2)
 (def case-walls
   (union
-   ; back wall for columns that have a firstrow key
+   ; back wall for columns that have a firstrow key (except middle finger)
    (for [x (range 0 ncols) :when (and (.contains has-firstrow x) (not= x (- middle-finger-col 1)) (not= x middle-finger-col))] (key-wall-brace x 0 0 back-y-edge web-post-tl x       0 0 back-y-edge web-post-tr))
    (for [x (range 1 ncols) :when (and (.contains has-firstrow x) (not= x (- middle-finger-col 1)) (not= x middle-finger-col))] (key-wall-brace x 0 0 back-y-edge web-post-tl (dec x) 0 0 back-y-edge web-post-tr))
-   ; back wall for columns that DO NOT have a firstrow key  
+   ; back wall for columns that DO NOT have a firstrow key (but not including middle finger)
    (for [x (range 0 ncols) :when (not (or (.contains has-firstrow x) (= x (- middle-finger-col 1)) (= x middle-finger-col)))]       (key-wall-brace x 1 0 back-y-edge web-post-tl x       1 0 back-y-edge web-post-tr))
    (for [x (range 1 ncols) :when (not (or (.contains has-firstrow (- x 1)) (= x (- middle-finger-col 1)) (= x middle-finger-col)))] (key-wall-brace x 1 0 back-y-edge web-post-tl (dec x) 1 0 back-y-edge web-post-tr))
+   ; Back wall middle finger (top row is determined by if-else depending on has-firstrow)
    (if (.contains has-firstrow middle-finger-col)
      (union
-      (key-wall-brace (dec middle-finger-col) 0 0  back-y-edge web-post-tl (dec middle-finger-col)       0 -1 back-y-edge web-post-tr)
+      (key-wall-brace (dec middle-finger-col) 0 0 back-y-edge web-post-tl (dec middle-finger-col)       0 -1 back-y-edge web-post-tr)
       (key-wall-brace (dec middle-finger-col) 0 0 back-y-edge web-post-tl (dec (dec middle-finger-col)) 0   0 back-y-edge web-post-tr)
       (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl middle-finger-col       0  0 back-y-edge web-post-tr)
-      (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl (dec middle-finger-col) 0 -1 back-y-edge web-post-tr)
-      )
+      (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl (dec middle-finger-col) 0 -1 back-y-edge web-post-tr))
      (union
       (key-wall-brace (dec middle-finger-col) 1 0 back-y-edge web-post-tl (dec middle-finger-col)       1 0 back-y-edge web-post-tr)
       (key-wall-brace (dec middle-finger-col) 1 0 back-y-edge web-post-tl (dec (dec middle-finger-col)) 1 0 back-y-edge web-post-tr)
-     (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl middle-finger-col       1  0 back-y-edge web-post-tr)
-     (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl (dec middle-finger-col) 1 -1 back-y-edge web-post-tr)
-     )
-   ) 
+      (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl middle-finger-col       1  0 back-y-edge web-post-tr)
+      (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl (dec middle-finger-col) 1 -1 back-y-edge web-post-tr)))
    (if (.contains has-firstrow lastcol)
      (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
      (union
-      (key-wall-brace lastcol 1 0 1 web-post-tr lastcol 1 1 0 web-post-tr)
-      ; (key-wall-brace (inc (last has-firstrow)) 1 0 back-y-edge web-post-tl (last has-firstrow) 1 0 back-y-edge web-post-tr)
-      (key-wall-brace (last has-firstrow) 1 right-x-edge 1 web-post-tr (inc (last has-firstrow)) 1 right-x-edge right-y-edge web-post-tl)
-      (key-wall-brace (last has-firstrow) 0 0 1 web-post-tr (last has-firstrow) 0 1 0 web-post-tr)))
+      (key-wall-brace lastcol 1 0 back-y-edge web-post-tr lastcol 1 right-x-edge 0 web-post-tr)
+      (key-wall-brace (last has-firstrow) 1 right-x-edge 0 web-post-tr (inc (last has-firstrow)) 1 right-x-edge back-y-edge web-post-tl)
+      (key-wall-brace (last has-firstrow) 0 0 back-y-edge web-post-tr (last has-firstrow) 0 right-x-edge 0 web-post-tr)))
    ; right wall
    (for [y (range 0 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol y right-x-edge 0 web-post-tr lastcol y       right-x-edge 0 web-post-br))
    (for [y (range 1 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol (dec y) right-x-edge 0 web-post-br lastcol y right-x-edge 0 web-post-tr))
