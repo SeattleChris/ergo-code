@@ -14374,6 +14374,462 @@ difference () {
           }
         }
       }
+      translate ([-25.70829134402786, -65.16266360032732, 58.12991909935124]) {
+        rotate (a=-2.5, v=[0, 0, 1]) {
+          rotate (a=-10.0, v=[0, 1, 0]) {
+            rotate (a=-59.99999999999999, v=[1, 0, 0]) {
+              rotate (a=90.0, v=[0, 0, -1]) {
+                rotate (a=90.0, v=[0, 1, 0]) {
+                  translate ([0, -13.177145998574055, 15.70391108393905]) {
+                    translate ([-8.575, -12.149999999999999, 0]) {
+                      translate ([-9.302129731774905, 0, 0]) {
+                        rotate (a=-40.0, v=[1, 0, 0]) {
+                          rotate (a=30.00000000000001, v=[0, 1, 0]) {
+                            color ([127/255, 53/85, 127/255, 0.7]) {
+                              hull () {
+                                translate ([0, 0, -3.5]) {
+                                  union () {
+                                    union () {
+                                      translate ([0, 7.825, 1.75]) {
+                                        cube ([17.15, 1.5, 3.5], center=true);
+                                      }
+                                      translate ([7.825, 0, 1.75]) {
+                                        cube ([1.5, 17.15, 3.5], center=true);
+                                      }
+                                      hull () {
+                                        translate ([7.825, 0, 1.75]) {
+                                          cube ([1.5, 2.75, 3.5], center=true);
+                                        }
+                                        translate ([7.075, 0, 1]) {
+                                          rotate (a=90.0, v=[1, 0, 0]) {
+                                            cylinder ($fn=30, h=2.75, r=0, center=true);
+                                          }
+                                        }
+                                      }
+                                    }
+                                    mirror ([0, 1, 0]) {
+                                      mirror ([1, 0, 0]) {
+                                        union () {
+                                          translate ([0, 7.825, 1.75]) {
+                                            cube ([17.15, 1.5, 3.5], center=true);
+                                          }
+                                          translate ([7.825, 0, 1.75]) {
+                                            cube ([1.5, 17.15, 3.5], center=true);
+                                          }
+                                          hull () {
+                                            translate ([7.825, 0, 1.75]) {
+                                              cube ([1.5, 2.75, 3.5], center=true);
+                                            }
+                                            translate ([7.075, 0, 1]) {
+                                              rotate (a=90.0, v=[1, 0, 0]) {
+                                                cylinder ($fn=30, h=2.75, r=0, center=true);
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                translate ([0, 0, -8.5]) {
+                                  union () {
+                                    union () {
+                                      translate ([0, 7.825, 1.75]) {
+                                        cube ([17.15, 1.5, 3.5], center=true);
+                                      }
+                                      translate ([7.825, 0, 1.75]) {
+                                        cube ([1.5, 17.15, 3.5], center=true);
+                                      }
+                                      hull () {
+                                        translate ([7.825, 0, 1.75]) {
+                                          cube ([1.5, 2.75, 3.5], center=true);
+                                        }
+                                        translate ([7.075, 0, 1]) {
+                                          rotate (a=90.0, v=[1, 0, 0]) {
+                                            cylinder ($fn=30, h=2.75, r=0, center=true);
+                                          }
+                                        }
+                                      }
+                                    }
+                                    mirror ([0, 1, 0]) {
+                                      mirror ([1, 0, 0]) {
+                                        union () {
+                                          translate ([0, 7.825, 1.75]) {
+                                            cube ([17.15, 1.5, 3.5], center=true);
+                                          }
+                                          translate ([7.825, 0, 1.75]) {
+                                            cube ([1.5, 17.15, 3.5], center=true);
+                                          }
+                                          hull () {
+                                            translate ([7.825, 0, 1.75]) {
+                                              cube ([1.5, 2.75, 3.5], center=true);
+                                            }
+                                            translate ([7.075, 0, 1]) {
+                                              rotate (a=90.0, v=[1, 0, 0]) {
+                                                cylinder ($fn=30, h=2.75, r=0, center=true);
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      translate ([-25.70829134402786, -65.16266360032732, 58.12991909935124]) {
+        rotate (a=-2.5, v=[0, 0, 1]) {
+          rotate (a=-10.0, v=[0, 1, 0]) {
+            rotate (a=-59.99999999999999, v=[1, 0, 0]) {
+              rotate (a=90.0, v=[0, 0, -1]) {
+                rotate (a=90.0, v=[0, 1, 0]) {
+                  translate ([0, 13.177145998574055, 15.70391108393905]) {
+                    translate ([-8.575, 12.149999999999999, 0]) {
+                      translate ([-9.302129731774905, 0, 0]) {
+                        rotate (a=40.0, v=[1, 0, 0]) {
+                          rotate (a=30.00000000000001, v=[0, 1, 0]) {
+                            color ([127/255, 53/85, 127/255, 0.7]) {
+                              hull () {
+                                translate ([0, 0, -3.5]) {
+                                  union () {
+                                    union () {
+                                      translate ([0, 7.825, 1.75]) {
+                                        cube ([17.15, 1.5, 3.5], center=true);
+                                      }
+                                      translate ([7.825, 0, 1.75]) {
+                                        cube ([1.5, 17.15, 3.5], center=true);
+                                      }
+                                      hull () {
+                                        translate ([7.825, 0, 1.75]) {
+                                          cube ([1.5, 2.75, 3.5], center=true);
+                                        }
+                                        translate ([7.075, 0, 1]) {
+                                          rotate (a=90.0, v=[1, 0, 0]) {
+                                            cylinder ($fn=30, h=2.75, r=0, center=true);
+                                          }
+                                        }
+                                      }
+                                    }
+                                    mirror ([0, 1, 0]) {
+                                      mirror ([1, 0, 0]) {
+                                        union () {
+                                          translate ([0, 7.825, 1.75]) {
+                                            cube ([17.15, 1.5, 3.5], center=true);
+                                          }
+                                          translate ([7.825, 0, 1.75]) {
+                                            cube ([1.5, 17.15, 3.5], center=true);
+                                          }
+                                          hull () {
+                                            translate ([7.825, 0, 1.75]) {
+                                              cube ([1.5, 2.75, 3.5], center=true);
+                                            }
+                                            translate ([7.075, 0, 1]) {
+                                              rotate (a=90.0, v=[1, 0, 0]) {
+                                                cylinder ($fn=30, h=2.75, r=0, center=true);
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                translate ([0, 0, -8.5]) {
+                                  union () {
+                                    union () {
+                                      translate ([0, 7.825, 1.75]) {
+                                        cube ([17.15, 1.5, 3.5], center=true);
+                                      }
+                                      translate ([7.825, 0, 1.75]) {
+                                        cube ([1.5, 17.15, 3.5], center=true);
+                                      }
+                                      hull () {
+                                        translate ([7.825, 0, 1.75]) {
+                                          cube ([1.5, 2.75, 3.5], center=true);
+                                        }
+                                        translate ([7.075, 0, 1]) {
+                                          rotate (a=90.0, v=[1, 0, 0]) {
+                                            cylinder ($fn=30, h=2.75, r=0, center=true);
+                                          }
+                                        }
+                                      }
+                                    }
+                                    mirror ([0, 1, 0]) {
+                                      mirror ([1, 0, 0]) {
+                                        union () {
+                                          translate ([0, 7.825, 1.75]) {
+                                            cube ([17.15, 1.5, 3.5], center=true);
+                                          }
+                                          translate ([7.825, 0, 1.75]) {
+                                            cube ([1.5, 17.15, 3.5], center=true);
+                                          }
+                                          hull () {
+                                            translate ([7.825, 0, 1.75]) {
+                                              cube ([1.5, 2.75, 3.5], center=true);
+                                            }
+                                            translate ([7.075, 0, 1]) {
+                                              rotate (a=90.0, v=[1, 0, 0]) {
+                                                cylinder ($fn=30, h=2.75, r=0, center=true);
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      translate ([-25.70829134402786, -65.16266360032732, 58.12991909935124]) {
+        rotate (a=-2.5, v=[0, 0, 1]) {
+          rotate (a=-10.0, v=[0, 1, 0]) {
+            rotate (a=-59.99999999999999, v=[1, 0, 0]) {
+              rotate (a=90.0, v=[0, 0, -1]) {
+                rotate (a=90.0, v=[0, 1, 0]) {
+                  translate ([0, 13.177145998574055, 15.70391108393905]) {
+                    translate ([8.575, 12.149999999999999, 0]) {
+                      translate ([9.302129731774905, 0, 0]) {
+                        rotate (a=40.0, v=[1, 0, 0]) {
+                          rotate (a=30.00000000000001, v=[0, -1, 0]) {
+                            color ([127/255, 53/85, 127/255, 0.7]) {
+                              hull () {
+                                translate ([0, 0, -3.5]) {
+                                  union () {
+                                    union () {
+                                      translate ([0, 7.825, 1.75]) {
+                                        cube ([17.15, 1.5, 3.5], center=true);
+                                      }
+                                      translate ([7.825, 0, 1.75]) {
+                                        cube ([1.5, 17.15, 3.5], center=true);
+                                      }
+                                      hull () {
+                                        translate ([7.825, 0, 1.75]) {
+                                          cube ([1.5, 2.75, 3.5], center=true);
+                                        }
+                                        translate ([7.075, 0, 1]) {
+                                          rotate (a=90.0, v=[1, 0, 0]) {
+                                            cylinder ($fn=30, h=2.75, r=0, center=true);
+                                          }
+                                        }
+                                      }
+                                    }
+                                    mirror ([0, 1, 0]) {
+                                      mirror ([1, 0, 0]) {
+                                        union () {
+                                          translate ([0, 7.825, 1.75]) {
+                                            cube ([17.15, 1.5, 3.5], center=true);
+                                          }
+                                          translate ([7.825, 0, 1.75]) {
+                                            cube ([1.5, 17.15, 3.5], center=true);
+                                          }
+                                          hull () {
+                                            translate ([7.825, 0, 1.75]) {
+                                              cube ([1.5, 2.75, 3.5], center=true);
+                                            }
+                                            translate ([7.075, 0, 1]) {
+                                              rotate (a=90.0, v=[1, 0, 0]) {
+                                                cylinder ($fn=30, h=2.75, r=0, center=true);
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                translate ([0, 0, -8.5]) {
+                                  union () {
+                                    union () {
+                                      translate ([0, 7.825, 1.75]) {
+                                        cube ([17.15, 1.5, 3.5], center=true);
+                                      }
+                                      translate ([7.825, 0, 1.75]) {
+                                        cube ([1.5, 17.15, 3.5], center=true);
+                                      }
+                                      hull () {
+                                        translate ([7.825, 0, 1.75]) {
+                                          cube ([1.5, 2.75, 3.5], center=true);
+                                        }
+                                        translate ([7.075, 0, 1]) {
+                                          rotate (a=90.0, v=[1, 0, 0]) {
+                                            cylinder ($fn=30, h=2.75, r=0, center=true);
+                                          }
+                                        }
+                                      }
+                                    }
+                                    mirror ([0, 1, 0]) {
+                                      mirror ([1, 0, 0]) {
+                                        union () {
+                                          translate ([0, 7.825, 1.75]) {
+                                            cube ([17.15, 1.5, 3.5], center=true);
+                                          }
+                                          translate ([7.825, 0, 1.75]) {
+                                            cube ([1.5, 17.15, 3.5], center=true);
+                                          }
+                                          hull () {
+                                            translate ([7.825, 0, 1.75]) {
+                                              cube ([1.5, 2.75, 3.5], center=true);
+                                            }
+                                            translate ([7.075, 0, 1]) {
+                                              rotate (a=90.0, v=[1, 0, 0]) {
+                                                cylinder ($fn=30, h=2.75, r=0, center=true);
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      translate ([-25.70829134402786, -65.16266360032732, 58.12991909935124]) {
+        rotate (a=-2.5, v=[0, 0, 1]) {
+          rotate (a=-10.0, v=[0, 1, 0]) {
+            rotate (a=-59.99999999999999, v=[1, 0, 0]) {
+              rotate (a=90.0, v=[0, 0, -1]) {
+                rotate (a=90.0, v=[0, 1, 0]) {
+                  translate ([0, -13.177145998574055, 15.70391108393905]) {
+                    translate ([8.575, -12.149999999999999, 0]) {
+                      translate ([9.302129731774905, 0, 0]) {
+                        rotate (a=-40.0, v=[1, 0, 0]) {
+                          rotate (a=30.00000000000001, v=[0, -1, 0]) {
+                            color ([127/255, 53/85, 127/255, 0.7]) {
+                              hull () {
+                                translate ([0, 0, -3.5]) {
+                                  union () {
+                                    union () {
+                                      translate ([0, 7.825, 1.75]) {
+                                        cube ([17.15, 1.5, 3.5], center=true);
+                                      }
+                                      translate ([7.825, 0, 1.75]) {
+                                        cube ([1.5, 17.15, 3.5], center=true);
+                                      }
+                                      hull () {
+                                        translate ([7.825, 0, 1.75]) {
+                                          cube ([1.5, 2.75, 3.5], center=true);
+                                        }
+                                        translate ([7.075, 0, 1]) {
+                                          rotate (a=90.0, v=[1, 0, 0]) {
+                                            cylinder ($fn=30, h=2.75, r=0, center=true);
+                                          }
+                                        }
+                                      }
+                                    }
+                                    mirror ([0, 1, 0]) {
+                                      mirror ([1, 0, 0]) {
+                                        union () {
+                                          translate ([0, 7.825, 1.75]) {
+                                            cube ([17.15, 1.5, 3.5], center=true);
+                                          }
+                                          translate ([7.825, 0, 1.75]) {
+                                            cube ([1.5, 17.15, 3.5], center=true);
+                                          }
+                                          hull () {
+                                            translate ([7.825, 0, 1.75]) {
+                                              cube ([1.5, 2.75, 3.5], center=true);
+                                            }
+                                            translate ([7.075, 0, 1]) {
+                                              rotate (a=90.0, v=[1, 0, 0]) {
+                                                cylinder ($fn=30, h=2.75, r=0, center=true);
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                translate ([0, 0, -8.5]) {
+                                  union () {
+                                    union () {
+                                      translate ([0, 7.825, 1.75]) {
+                                        cube ([17.15, 1.5, 3.5], center=true);
+                                      }
+                                      translate ([7.825, 0, 1.75]) {
+                                        cube ([1.5, 17.15, 3.5], center=true);
+                                      }
+                                      hull () {
+                                        translate ([7.825, 0, 1.75]) {
+                                          cube ([1.5, 2.75, 3.5], center=true);
+                                        }
+                                        translate ([7.075, 0, 1]) {
+                                          rotate (a=90.0, v=[1, 0, 0]) {
+                                            cylinder ($fn=30, h=2.75, r=0, center=true);
+                                          }
+                                        }
+                                      }
+                                    }
+                                    mirror ([0, 1, 0]) {
+                                      mirror ([1, 0, 0]) {
+                                        union () {
+                                          translate ([0, 7.825, 1.75]) {
+                                            cube ([17.15, 1.5, 3.5], center=true);
+                                          }
+                                          translate ([7.825, 0, 1.75]) {
+                                            cube ([1.5, 17.15, 3.5], center=true);
+                                          }
+                                          hull () {
+                                            translate ([7.825, 0, 1.75]) {
+                                              cube ([1.5, 2.75, 3.5], center=true);
+                                            }
+                                            translate ([7.075, 0, 1]) {
+                                              rotate (a=90.0, v=[1, 0, 0]) {
+                                                cylinder ($fn=30, h=2.75, r=0, center=true);
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
       translate ([0, 0, 28]) {
         rotate (a=55.0, v=[0, 1, 0]) {
           translate ([0, 7.82, -1.25]) {

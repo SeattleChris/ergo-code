@@ -29,3 +29,5 @@
   - ? Remove pinkie bonus column?
   - Pinkie Bonus column-3: has home row, 1 down and 1 up.
   - Pinkie Bonus column-2: has home row, 1 down.
+- Print error: need better cover on right bottom thumb section.
+- Perhaps more space behind pinkie lastrow / bonus row key.
