@@ -54,6 +54,9 @@
 * [x] Pinkie bonus column has 2-3 keys? (3)
 * [x] Wall thickness (part that drops to ground) updated: was 2 | Jan 3.5 | now 2.5
 * [x] Back Wall shape: allow extra left room for middle finger since it typically is furthest back column.
+* [ ] Wall offset: controls how far way from the plate the wall (drop to the floor) is set.
+  * [ ] wall-z-offset: original -15 | Jan -12 | now -14
+  * [ ] wall-xy-offset: original  ? | Jan   3 | now   6
 * [ ] ? Back Wall shape: Continue the left curve around top, connecting to middle finger left edge.
 * [ ] Adjust pinkie and ring finger placement
 * [ ] Adjust wall connection to thumb: Bonus row pinkie connect to thumb section

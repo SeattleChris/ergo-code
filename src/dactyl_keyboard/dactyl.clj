@@ -23,8 +23,8 @@
 (def γ (deg2rad 6))              ; Stretch columns (not the home columns) have a different curve.
 (def extra-width 1.5)                     ; extra space between the base of keys; Normal specification when flat is 1.65
 (def extra-height 0.5)                  ; original= 0.5; to spec when flat is 1.65
-(def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
-(def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+(def wall-z-offset -14)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
+(def wall-xy-offset 6)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
 (def wall-thickness 2.5)                  ; Was 2; Jan 3.5; wall thickness parameter. Thickness probably has only moderate cost of material. 
 (def tilt-pivotrow (- nrows 1.25 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up.
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
