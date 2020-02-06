@@ -31,3 +31,14 @@
   - Pinkie Bonus column-2: has home row, 1 down.
 - Print error: need better cover on right bottom thumb section.
 - Perhaps more space behind pinkie lastrow / bonus row key.
+
+## Offset Attempts
+
+|Finger | Feb-01           | Jan             | First Print     | Original specs, maybe
+|=======|==================|=================|=================|=======================|
+|Middle | [0  13.32 -3.00] | [0 13.82 -2.50] | [0 14.82 -4.50] | [0 2.82 -4.5]               |
+|Ring   | [0   4.99 -1.25] | [0  7.82 -1.25] | [0  7.82 -2.25] | [0 0 0]                     |
+|Pinkie | [0 -11.55  2.39] | [0 -5.18  1.39] | [0 -5.18  3.39] | [0 -5.8 5.64], [0 -12 5.64] |
+|Comparison - Index (F) @ [0 0 0], Middle (M), Ring (R), and Pinkie (P) ------- preferences |
+| M-R   |  0  8.33  1.75   |  0   6    1.25  |  0   7    2.25  | First was closer
+| R-P   |  0 16.54  3.64   |  0  13    2.64  |  0   13   5.64  | First: too much, Jan: closer, not enough|

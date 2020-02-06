@@ -14,10 +14,10 @@
 (def column-per-finger [2 1 1 2])
 (def ncols (reduce + column-per-finger))
 (def middle-finger-col (get column-per-finger 0))  ; First column is 0, and middle finger comes after the first (pointer) finger. 
-(def has-lastrow       [middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2) (+ middle-finger-col 2)])   
-(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1)])
-(def no-firstrow       [(+ middle-finger-col 2) (+ middle-finger-col 3)])
-(def is-stretch-column [0 5 6 7])  ; 5 (or greater) ignored if ncols<=5, but is there just in case we add a second pinkie column.
+(def has-lastrow       [(- middle-finger-col 0) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2) (+ middle-finger-col 2)])   
+(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 1)])
+; (def no-firstrow       [(+ middle-finger-col 2) (+ middle-finger-col 3)])
+(def is-stretch-column [0 5 6 7])  ; N (or greater) ignored if ncols<N, but is there just in case we add more pinkie columns.
 (def α (deg2rad 34))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
 (def γ (deg2rad 6))              ; Stretch columns (not the home columns) have a different curve.
@@ -31,13 +31,13 @@
 (def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
 (def keyboard-z-offset (+ 2 (* 13 (- ncols tent-pivotcol))))  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 (def cherry-brand-keyswitch false)
-(def tight-extra-keys false)
+(def tight-extra-keys true)
 (def plate-thickness 3.5)  ; was 4 ; 
-(defn column-offset [column] (cond
-                               (= column  (+ 0 middle-finger-col)) [0 13.82 -2.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
-                               (= column  (+ 1 middle-finger-col)) [0  7.82 -1.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
-                               (>= column (+ 2 middle-finger-col)) [0 -5.18  1.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
-                               :else [0 0 0]))  ; The pointer finger
+(defn column-offset [column] (cond                                 ; Feb-01         ; Jan             ; First Print      ; Original specs, maybe 
+                               (= column  (+ 0 middle-finger-col)) [0  13.32 -3.00]  ; [0 13.82 -2.5]  ; [0 14.82 -4.5 ]  ; [0 2.82 -4.5]
+                               (= column  (+ 1 middle-finger-col)) [0   4.99 -1.25]  ; [0  7.82 -1.25] ; [0  7.82 -2.25]  ; [0 0 0]
+                               (>= column (+ 2 middle-finger-col)) [0 -11.55  2.39]  ; [0 -5.18  1.39] ; [0 -5.18  3.39]  ; [0 -5.8 5.64], [0 -12 5.64]
+                               :else [0 0 0]))  ; The pointer finger         4.14               2.64              5.64
 ;; Doesn't work quite like was hoped - Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
 (def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])
@@ -598,14 +598,11 @@
 (def left-wall-x-offset 10)
 (def left-wall-z-offset  3)
 (def thumb-lastrow-connect (thumb-tl-place thumb-post-tr))
-; HERE HERE
 ; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 2.9 -0.75) thumb-post-tr)))
-; thumb-tl-place 2.9 -0.75 thumb-post-tr
 (def thumb-corner-connect (thumb-tl-place thumb-post-tl))
 (def thumb-left-connect (union
                          thumb-corner-connect
-                         (thumb-tl-place thumb-post-bl)
-                         ))
+                         (thumb-tl-place thumb-post-bl)))
 ; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 0.25 0) thumb-post-tr)))
 ; (def thumb-lastrow-connect (key-place lastcol cornerrow (translate (wall-locate3 -2 -1) web-post-bl) ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
