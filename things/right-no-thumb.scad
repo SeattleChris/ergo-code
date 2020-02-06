@@ -14148,6 +14148,8 @@ difference () {
           }
         }
       }
+      hull () {
+      }
     }
     union () {
       translate ([0, 0, 28]) {

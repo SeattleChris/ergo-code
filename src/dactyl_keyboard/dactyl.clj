@@ -598,6 +598,9 @@
 (def left-wall-x-offset 10)
 (def left-wall-z-offset  3)
 (def thumb-lastrow-connect (thumb-tl-place thumb-post-tr))
+; HERE HERE
+; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 2.9 -0.75) thumb-post-tr)))
+; thumb-tl-place 2.9 -0.75 thumb-post-tr
 (def thumb-corner-connect (thumb-tl-place thumb-post-tl))
 (def thumb-left-connect (union
                          thumb-corner-connect
@@ -640,6 +643,7 @@
 (defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
   (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
+
 (defn key-top-wall [col row adj-l adj-r]
   " The lastrow keys often need a top wall. The adj-l and adj-r variables used if the columns are too tight"
   (union
@@ -760,13 +764,11 @@
   " Deals with lastrow keys formatting that is not automatically managed like other main section keys. "
   (union
    (for [col columns :when (.contains has-lastrow col)]
-     (row-gap col cornerrow lastrow)
-     )
-   (for [col (range 0 lastcol) :when (and (.contains has-lastrow (inc col)) (.contains has-lastrow col)) ]
+     (row-gap col cornerrow lastrow))
+   (for [col (range 0 lastcol) :when (and (.contains has-lastrow (inc col)) (.contains has-lastrow col))]
      (union
       (col-gap lastrow col (inc col) tight-extra-keys)
-      (diag-gap col lastrow))
-     )
+      (diag-gap col lastrow)))
    (connect-adjacent (get has-lastrow 0) 'left')
    (hull  ; First extra key (usually column 2) left wall
     (key-wall (get has-lastrow 0) 'left')  ; Then it connects to what?
@@ -795,8 +797,7 @@
       (if (= thumb true) thumb-lastrow-connect)  ;; Comment out if no thumb section printing.
 
       ; done? 
-      )
-     )
+      ))
    (hull ; Front wall for Last extra keys, then connect to thub-lastrow-connect. 
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-bl))
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-br))
@@ -810,6 +811,9 @@
       thumb-lastrow-connect  ;; Comment out if no thumb section printing.
       ))
    (top-wall-cleanup thumb tight-extra-keys)  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
+   (hull
+    
+    )
   ; end of main-key-cleanup
    ))
 
@@ -963,7 +967,7 @@
    (wall-brace thumb-tr-place  0 -0.25 thumb-post-tr thumb-tr-place -1 0.75 thumb-post-tr)  
    ;; Right Wall for Thumb Top keys
    (wall-brace thumb-tr-place -1    0.75 thumb-post-tr thumb-tr-place  -0.5  0.75 thumb-post-tl)  ; right wall of thumb, front section
-   (wall-brace thumb-tr-place -0.5  0.75 thumb-post-tl thumb-tl-place 2.9 -0.75 thumb-post-tr)  ; right wall of thumb, middle section
+   (wall-brace thumb-tr-place -0.5  0.75 thumb-post-tl thumb-tl-place 1.8 0.5 thumb-post-tr)  ; right wall of thumb, middle section
   ;  (wall-brace thumb-tl-place  0  1 thumb-post-tr thumb-tl-place  6  1 thumb-post-tl)  ; right wall of thumb, upper section
   ;  (triangle-hulls  ;; connect tl thumb to main keys front wall
   ;   (thumb-tr-place thumb-post-tl)
