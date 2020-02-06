@@ -13,31 +13,31 @@
 (def nrows 5)
 (def column-per-finger [2 1 1 2])
 (def ncols (reduce + column-per-finger))
-(def middle-finger-col (get column-per-finger 0))  ; First column is 0, and middle finger comes after the first (pointer) finger. 
-(def has-lastrow       [(- middle-finger-col 0) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2) (+ middle-finger-col 2)])   
-(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 1)])
-; (def no-firstrow       [(+ middle-finger-col 2) (+ middle-finger-col 3)])
-(def is-stretch-column [0 5 6 7])  ; N (or greater) ignored if ncols<N, but is there just in case we add more pinkie columns.
+(def middle-finger-col (get column-per-finger 0))  ; First column is 0, and middle finger comes after the first (pointer) finger.
+(def has-lastrow       [middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2) (+ middle-finger-col 2)])
+(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1)])
+(def no-firstrow       [(+ middle-finger-col 2) (+ middle-finger-col 3)])
+(def is-stretch-column [0 5 6 7])  ; 5 (or greater) ignored if ncols<=5, but is there just in case we add a second pinkie column.
 (def α (deg2rad 34))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
 (def γ (deg2rad 6))              ; Stretch columns (not the home columns) have a different curve.
 (def extra-width 1.5)                     ; extra space between the base of keys; Normal specification when flat is 1.65
 (def extra-height 0.5)                  ; original= 0.5; to spec when flat is 1.65
-(def wall-z-offset -14)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15 | Jan -12 | Feb -14
-(def wall-xy-offset 6)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall: Jan 3 | Feb 6
-(def wall-thickness 2.5)                  ; Was 2; Jan 3.5; wall thickness parameter. Thickness probably has only moderate cost of material. 
+(def wall-z-offset -12)                 ; length of the first downward-sloping part of the wall (negative) ; original: -15
+(def wall-xy-offset 3)                  ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+(def wall-thickness 2.5)                  ; Was 2; Jan 3.5; wall thickness parameter. Thickness probably has only moderate cost of material.
 (def tilt-pivotrow (- nrows 1.25 (/ nrows 2))) ; controls front-back tilt: Even nrows means flat home row. Odd nrows means flat is between home row and 1 row up.
 (def tent-pivotcol 4 )                       ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 55))            ; or, change this for more precise tenting control
 (def keyboard-z-offset (+ 2 (* 13 (- ncols tent-pivotcol))))  ; 1 @ 4, 3 @ 5, 9 @ 6            ; controls overall height, affected by tenting; original=9 with tent-pivotcol=3; use 16 for tent-pivotcol=2
 (def cherry-brand-keyswitch false)
-(def tight-extra-keys true)
-(def plate-thickness 3.5)  ; was 4 ; 
-(defn column-offset [column] (cond                                 ; Feb-01         ; Jan             ; First Print      ; Original specs, maybe 
-                               (= column  (+ 0 middle-finger-col)) [0  13.32 -3.00]  ; [0 13.82 -2.5]  ; [0 14.82 -4.5 ]  ; [0 2.82 -4.5]
-                               (= column  (+ 1 middle-finger-col)) [0   4.99 -1.25]  ; [0  7.82 -1.25] ; [0  7.82 -2.25]  ; [0 0 0]
-                               (>= column (+ 2 middle-finger-col)) [0 -11.55  2.39]  ; [0 -5.18  1.39] ; [0 -5.18  3.39]  ; [0 -5.8 5.64], [0 -12 5.64]
-                               :else [0 0 0]))  ; The pointer finger         4.14               2.64              5.64
+(def tight-extra-keys false)
+(def plate-thickness 3.5)  ; was 4 ;
+(defn column-offset [column] (cond
+                               (= column  (+ 0 middle-finger-col)) [0 13.82 -2.5 ]  ; tried [0 14.82 -4.5 ]  ; original [0 2.82 -4.5]
+                               (= column  (+ 1 middle-finger-col)) [0  7.82 -1.25]  ; tried [0  7.82 -2.25]  ; original [0 0 0]
+                               (>= column (+ 2 middle-finger-col)) [0 -5.18  1.39]  ; tried [0 -5.18  3.39]  ; original [0 -5.8 5.64], [0 -12 5.64]
+                               :else [0 0 0]))  ; The pointer finger
 ;; Doesn't work quite like was hoped - Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
 (def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])
@@ -378,7 +378,7 @@
 (def thumb-post-tl web-post-tl)
 (def thumb-post-bl web-post-bl)
 (def thumb-post-br web-post-br)
-; Original (for tr and tl) - These define edges when we use the bigger key plate. 
+; Original (for tr and tl) - These define edges when we use the bigger key plate.
 ; (def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.15) post-adj) 0] web-post))
 ; (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  1.15) post-adj) 0] web-post))
 ; (def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
@@ -403,7 +403,7 @@
 (defn deflect-offset [angle] (map + deflect-fudge [(* upper-plate-hyp (Math/cos angle)) (* upper-plate-hyp (Math/sin angle)) 0]))
 (def x-point (- 0 (/ keyswitch-width 2)))
 (def y-point key-ttl-height)
-(defn displacement-edge [angle] 
+(defn displacement-edge [angle]
   (- (* x-point (Math/cos angle)) (* y-point (Math/sin angle)) x-point))  ; older: (- (* half-width (Math/cos (mod rollin (* 2 π))) (* key-ttl-height (Math/sin (mod rollin (* 2 π)))) half-width ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Thumb Placement Functions          ;;;
@@ -598,11 +598,11 @@
 (def left-wall-x-offset 10)
 (def left-wall-z-offset  3)
 (def thumb-lastrow-connect (thumb-tl-place thumb-post-tr))
-; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 2.9 -0.75) thumb-post-tr)))
 (def thumb-corner-connect (thumb-tl-place thumb-post-tl))
 (def thumb-left-connect (union
                          thumb-corner-connect
-                         (thumb-tl-place thumb-post-bl)))
+                         (thumb-tl-place thumb-post-bl)
+                         ))
 ; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 0.25 0) thumb-post-tr)))
 ; (def thumb-lastrow-connect (key-place lastcol cornerrow (translate (wall-locate3 -2 -1) web-post-bl) ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -640,7 +640,6 @@
 (defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
   (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
-
 (defn key-top-wall [col row adj-l adj-r]
   " The lastrow keys often need a top wall. The adj-l and adj-r variables used if the columns are too tight"
   (union
@@ -653,7 +652,7 @@
     (if (and (not= adj-r 0) (if (= row lastrow) (.contains has-lastrow (inc col)) true) )
       (key-place (inc col) row (translate (wall-locate1 adj-r  0) web-post-bl))
       (key-place col       row web-post-br)
-      ) 
+      )
     (if (and (not= adj-r 0) (if (= row lastrow) (.contains has-lastrow (inc col)) true) )
       (key-place (inc col) row (translate (wall-locate1 adj-r 0.3) web-post-bl))
       (key-place col       row (translate (wall-locate1   0   0.3) web-post-br))
@@ -681,14 +680,14 @@
   ; end key-top-wall
    ))
 (defn top-wall-cleanup [thumb tight]  ;; column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
-  " Lastrow extra keys may need a top wall. Input thumb is true or false, for connecting to thumb cluster. 
+  " Lastrow extra keys may need a top wall. Input thumb is true or false, for connecting to thumb cluster.
     Input tight is false for normal column gaps or true if these keys are very close together. "
   (union
    (hull  ; First extra key (column 2) front wall to thumb corner
     (for [col columns :when (and (.contains has-lastrow col) (not (.contains is-stretch-column col)))]
       (key-place col lastrow (translate (wall-locate3 0 0) web-post-bl)))
     (if (= thumb true) (union thumb-lastrow-connect thumb-corner-connect))
-    ; end hull 
+    ; end hull
     )
    (for [col columns :when (.contains has-lastrow col)]
      (if tight
@@ -715,7 +714,7 @@
          (key-place (inc col) lastrow (translate (wall-locate1 0 0.3) web-post-bl))
          (key-place (inc col) lastrow (translate (wall-locate2 0 0.3) web-post-bl))
          (key-place (inc col) lastrow (translate (wall-locate3 0 0) web-post-bl)))))
-     ; end if not tight 
+     ; end if not tight
      )
    ; end union at top of the function
    ))  ;; end top-wall-cleanup
@@ -761,11 +760,13 @@
   " Deals with lastrow keys formatting that is not automatically managed like other main section keys. "
   (union
    (for [col columns :when (.contains has-lastrow col)]
-     (row-gap col cornerrow lastrow))
-   (for [col (range 0 lastcol) :when (and (.contains has-lastrow (inc col)) (.contains has-lastrow col))]
+     (row-gap col cornerrow lastrow)
+     )
+   (for [col (range 0 lastcol) :when (and (.contains has-lastrow (inc col)) (.contains has-lastrow col)) ]
      (union
       (col-gap lastrow col (inc col) tight-extra-keys)
-      (diag-gap col lastrow)))
+      (diag-gap col lastrow))
+     )
    (connect-adjacent (get has-lastrow 0) 'left')
    (hull  ; First extra key (usually column 2) left wall
     (key-wall (get has-lastrow 0) 'left')  ; Then it connects to what?
@@ -773,8 +774,8 @@
     (key-place (dec (get has-lastrow 0)) cornerrow (translate (wall-locate1 0   -0.5) web-post-br))
     (if (= thumb true) thumb-left-connect)  ;; Comment out if no thumb section printing.
     )
-   ; TODO: Deal with condition that we have a lastrow key on the lastcol column. 
-  ;  (if (= lastcol (last has-lastrow)) 
+   ; TODO: Deal with condition that we have a lastrow key on the lastcol column.
+  ;  (if (= lastcol (last has-lastrow))
   ;    )
    (connect-adjacent (last has-lastrow) 'right')
    (hull  ; Last extra key right wall
@@ -784,18 +785,19 @@
     (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate1  0 -0.5) web-post-bl))
     (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate2 -0.3 -1) web-post-bl))
     (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3  0   -1) web-post-bl))
-    ; connects to default front wall of the cornerrow for the next column to the right. 
+    ; connects to default front wall of the cornerrow for the next column to the right.
     )
    (if (.contains is-stretch-column (last has-lastrow))
-     (hull ; Front wall fill in: Capturing the gap on the non-stretch column (because the last lastrow key is on a stretch column). 
+     (hull ; Front wall fill in: Capturing the gap on the non-stretch column (because the last lastrow key is on a stretch column).
       (key-place (dec (last has-lastrow)) lastrow   (translate (wall-locate3 0 0) web-post-bl))
       (key-place (dec (last has-lastrow)) lastrow   (translate (wall-locate3 0 0) web-post-br))
       (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-bl))
       (if (= thumb true) thumb-lastrow-connect)  ;; Comment out if no thumb section printing.
 
-      ; done? 
-      ))
-   (hull ; Front wall for Last extra keys, then connect to thub-lastrow-connect. 
+      ; done?
+      )
+     )
+   (hull ; Front wall for Last extra keys, then connect to thub-lastrow-connect.
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-bl))
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-br))
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-tr))  ; TODO: Is needed? Check for conditions this is problematic
@@ -808,9 +810,6 @@
       thumb-lastrow-connect  ;; Comment out if no thumb section printing.
       ))
    (top-wall-cleanup thumb tight-extra-keys)  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
-   (hull
-    
-    )
   ; end of main-key-cleanup
    ))
 
@@ -820,22 +819,15 @@
    (key-place 1 cornerrow clearance)
   ;  (thumb-tl-place clearance)
   ;  (thumb-ml-place clearance)
-   (thumb-bl-place clearance)
-   (thumb-tl-place clearance)
-   (thumb-tr-place clearance)
-   (thumb-br-place clearance)
-   (key-place (+ middle-finger-col 1) 1       clearance)
-   (key-place (+ middle-finger-col 1) 1       clearance)
-   (key-place middle-finger-col 1       clearance)
-   (key-place (- lastcol 1)     1       clearance)
-   (key-place (- lastcol 1)     2       clearance)
-   (key-place (- lastcol 1)   cornerrow clearance)
-   (key-place lastcol           1       clearance)
-   (key-place lastcol           2       clearance)
-   (key-place lastcol         cornerrow clearance)
-   (for [x (range -1 2) :when (.contains has-firstrow (+ middle-finger-col x))] (key-place (+ middle-finger-col x) 0 clearance) )
-   (for [x (range 0 lastcol) :when (.contains has-lastrow x)] (key-place x lastrow clearance))  ; HERE
-  ;  (if (.contains has-lastrow lastcol) (key-place lastcol lastrow clearance))
+  ;  (thumb-bl-place clearance)
+  ;  (thumb-tl-place clearance)
+  ;  (thumb-tr-place clearance)
+  ;  (thumb-br-place clearance)
+   (key-place lastcol 0 clearance)
+   (key-place lastcol 1 clearance)
+   (key-place lastcol 2 clearance)
+   (key-place lastcol cornerrow clearance)
+   (if (.contains has-lastrow lastcol) (key-place lastcol lastrow clearance))
    ;; any more?
    ))
 (def thumb-valley
@@ -918,8 +910,8 @@
 (def thumb-walls
   (union  ;; currently being made for tipped-bowl version
    thumb-valley
-   (wall-brace thumb-br-place -0.5 -1 web-post-bl thumb-br-place -1 -1 (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))  ; outside left lower wall - psuedo between keys
-   (wall-brace thumb-br-place -1 -1 web-post-br thumb-br-place -0.5 -1 web-post-bl)  ; outside left lower wall - right (more front) key
+   (wall-brace thumb-br-place 0 -1 web-post-br thumb-br-place -1 -1 web-post-bl)  ; outside left lower wall - right (more front) key
+   (wall-brace thumb-br-place -1 -1 web-post-bl thumb-br-place -1 -1 (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))  ; outside left lower wall - psuedo between keys
    (bottom-hull  ;; Improved wall-brace for outside left lower wall - connect to main from psuedo
     (thumb-br-place (translate (wall-locate3 -1  -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
     (thumb-br-place (translate (wall-locate2 -1  -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
@@ -938,7 +930,7 @@
     (thumb-br-place web-post-bl)
     ; connects to top wall over bl thumb key
     )
-   (hull  ;; left wall passing around bl thumb key (near main keyboard section)
+   (hull  ;; left wall passing around bl thumb key
     (thumb-br-place (translate (wall-locate1 -1 -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
     (thumb-br-place (translate (wall-locate2 -1 -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
     (thumb-br-place (translate (wall-locate3 -1 -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
@@ -952,45 +944,64 @@
     (left-key-place cornerrow 1 web-post)
     ; connects to thumb-hood
     )
-   ; Transition from Left to Front Thumb Wall
-   (wall-brace thumb-br-place -1    -1 web-post-br   thumb-br-place 0    -0.25 web-post-br)  ; outside left lower wall cornering to front wall
    ;; Front Wall of Thumb
-   (wall-brace thumb-br-place  0 -0.25 web-post-br   thumb-br-place 0.75  0 web-post-tr)  ; outside left lower wall cornering to front wall
+   (wall-brace thumb-br-place  0    -1 web-post-br   thumb-br-place 0.75  0 web-post-tr)  ; outside left lower wall cornering to front wall
    (wall-brace thumb-br-place  0.75  0 web-post-tr   thumb-mr-place 1.5   0 web-post-br)  ; front wall between bottom and middle
    (wall-brace thumb-mr-place  1.5   0 web-post-br   thumb-mr-place 1.5   0 web-post-tr)  ; front wall middle key
    (wall-brace thumb-mr-place  1.5   0 web-post-tr   thumb-tr-place 0.75  0 thumb-post-br)  ; front wall between middle and tp
-   (wall-brace thumb-tr-place  0.75  0 thumb-post-br thumb-tr-place 0 -0.25 thumb-post-tr)  ; front wall top key
-   ; Transition from Left to Front Thumb Wall
-   (wall-brace thumb-tr-place  0 -0.25 thumb-post-tr thumb-tr-place -1 0.75 thumb-post-tr)  
+   (wall-brace thumb-tr-place  0.75  0 thumb-post-br thumb-tr-place 0     0 thumb-post-tr)  ; front wall top key
    ;; Right Wall for Thumb Top keys
-   (wall-brace thumb-tr-place -1    0.75 thumb-post-tr thumb-tr-place  -0.5  0.75 thumb-post-tl)  ; right wall of thumb, front section
-   (wall-brace thumb-tr-place -0.5  0.75 thumb-post-tl thumb-tl-place 1.8 0.5 thumb-post-tr)  ; right wall of thumb, middle section
+   (wall-brace thumb-tr-place  0     0 thumb-post-tr thumb-tr-place 0     0 thumb-post-tl)  ; right wall of thumb, front section
+  ;  (wall-brace thumb-tr-place  0     0 thumb-post-tl thumb-tl-place -0.25 0 thumb-post-tr)  ; right wall of thumb, middle section
   ;  (wall-brace thumb-tl-place  0  1 thumb-post-tr thumb-tl-place  6  1 thumb-post-tl)  ; right wall of thumb, upper section
-  ;  (triangle-hulls  ;; connect tl thumb to main keys front wall
-  ;   (thumb-tr-place thumb-post-tl)
-  ;   (thumb-tr-place (translate (wall-locate3 0 0) thumb-post-tl))
-  ;   thumb-lastrow-connect
-  ;   ; done?
-  ;   )
-  ;  (bottom-hull
-  ;   thumb-lastrow-connect
-  ;   (thumb-tr-place (translate (wall-locate3 0 0) thumb-post-tl)))  
+   (triangle-hulls  ;; connect tl thumb to main keys front wall
+    (thumb-tr-place thumb-post-tl)
+    (thumb-tr-place (translate (wall-locate3 0 0) thumb-post-tl))
+    thumb-lastrow-connect
+    ; done?
+    )
+   (bottom-hull
+    thumb-lastrow-connect
+    (thumb-tr-place (translate (wall-locate3 0 0) thumb-post-tl)))
   ; End union and thumb-walls
-   ))  
+   ))
 (def back-y-edge 1)
 (def right-x-edge 2)
-(def right-case-wall
+(def case-walls
   (union
+   ; back wall for columns that have a firstrow key (except middle finger)
+   (for [x (range 0 ncols) :when (and (.contains has-firstrow x) (not= x (- middle-finger-col 1)) (not= x middle-finger-col))] (key-wall-brace x 0 0 back-y-edge web-post-tl x       0 0 back-y-edge web-post-tr))
+   (for [x (range 1 ncols) :when (and (.contains has-firstrow x) (not= x (- middle-finger-col 1)) (not= x middle-finger-col))] (key-wall-brace x 0 0 back-y-edge web-post-tl (dec x) 0 0 back-y-edge web-post-tr))
+   ; back wall for columns that DO NOT have a firstrow key (but not including middle finger)
+   (for [x (range 0 ncols) :when (not (or (.contains has-firstrow x) (= x (- middle-finger-col 1)) (= x middle-finger-col)))]       (key-wall-brace x 1 0 back-y-edge web-post-tl x       1 0 back-y-edge web-post-tr))
+   (for [x (range 1 ncols) :when (not (or (.contains has-firstrow (- x 1)) (= x (- middle-finger-col 1)) (= x middle-finger-col)))] (key-wall-brace x 1 0 back-y-edge web-post-tl (dec x) 1 0 back-y-edge web-post-tr))
+   ; Back wall middle finger (top row is determined by if-else depending on has-firstrow)
+   (if (.contains has-firstrow middle-finger-col)
+     (union
+      (key-wall-brace (dec middle-finger-col) 0 0 back-y-edge web-post-tl (dec middle-finger-col)       0 -1 back-y-edge web-post-tr)
+      (key-wall-brace (dec middle-finger-col) 0 0 back-y-edge web-post-tl (dec (dec middle-finger-col)) 0   0 back-y-edge web-post-tr)
+      (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl middle-finger-col       0  0 back-y-edge web-post-tr)
+      (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl (dec middle-finger-col) 0 -1 back-y-edge web-post-tr))
+     (union
+      (key-wall-brace (dec middle-finger-col) 1 0 back-y-edge web-post-tl (dec middle-finger-col)       1 0 back-y-edge web-post-tr)
+      (key-wall-brace (dec middle-finger-col) 1 0 back-y-edge web-post-tl (dec (dec middle-finger-col)) 1 0 back-y-edge web-post-tr)
+      (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl middle-finger-col       1  0 back-y-edge web-post-tr)
+      (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl (dec middle-finger-col) 1 -1 back-y-edge web-post-tr)))
+   (if (.contains has-firstrow lastcol)
+     (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
+     (union
+      (key-wall-brace lastcol 1 0 back-y-edge web-post-tr lastcol 1 right-x-edge 0 web-post-tr)
+      (key-wall-brace (last has-firstrow) 1 right-x-edge 0 web-post-tr (inc (last has-firstrow)) 1 right-x-edge back-y-edge web-post-tl)
+      (key-wall-brace (last has-firstrow) 0 0 back-y-edge web-post-tr (last has-firstrow) 0 right-x-edge 0 web-post-tr)))
+   ; right wall
    (for [y (range 0 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol y right-x-edge 0 web-post-tr lastcol y       right-x-edge 0 web-post-br))
    (for [y (range 1 2) :when (.contains has-firstrow lastcol)] (key-wall-brace lastcol (dec y) right-x-edge 0 web-post-br lastcol y right-x-edge 0 web-post-tr))
    (for [y (range 0 1)] (key-wall-brace (last has-firstrow) y right-x-edge 0 web-post-tr (last has-firstrow) y       right-x-edge 0 web-post-br))
    (for [y (range 1 2)] (key-wall-brace (last has-firstrow) (dec y) right-x-edge 0 web-post-br (last has-firstrow) y right-x-edge 0 web-post-tr))
    (for [y (range 1 lastrow)] (key-wall-brace lastcol y right-x-edge 0 web-post-tr lastcol y       right-x-edge 0 web-post-br))
    (for [y (range 2 lastrow)] (key-wall-brace lastcol (dec y) right-x-edge 0 web-post-br lastcol y right-x-edge 0 web-post-tr))
-   (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow right-x-edge 0 web-post-br))
-)
-(def left-case-wall
-  (union
+   (key-wall-brace lastcol cornerrow 0 -1 web-post-br lastcol cornerrow right-x-edge 0 web-post-br)
+   ; left wall
    (for [y (range 0 cornerrow)] (union (wall-brace (partial left-key-place y 1)       -1 0 web-post (partial left-key-place y -1) -1 0 web-post)
                                        (hull (key-place 0 y web-post-tl)
                                              (key-place 0 y web-post-bl)
@@ -1003,51 +1014,9 @@
                                            (left-key-place (dec y) -1 web-post))))
    (wall-brace (partial key-place 0 0) 0 1 web-post-tl (partial left-key-place 0 1) 0 1 web-post)  ; back corner: coming from the back wall to left wall
    (wall-brace (partial left-key-place 0 1) 0 1 web-post (partial left-key-place 0 1) -1 0 web-post)  ; back corner: remaining sliver from left wall to connect above line
-))
-; back wall for columns that have a firstrow key (except middle finger)
-(def back-case-wall-if-firstrow
-  (union
-   (for [x (range 0 ncols) :when (and (.contains has-firstrow x) (not= x (- middle-finger-col 1)) (not= x middle-finger-col))] (key-wall-brace x 0 0 back-y-edge web-post-tl x       0 0 back-y-edge web-post-tr))
-   (for [x (range 1 ncols) :when (and (.contains has-firstrow x) (not= x (- middle-finger-col 1)) (not= x middle-finger-col))] (key-wall-brace x 0 0 back-y-edge web-post-tl (dec x) 0 0 back-y-edge web-post-tr))))
-; back wall for columns that DO NOT have a firstrow key (but not including middle finger)
-(def back-case-wall-if-not-firstrow
-  (union
-   (for [x (range 0 ncols) :when (not (or (.contains has-firstrow x) (= x (- middle-finger-col 1)) (= x middle-finger-col)))]       (key-wall-brace x 1 0 back-y-edge web-post-tl x       1 0 back-y-edge web-post-tr))
-   (for [x (range 1 ncols) :when (not (or (.contains has-firstrow (- x 1)) (= x (- middle-finger-col 1)) (= x middle-finger-col)))] (key-wall-brace x 1 0 back-y-edge web-post-tl (dec x) 1 0 back-y-edge web-post-tr))))
-; back wall middle finger (top row is determined by if-else depending on has-firstrow)
-(def back-case-wall-middle-finger
-  (union
-   (if (.contains has-firstrow middle-finger-col)
-     (union
-      (key-wall-brace (dec middle-finger-col) 0 0 back-y-edge web-post-tl (dec middle-finger-col)       0 -1 back-y-edge web-post-tr)
-      (key-wall-brace (dec middle-finger-col) 0 0 back-y-edge web-post-tl (dec (dec middle-finger-col)) 0   0 back-y-edge web-post-tr)
-      (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl middle-finger-col       0  0 back-y-edge web-post-tr)
-      (key-wall-brace middle-finger-col 0 -1 back-y-edge web-post-tl (dec middle-finger-col) 0 -1 back-y-edge web-post-tr))
-     (union
-      (key-wall-brace (dec middle-finger-col) 1 0 back-y-edge web-post-tl (dec middle-finger-col)       1 0 back-y-edge web-post-tr)
-      (key-wall-brace (dec middle-finger-col) 1 0 back-y-edge web-post-tl (dec (dec middle-finger-col)) 1 0 back-y-edge web-post-tr)
-      (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl middle-finger-col       1  0 back-y-edge web-post-tr)
-      (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl (dec middle-finger-col) 1 -1 back-y-edge web-post-tr)))))
-(def corners-case-wall-back-to-right
-  (if (.contains has-firstrow lastcol)
-    (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
-    (union
-     (key-wall-brace lastcol 1 0 back-y-edge web-post-tr lastcol 1 right-x-edge 0 web-post-tr)
-     (key-wall-brace (last has-firstrow) 1 right-x-edge 0 web-post-tr (inc (last has-firstrow)) 1 right-x-edge back-y-edge web-post-tl)
-     (key-wall-brace (last has-firstrow) 0 0 back-y-edge web-post-tr (last has-firstrow) 0 right-x-edge 0 web-post-tr))))
-(def front-case-wall
-  (union
+   ; front wall
    (for [x (range 4 ncols) :when (not (.contains has-lastrow x))] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br))
-   (for [x (range 5 ncols) :when (not (.contains has-lastrow x))] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))))
-(def case-walls
-  (union
-   back-case-wall-if-firstrow
-   back-case-wall-if-not-firstrow
-   back-case-wall-middle-finger
-   corners-case-wall-back-to-right
-   right-case-wall
-   left-case-wall
-   front-case-wall
+   (for [x (range 5 ncols) :when (not (.contains has-lastrow x))] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
   ;  thumb-walls
    ))
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1176,37 +1145,18 @@
                     thumb
                     thumb-connectors
                     ; case-walls
-                    (union
-                    back-case-wall-if-firstrow
-                    back-case-wall-if-not-firstrow
-                     back-case-wall-middle-finger
-                     corners-case-wall-back-to-right
-                    right-case-wall
-                    left-case-wall
-                    front-case-wall
-                     )
-                    ; (difference (union 
-                    ;             ;  case-walls
-                    ;              (union
-                    ;               back-case-wall-if-firstrow
-                    ;               back-case-wall-if-not-firstrow
-                    ;               back-case-wall-middle-finger
-                    ;               corners-case-wall-back-to-right
-                    ;               right-case-wall
-                    ;               left-case-wall
-                    ;               front-case-wall
-                    ;               )
-                    ;              (main-key-cleanup true)
-                    ;              thumb-walls
-                    ;              screw-insert-outers
-                    ;              teensy-holder
-                    ;              usb-holder
-                    ;              )
-                    ;             rj9-space
-                    ;             usb-holder-hole
-                    ;             screw-insert-holes
-                    ;             )
-                    ; rj9-holder
+                    (difference (union case-walls
+                                       (main-key-cleanup true)
+                                       thumb-walls
+                                       screw-insert-outers
+                                       teensy-holder
+                                       usb-holder
+                                       )
+                                rj9-space
+                                usb-holder-hole
+                                screw-insert-holes
+                                )
+                    rj9-holder
                     ; wire-posts
                     ; thumbcaps
                     ; caps
@@ -1230,7 +1180,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Create the SCAD files ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (spit "things/right.scad"
       (write-scad model-right))
 (spit "things/left.scad"
@@ -1239,15 +1188,14 @@
       (write-scad (union model-right
                          thumbcaps
                          caps
-                         valley-clearance
-                         )))
+                  )))
 (spit "things/right-no-thumb.scad"
       (write-scad (difference
                    (union
                     key-holes
                     connectors
                     (main-key-cleanup false)
-                    valley-clearance
+                    ; valley-clearance
                     ; case-walls
                     ; (difference (union case-walls
                     ;                    ( main-key-cleanup false)

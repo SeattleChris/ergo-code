@@ -47,12 +47,19 @@
 ## Goals for Feb 2020 build 01
 
 * [x] Slightly smaller/tighter key switch holes: old 14.3 | now 14.15
-* [x] Reduce curve (front to back) slightly: was 36 (makes 90) | now 34 (makes 85) | could be 33 (makes 82.5)
+* [x] Reduce curve (front to back) slightly: was 36 (ttl 90) | now 34 (ttl 85) | could be 33 (ttl 82.5)
 * [x] Roll home row back (more trigger action) - lastrow is perpendicular: was nrows-3.5|now nrows-3.75
 * [x] Pinkie home has no top row.
-* [x] Pinkie home has or does not have lastrow?
-* [x] Pinkie bonus column has 2-3 keys
-* [ ] Back Wall shape: Continue the left curve around top, connecting to middle finger left edge.
+* [x] Pinkie home has or does not have lastrow? (has lastrow)
+* [x] Pinkie bonus column has 2-3 keys? (3)
+* [x] Wall thickness (part that drops to ground) updated: was 2 | Jan 3.5 | now 2.5
+* [x] Back Wall shape: allow extra left room for middle finger since it typically is furthest back column.
+* [x] Wall offset: controls how far way from the plate the wall (drop to the floor) is set.
+  * [x] wall-z-offset: original -15 | Jan -12 | now -14
+  * [x] wall-xy-offset: original  ? | Jan   3 | now   6
+* [x] Soften by rounding out bottom left corner (the thumb section BR key)
+* [ ] ? Back Wall shape: Continue the left curve around top, connecting to middle finger left edge.
+* [ ] Adjust pinkie and ring finger placement
 * [ ] Adjust wall connection to thumb: Bonus row pinkie connect to thumb section
 * [ ] Fix blank wall: thumb slope off off to right wall
 * [ ] Can we fit a lastrow key for home pointer?
