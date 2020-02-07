@@ -915,23 +915,24 @@
   ;  valley-clearance
   ;; end thumb-valley
    ))
-(def thumb-walls
-  (union  ;; currently being made for tipped-bowl version
-   thumb-valley
-   (wall-brace thumb-br-place -0.5 -1 web-post-bl thumb-br-place -1 -1 (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))  ; outside left lower wall - psuedo between keys
+(def thumb-gap-displace (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))  
+(def thumb-left-wall
+  (union
+   (wall-brace thumb-br-place -0.5 -1 web-post-bl thumb-br-place -1 -1 thumb-gap-displace)  ; outside left lower wall - psuedo between keys
    (wall-brace thumb-br-place -1 -1 web-post-br thumb-br-place -0.5 -1 web-post-bl)  ; outside left lower wall - right (more front) key
    (bottom-hull  ;; Improved wall-brace for outside left lower wall - connect to main from psuedo
-    (thumb-br-place (translate (wall-locate3 -1  -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
-    (thumb-br-place (translate (wall-locate2 -1  -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
+    (thumb-br-place (translate (wall-locate3 -1  -1) thumb-gap-displace))
+    (thumb-br-place (translate (wall-locate2 -1  -1) thumb-gap-displace))
     ; (thumb-bl-place (translate (wall-locate3  0  -1) web-post-bl))
     ; (thumb-bl-place (translate (wall-locate2  0  -1) web-post-bl))
-    ; (left-key-place cornerrow 1 web-post)
+    ; The following 2 lines does the work of: (left-key-place cornerrow 1 web-post)
     (left-key-place cornerrow 1 (translate (wall-locate1 -1 0) web-post))
     (left-key-place cornerrow 1 (translate (wall-locate3 -1 0) web-post))
-    ; Leaves a gap due to displaced wall.
+    ; Leaves a gap due to displaced wall.  0  -1) web-post-bl))
+    ; (thumb-bl-place (translate (wall-locate2
     )
-   (hull  ;; Gap fill for connecting displaced wall and space between two bottom thumb keys.
-    (thumb-br-place (translate (wall-locate1 -1 -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
+   (hull  ;; Gap fill for connecting displaced wall and space between two bottom thumb keys.  HERE HERE
+    (thumb-br-place (translate (wall-locate3 -1 -1) thumb-gap-displace))
     (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-br))
     (thumb-bl-place web-post-br)
     (thumb-br-place (translate (wall-locate1 -1 -1) web-post-bl))
@@ -939,9 +940,9 @@
     ; connects to top wall over bl thumb key
     )
    (hull  ;; left wall passing around bl thumb key (near main keyboard section)
-    (thumb-br-place (translate (wall-locate1 -1 -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
-    (thumb-br-place (translate (wall-locate2 -1 -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
-    (thumb-br-place (translate (wall-locate3 -1 -1) (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl)))
+    (thumb-br-place (translate (wall-locate1 -1 -1) thumb-gap-displace))
+    (thumb-br-place (translate (wall-locate2 -1 -1) thumb-gap-displace))
+    (thumb-br-place (translate (wall-locate3 -1 -1) thumb-gap-displace))
     (thumb-bl-place web-post-br)
     (thumb-bl-place (translate (wall-locate1 0 -0.5) web-post-br))
     (thumb-bl-place web-post-bl)
@@ -952,19 +953,25 @@
     (left-key-place cornerrow 1 web-post)
     ; connects to thumb-hood
     )
+   ; end thumb-left-wall
+   ))
+(def thumb-front-wall
+  (union
    ; Transition from Left to Front Thumb Wall
    (wall-brace thumb-br-place -1    -1 web-post-br   thumb-br-place 0    -0.25 web-post-br)  ; outside left lower wall cornering to front wall
-   ;; Front Wall of Thumb
+   ; Transition from Front Thumb Wall to Right
+   (wall-brace thumb-tr-place  0 -0.25 thumb-post-tr thumb-tr-place -1 0.75 thumb-post-tr)
+   ; Front Wall
    (wall-brace thumb-br-place  0 -0.25 web-post-br   thumb-br-place 0.75  0 web-post-tr)  ; outside left lower wall cornering to front wall
    (wall-brace thumb-br-place  0.75  0 web-post-tr   thumb-mr-place 1.5   0 web-post-br)  ; front wall between bottom and middle
    (wall-brace thumb-mr-place  1.5   0 web-post-br   thumb-mr-place 1.5   0 web-post-tr)  ; front wall middle key
    (wall-brace thumb-mr-place  1.5   0 web-post-tr   thumb-tr-place 0.75  0 thumb-post-br)  ; front wall between middle and tp
    (wall-brace thumb-tr-place  0.75  0 thumb-post-br thumb-tr-place 0 -0.25 thumb-post-tr)  ; front wall top key
-   ; Transition from Left to Front Thumb Wall
-   (wall-brace thumb-tr-place  0 -0.25 thumb-post-tr thumb-tr-place -1 0.75 thumb-post-tr)  
-   ;; Right Wall for Thumb Top keys
+   ))
+(def thumb-right-wall
+  (union
    (wall-brace thumb-tr-place -1    0.75 thumb-post-tr thumb-tr-place  -0.5  0.75 thumb-post-tl)  ; right wall of thumb, front section
-   (wall-brace thumb-tr-place -0.5  0.75 thumb-post-tl thumb-tl-place 1.8 0.5 thumb-post-tr)  ; right wall of thumb, middle section
+   (wall-brace thumb-tr-place -0.5  0.75 thumb-post-tl thumb-tl-place 2.71 0.5 thumb-post-tr)  ; right wall of thumb, middle section
   ;  (wall-brace thumb-tl-place  0  1 thumb-post-tr thumb-tl-place  6  1 thumb-post-tl)  ; right wall of thumb, upper section
   ;  (triangle-hulls  ;; connect tl thumb to main keys front wall
   ;   (thumb-tr-place thumb-post-tl)
@@ -975,6 +982,13 @@
   ;  (bottom-hull
   ;   thumb-lastrow-connect
   ;   (thumb-tr-place (translate (wall-locate3 0 0) thumb-post-tl)))  
+   ))
+(def thumb-walls
+  (union  ;; currently being made for tipped-bowl version
+   thumb-valley
+   thumb-left-wall
+   thumb-front-wall
+   thumb-right-wall
   ; End union and thumb-walls
    ))  
 (def back-y-edge 1)
@@ -1177,14 +1191,13 @@
                     thumb-connectors
                     ; case-walls
                     (union
-                    back-case-wall-if-firstrow
-                    back-case-wall-if-not-firstrow
+                     back-case-wall-if-firstrow
+                     back-case-wall-if-not-firstrow
                      back-case-wall-middle-finger
                      corners-case-wall-back-to-right
-                    right-case-wall
-                    left-case-wall
-                    front-case-wall
-                     )
+                     right-case-wall
+                     left-case-wall
+                     front-case-wall)
                     ; (difference (union 
                     ;             ;  case-walls
                     ;              (union
@@ -1290,13 +1303,16 @@
         (union
          thumb
          thumb-connectors
+        ;  thumb-walls
          thumb-valley
+         thumb-left-wall
+        ;  thumb-front-wall
+        ;  thumb-right-wall
+         valley-clearance
         ;  (main-key-cleanup true)
           ; thumbcaps
-         ; thumb-walls
          ;  case-walls
-         )  ; end union
-       )  ; end reset-thumb-placement
-       ))
+         ))  ; end union and reset-thumb-placement
+       ))  ; end write-scad and spit
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
