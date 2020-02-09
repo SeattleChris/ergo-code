@@ -18,8 +18,10 @@
 - Bonus Bottom "Trigger" row
   - Pointer home column could be nice, if it could fit
   - Middle, Ring, and Pinkie home - pretty good, as long as not a core frequent key
+- What "Feels right" for column alignment can be dramatically different if keyboard at wrong height
+  - This is especially true for the pinkie finger.
 - Column Alignment:
-  - Maybe ring pulled down a small amount - 25% of key size
+  - Maybe ring pulled down a small amount - 15%? To keep from being too drastic to pinkie. Jan is close.
   - Maybe pinkie pulled down more - 50% of key size
 - Roll front to back: Maybe roll it even more, so more trigger pulling action instead of reach out action
   - 'Bonus row' probably should not go more than vertical
@@ -38,8 +40,8 @@
 |Finger | Feb-01           | Jan             | First Print     | Original specs, maybe
 |=======|==================|=================|=================|=======================|
 |Middle | [0  13.32 -3.00] | [0 13.82 -2.50] | [0 14.82 -4.50] | [0 2.82 -4.5]               |
-|Ring   | [0   4.99 -1.25] | [0  7.82 -1.25] | [0  7.82 -2.25] | [0 0 0]                     |
-|Pinkie | [0 -11.55  2.39] | [0 -5.18  1.39] | [0 -5.18  3.39] | [0 -5.8 5.64], [0 -12 5.64] |
+|Ring   | [0   6.32 -1.25] | [0  7.82 -1.25] | [0  7.82 -2.25] | [0 0 0]                     |
+|Pinkie | [0  -9.68  2.39] | [0 -5.18  1.39] | [0 -5.18  3.39] | [0 -5.8 5.64], [0 -12 5.64] |
 |Comparison - Index (F) @ [0 0 0], Middle (M), Ring (R), and Pinkie (P) ------- preferences |
-| M-R   |  0  8.33  1.75   |  0   6    1.25  |  0   7    2.25  | First was closer
-| R-P   |  0 16.54  3.64   |  0  13    2.64  |  0   13   5.64  | First: too much, Jan: closer, not enough|
+| M-R   |  0  7.00  1.75   |  0   6    1.25  |  0   7    2.25  | First was closer
+| R-P   |  0 16.00  3.64   |  0  13    2.64  |  0   13   5.64  | First: too much, Jan: closer, not enough|

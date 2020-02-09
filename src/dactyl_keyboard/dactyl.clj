@@ -35,9 +35,9 @@
 (def plate-thickness 3.5)  ; was 4 ; 
 (defn column-offset [column] (cond                                 ; Feb-01         ; Jan             ; First Print      ; Original specs, maybe 
                                (= column  (+ 0 middle-finger-col)) [0  13.32 -3.00]  ; [0 13.82 -2.5]  ; [0 14.82 -4.5 ]  ; [0 2.82 -4.5]
-                               (= column  (+ 1 middle-finger-col)) [0   4.99 -1.25]  ; [0  7.82 -1.25] ; [0  7.82 -2.25]  ; [0 0 0]
-                               (>= column (+ 2 middle-finger-col)) [0 -11.55  2.39]  ; [0 -5.18  1.39] ; [0 -5.18  3.39]  ; [0 -5.8 5.64], [0 -12 5.64]
-                               :else [0 0 0]))  ; The pointer finger         4.14               2.64              5.64
+                               (= column  (+ 1 middle-finger-col)) [0   6.32 -1.25]  ; [0  7.82 -1.25] ; [0  7.82 -2.25]  ; [0 0 0]
+                               (>= column (+ 2 middle-finger-col)) [0  -9.68  2.39]  ; [0 -5.18  1.39] ; [0 -5.18  3.39]  ; [0 -5.8 5.64], [0 -12 5.64]
+                               :else [0 0 0]))  ; The pointer finger         
 ;; Doesn't work quite like was hoped - Settings for column-style == :fixed
 ;; The defaults roughly match Maltron settings http://patentimages.storage.googleapis.com/EP0219944A2/imgf0002.png
 (def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])
