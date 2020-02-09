@@ -59,9 +59,9 @@
   * [x] wall-xy-offset: original  ? | Jan   3 | now   6
 * [x] Soften by rounding out bottom left corner (the thumb section BR key)
 * [ ] ? Back Wall shape: Continue the left curve around top, connecting to middle finger left edge.
-* [ ] Adjust pinkie and ring finger placement
-* [ ] Adjust wall connection to thumb: Bonus row pinkie connect to thumb section
-* [ ] Fix blank wall: thumb slope off off to right wall
+* [x] Adjust pinkie and ring finger placement
+* [x] Adjust wall connection to thumb: Bonus row pinkie connect to thumb section
+* [x] Fix blank wall: thumb slope off off to right wall
 * [ ] Can we fit a lastrow key for home pointer?
 
 ## Ready to test for fit
