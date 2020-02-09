@@ -288,14 +288,14 @@
   (triangle-hulls  ;; Extra keys (column 2 & 3) column gap
    (key-place a row web-post-br)
    (if tight
-     (key-place b row (translate (wall-locate1 -0.6 0) web-post-bl))
+     (key-place b row (translate (wall-locate1 -0.84 0) web-post-bl))
      (key-place b row web-post-bl))
    (key-place a row web-post-tr)
    (if tight
-     (key-place b row (translate (wall-locate1 -0.6 0) web-post-tl))
+     (key-place b row (translate (wall-locate1 -0.84 0) web-post-tl))
      (key-place b row web-post-tl))
    (if tight (key-place b row web-post-tl))
-   (if tight (key-place b row (translate (wall-locate1 -0.6 0) web-post-bl)))
+   (if tight (key-place b row (translate (wall-locate1 -0.84 0) web-post-bl)))
    (if tight (key-place b row web-post-bl))
    ; (defn col-gap [row a b]  ; old definition doesn't work for tight columns
    ;   (triangle-hulls
@@ -597,14 +597,15 @@
 ;;;;;;;;;;;;;;;;;;;;;
 (def left-wall-x-offset 10)
 (def left-wall-z-offset  3)
+(def thumb-x-connect 2.71)  ; 2.71
+(def thumb-y-connect 0.5 )  ; 0.5
 (def thumb-lastrow-connect (thumb-tl-place thumb-post-tr))
-; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 2.9 -0.75) thumb-post-tr)))
+; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate2 thumb-x-connect thumb-y-connect) thumb-post-tr)))
+; (def thumb-lastrow-connect (key-place lastcol cornerrow (translate (wall-locate3 -2 -1) web-post-bl) ))
 (def thumb-corner-connect (thumb-tl-place thumb-post-tl))
 (def thumb-left-connect (union
                          thumb-corner-connect
                          (thumb-tl-place thumb-post-bl)))
-; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate3 0.25 0) thumb-post-tr)))
-; (def thumb-lastrow-connect (key-place lastcol cornerrow (translate (wall-locate3 -2 -1) web-post-bl) ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Case Placement Functions          ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -640,42 +641,44 @@
 (defn key-wall-brace [x1 y1 dx1 dy1 post1 x2 y2 dx2 dy2 post2]
   (wall-brace (partial key-place x1 y1) dx1 dy1 post1
               (partial key-place x2 y2) dx2 dy2 post2))
-
+(def min-left  -0.1)
+(def min-right  0.1)
+(def min-y 0.3)
 (defn key-top-wall [col row adj-l adj-r]
   " The lastrow keys often need a top wall. The adj-l and adj-r variables used if the columns are too tight"
   (union
    (hull  ; main keys top wall - first extra key (column 2) top wall sloped to second extra key (column 3) top wall
     (key-place col row web-post-bl)
     (if (not= adj-l 0) (key-place col row (translate (wall-locate1 adj-l 0) web-post-bl)))
-    (key-place col row (translate (wall-locate1  adj-l    0.3) web-post-bl))
-    (key-place col row (translate (wall-locate2  0    0.3) web-post-bl))
-    (key-place col row (translate (wall-locate3  0    0) web-post-bl))
+    (key-place col row (translate (wall-locate1 adj-l  min-y) web-post-bl))
+    (key-place col row (translate (wall-locate2 0      min-y) web-post-bl))
+    (key-place col row (translate (wall-locate3 0      0    ) web-post-bl))
     (if (and (not= adj-r 0) (if (= row lastrow) (.contains has-lastrow (inc col)) true) )
       (key-place (inc col) row (translate (wall-locate1 adj-r  0) web-post-bl))
       (key-place col       row web-post-br)
       ) 
     (if (and (not= adj-r 0) (if (= row lastrow) (.contains has-lastrow (inc col)) true) )
-      (key-place (inc col) row (translate (wall-locate1 adj-r 0.3) web-post-bl))
-      (key-place col       row (translate (wall-locate1   0   0.3) web-post-br))
+      (key-place (inc col) row (translate (wall-locate1  adj-r min-y) web-post-bl))
+      (key-place col       row (translate (wall-locate1  0     min-y) web-post-br))
       )
     (if (and (not= adj-r 0) (if (= row lastrow) (.contains has-lastrow (inc col)) true) )
-      (key-place (inc col) row (translate (wall-locate2   0   0.3) web-post-bl))
-      (key-place col       row (translate (wall-locate2   0   0.3) web-post-br))
+      (key-place (inc col) row (translate (wall-locate2  0   min-y) web-post-bl))
+      (key-place col       row (translate (wall-locate2  0   min-y) web-post-br))
       )
     (if (and (not= adj-r 0) (if (= row lastrow) (.contains has-lastrow (inc col)) true) )
-      (key-place (inc col) row (translate (wall-locate3   0   0) web-post-bl))
-      (key-place col       row (translate (wall-locate3   0   0) web-post-br))
+      (key-place (inc col) row (translate (wall-locate3  0   0) web-post-bl))
+      (key-place col       row (translate (wall-locate3  0   0) web-post-br))
       )
    ; end hull
     )
    (if (and (not= adj-r 0) (if (= row lastrow) (.contains has-lastrow (inc col)) true) )
      (hull  ;; main key top wall - gap fixer for transition between 1st & 2nd extra keys (columns 2 & 3)
       (key-place col       row web-post-bl)
-      (key-place col       row (translate (wall-locate1  0    0.3) web-post-bl))
+      (key-place col       row (translate (wall-locate1  0     min-y) web-post-bl))
       (key-place col       row web-post-br)
-      (key-place col       row (translate (wall-locate1  0    0.3) web-post-br))
-      (key-place (inc col) row (translate (wall-locate1 adj-r  0 ) web-post-bl))
-      (key-place (inc col) row (translate (wall-locate1 adj-r 0.3) web-post-bl)))
+      (key-place col       row (translate (wall-locate1  0     min-y) web-post-br))
+      (key-place (inc col) row (translate (wall-locate1 adj-r  0    ) web-post-bl))
+      (key-place (inc col) row (translate (wall-locate1 adj-r  min-y) web-post-bl)))
     ; end if
      )
   ; end key-top-wall
@@ -684,7 +687,7 @@
   " Lastrow extra keys may need a top wall. Input thumb is true or false, for connecting to thumb cluster. 
     Input tight is false for normal column gaps or true if these keys are very close together. "
   (union
-   (hull  ; First extra key (column 2) front wall to thumb corner
+   (hull  ; First extra key (column 2) front wall to thumb corner.
     (for [col columns :when (and (.contains has-lastrow col) (not (.contains is-stretch-column col)))]
       (key-place col lastrow (translate (wall-locate3 0 0) web-post-bl)))
     (if (= thumb true) (union thumb-lastrow-connect thumb-corner-connect))
@@ -692,7 +695,7 @@
     )
    (for [col columns :when (.contains has-lastrow col)]
      (if tight
-       (key-top-wall col lastrow (if (= col (get has-lastrow 0)) 0 -0.6) (if (= col (last has-lastrow)) 0 -0.6))
+       (key-top-wall col lastrow (if (= col (get has-lastrow 0)) 0 -0.84) (if (= col (last has-lastrow)) 0 -0.84))  ; ; Meas-0
        (key-top-wall col lastrow 0 0)) ; end if else
      ; end for loop
    )
@@ -700,21 +703,21 @@
      (for [col columns :when (and (.contains has-lastrow col) (.contains has-lastrow (inc col)))]
        (union
         (hull  ; fill in the edge from the back (locate3) of the top wall (some left empty by the connector to the thumb)
-         (key-place col lastrow (translate (wall-locate3 0 0) web-post-bl))
-         (key-place col lastrow (translate (wall-locate2 0 0.3) web-post-bl))
-         (key-place col lastrow (translate (wall-locate3 0 0) web-post-br))
-         (key-place col lastrow (translate (wall-locate2 0 0.3) web-post-br))
-         (key-place (inc col) lastrow (translate (wall-locate3 0 0) web-post-bl))
-         (key-place (inc col) lastrow (translate (wall-locate2 0 0.3) web-post-bl)))
+         (key-place col lastrow (translate (wall-locate3 0 0    ) web-post-bl))
+         (key-place col lastrow (translate (wall-locate2 0 min-y) web-post-bl))
+         (key-place col lastrow (translate (wall-locate3 0 0    ) web-post-br))
+         (key-place col lastrow (translate (wall-locate2 0 min-y) web-post-br))
+         (key-place (inc col) lastrow (translate (wall-locate3 0 0    ) web-post-bl))
+         (key-place (inc col) lastrow (translate (wall-locate2 0 min-y) web-post-bl)))
         (hull  ; fill in the column gap on the top wall (this is not an issue when tight is true)
          (key-place col lastrow web-post-br)
-         (key-place col lastrow (translate (wall-locate1 0 0.3) web-post-br))
-         (key-place col lastrow (translate (wall-locate2 0 0.3) web-post-br))
-         (key-place col lastrow (translate (wall-locate3 0 0) web-post-br))
+         (key-place col lastrow (translate (wall-locate1 0 min-y) web-post-br))
+         (key-place col lastrow (translate (wall-locate2 0 min-y) web-post-br))
+         (key-place col lastrow (translate (wall-locate3 0 0    ) web-post-br))
          (key-place (inc col) lastrow web-post-bl)
-         (key-place (inc col) lastrow (translate (wall-locate1 0 0.3) web-post-bl))
-         (key-place (inc col) lastrow (translate (wall-locate2 0 0.3) web-post-bl))
-         (key-place (inc col) lastrow (translate (wall-locate3 0 0) web-post-bl)))))
+         (key-place (inc col) lastrow (translate (wall-locate1 0 min-y) web-post-bl))
+         (key-place (inc col) lastrow (translate (wall-locate2 0 min-y) web-post-bl))
+         (key-place (inc col) lastrow (translate (wall-locate3 0 0    ) web-post-bl)))))
      ; end if not tight 
      )
    ; end union at top of the function
@@ -730,9 +733,9 @@
         ]
     (hull
      (key-place column cornerrow bottom-post)
-     (key-place column cornerrow (translate (wall-locate1 0  0) bottom-post))
+     (key-place column cornerrow (translate (wall-locate1 0  min-y) bottom-post))
      (key-place column lastrow top-post)
-     (key-place column lastrow   (translate (wall-locate1 p1  p2) top-post))
+     (key-place column lastrow   (translate (wall-locate1 p1  p2  ) top-post))
      (key-place adjacent cornerrow adj-post)
      (key-place adjacent cornerrow (translate (wall-locate1 0 -0.5) adj-post))
      ; end connect-adjacent
@@ -740,8 +743,8 @@
 (defn key-wall [column side]
   " Usually used to create a 'left' or 'right' side wall for the 'extra'
     keys of the lastrow (that aren't connected when generated)"
-  (let [p1 (if (= side 'left') 0 -0.3)
-        p2 (if (= side 'left') 0.3 0)
+  (let [p1 (if (= side 'left') 0 -0.3)  
+        p2 (if (= side 'left') 0.3 0)  
         top-post (if (= side 'left') web-post-tl web-post-tr)
         bottom-post (if (= side 'left') web-post-bl web-post-br)
         ]
@@ -749,11 +752,11 @@
      (key-place column lastrow top-post)
      (key-place column lastrow   (translate (wall-locate1 p1 p2) top-post))
      (key-place column lastrow   (translate (wall-locate2 p1 p2) top-post))
-     (key-place column lastrow   (translate (wall-locate3 0  0 ) top-post))
+     (key-place column lastrow   (translate (wall-locate3 0  0 ) top-post))  
      (key-place column lastrow bottom-post)
      (key-place column lastrow   (translate (wall-locate1 p1 p2) bottom-post))
      (key-place column lastrow   (translate (wall-locate2 p1 p2) bottom-post))
-     (key-place column lastrow   (translate (wall-locate3 0  0 ) bottom-post))
+     (key-place column lastrow   (translate (wall-locate3 0  0 ) bottom-post))  
   ; End key-wall
      )))
 
@@ -792,25 +795,21 @@
       (key-place (dec (last has-lastrow)) lastrow   (translate (wall-locate3 0 0) web-post-br))
       (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-bl))
       (if (= thumb true) thumb-lastrow-connect)  ;; Comment out if no thumb section printing.
-
       ; done? 
       ))
-   (hull ; Front wall for Last extra keys, then connect to thub-lastrow-connect. 
+   (hull ; Front wall for Last extra keys, then connect to thub-lastrow-connect.
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-bl))
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-br))
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-tr))  ; TODO: Is needed? Check for conditions this is problematic
-    (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl)) ; connects to default front wall of next/last column cornerrow
+    (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))  ; connects to default front wall of next/last column cornerrow
     (if (= thumb true) thumb-lastrow-connect)  ;; Comment out if no thumb section printing.
     )
-   (if (= thumb true)
+   (if (= thumb true)  
      (bottom-hull  ; front wall of extra keys and final main section.
       (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
       thumb-lastrow-connect  ;; Comment out if no thumb section printing.
       ))
    (top-wall-cleanup thumb tight-extra-keys)  ; if no gap: column gap & top walls for 1st & 2nd extra keys (columns 2 & 3)
-   (hull
-    
-    )
   ; end of main-key-cleanup
    ))
 
@@ -824,15 +823,15 @@
    (thumb-tl-place clearance)
    (thumb-tr-place clearance)
    (thumb-br-place clearance)
-   (key-place (+ middle-finger-col 1) 1       clearance)
-   (key-place (+ middle-finger-col 1) 1       clearance)
-   (key-place middle-finger-col 1       clearance)
-   (key-place (- lastcol 1)     1       clearance)
-   (key-place (- lastcol 1)     2       clearance)
-   (key-place (- lastcol 1)   cornerrow clearance)
-   (key-place lastcol           1       clearance)
-   (key-place lastcol           2       clearance)
-   (key-place lastcol         cornerrow clearance)
+   (key-place (+ middle-finger-col 1) 1 clearance)
+   (key-place (+ middle-finger-col 1) 1 clearance)
+   (key-place  middle-finger-col      1 clearance)
+   (key-place  (- lastcol 1)          1 clearance)
+   (key-place  (- lastcol 1)          2 clearance)
+   (key-place  (- lastcol 1)  cornerrow clearance)
+   (key-place  lastcol                1 clearance)
+   (key-place  lastcol                2 clearance)
+   (key-place  lastcol        cornerrow clearance)
    (for [x (range -1 2) :when (.contains has-firstrow (+ middle-finger-col x))] (key-place (+ middle-finger-col x) 0 clearance) )
    (for [x (range 0 lastcol) :when (.contains has-lastrow x)] (key-place x lastrow clearance))  ; HERE
   ;  (if (.contains has-lastrow lastcol) (key-place lastcol lastrow clearance))
@@ -879,7 +878,7 @@
     (key-place 0 cornerrow (translate (wall-locate3 0 0) web-post-bl))
     (key-place 0 cornerrow web-post-br)
     (key-place 0 cornerrow (translate (wall-locate1 0 0.3) web-post-br))
-    ; (key-place 0 cornerrow (translate (wall-locate2 0 0) web-post-br))
+    ; (key-place 0 cornerrow (translate (wall-locate2 0 0) web-post-br))  
     ; (key-place 0 cornerrow (translate (wall-locate3 0 0) web-post-br))
     (key-place 1 cornerrow web-post-bl)
     (key-place 1 cornerrow (translate (wall-locate1 0 0.3) web-post-bl))
@@ -915,7 +914,7 @@
   ;  valley-clearance
   ;; end thumb-valley
    ))
-(def thumb-gap-displace (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))  
+(def thumb-gap-displace (translate [(- (displacement-edge rollin-default) base-offset) 0 4] web-post-bl))
 (def thumb-left-wall
   (union
    (wall-brace thumb-br-place -0.5 -1 web-post-bl thumb-br-place -1 -1 thumb-gap-displace)  ; outside left lower wall - psuedo between keys
@@ -971,7 +970,7 @@
 (def thumb-right-wall
   (union
    (wall-brace thumb-tr-place -1    0.75 thumb-post-tr thumb-tr-place  -0.5  0.75 thumb-post-tl)  ; right wall of thumb, front section
-   (wall-brace thumb-tr-place -0.5  0.75 thumb-post-tl thumb-tl-place 2.71 0.5 thumb-post-tr)  ; right wall of thumb, middle section
+   (wall-brace thumb-tr-place -0.5  0.75 thumb-post-tl thumb-tl-place thumb-x-connect thumb-y-connect thumb-post-tr)  ; right wall of thumb, middle section
   ;  (wall-brace thumb-tl-place  0  1 thumb-post-tr thumb-tl-place  6  1 thumb-post-tl)  ; right wall of thumb, upper section
   ;  (triangle-hulls  ;; connect tl thumb to main keys front wall
   ;   (thumb-tr-place thumb-post-tl)
@@ -1303,6 +1302,7 @@
         (union
          thumb
          thumb-connectors
+        (main-key-cleanup true)
         ;  thumb-walls
          thumb-valley
          thumb-left-wall

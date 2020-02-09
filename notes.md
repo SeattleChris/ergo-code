@@ -6,6 +6,7 @@
 - This curvature for finger reach forward and back is a little too aggressive.
   - Some key caps may not fit
   - However, it is closer than one probably would guess.
+- The Jan print may require a higher seat/lower table - or first print had a better finger feel.
 - Maybe want the 'extra key' trigger button on the home column pointer finger.
   - Unsure if it can fit with the thumb section
 - Top row value:
