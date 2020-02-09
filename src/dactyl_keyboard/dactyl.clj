@@ -15,7 +15,7 @@
 (def ncols (reduce + column-per-finger))
 (def middle-finger-col (get column-per-finger 0))  ; First column is 0, and middle finger comes after the first (pointer) finger. 
 (def has-lastrow       [(- middle-finger-col 0) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2) (+ middle-finger-col 2)])   
-(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 1)])
+(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2)])
 (def is-stretch-column [0 5 6 7])  ; N (or greater) ignored if ncols<N, but is there just in case we add more pinkie columns.
 (def α (deg2rad 34))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
@@ -1055,7 +1055,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Other Components ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
-(def rj9-start  (map + [0 -3  0] (key-position 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
+(def rj9-start  (map + [0 -3  0] (key-position 0.375 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
 (def rj9-position  [(first rj9-start) (second rj9-start) 11])
 (def rj9-cube   (cube 14.78 13 22.38))
 (def rj9-space  (translate rj9-position rj9-cube))
@@ -1064,7 +1064,7 @@
                               (union (translate [0 2 0] (cube 10.78  9 18.38))   ; add 1mm for y value?
                                      (translate [0 0 5] (cube 10.78 13  5))))))  ; add 1mm for y value?
 
-(def usb-holder-position (key-position 1 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
+(def usb-holder-position (key-position (+ middle-finger-col 1) 0 (map + (wall-locate2 0 1) [1.25 (/ mount-height 2) 0])))
 (def usb-holder-size [6.5 10.0 13.6])
 (def usb-holder-thickness 4)
 (def usb-holder
@@ -1102,7 +1102,7 @@
           (->> (cube 4 teensy-holder-top-length 4)
                (translate [(+ teensy-pcb-thickness 5) teensy-holder-top-offset (+ 1 (/ teensy-width 2))])))
         (translate [(- teensy-holder-width) 0 0])
-        (translate [-1.4 0 0])
+        (translate [-2.4 0 0])  ; Jan [-1.4 0 0]
         (translate [(first teensy-top-xy)
                     (- (second teensy-top-xy) 1)
                     (/ (+ 6 teensy-width) 2)])
@@ -1118,19 +1118,27 @@
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow)) ; if row is lastrow (or greater), but column is not 0 or lastcol
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position
-        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-75 -2 -38] ))   ; if nrows=4, [-67 0 -38]
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-70 6 -34] ))  ; if nrows=4,  [-70 7 -36]
-            (if shift-up     (key-position column row (map + (wall-locate2  -0  -0.5) [0 (/ mount-height 2) 2]))
-                (if shift-down  (key-position column row (map - (wall-locate2  0 -8) [-1 (/ mount-height 2) 11]))   ; if nrows=4, [-7 (/ mount-height 2) -14]
-                    (if (and shift-left (>= row cornerrow)) (map + (left-key-position row 1) (wall-locate3 0 0) [-9 2 0])
-                    (if shift-left (map + (left-key-position row 1) (wall-locate3 0 0) [3 (/ mount-height 2) 11])
-                        (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) 0) 0 0] ))))))))]  ; if nrows=4, [(+ (/ mount-width 2) 2) 0 -3]
+        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-80 -4 -36] ))   ; if nrows=4, [-67 0 -38] ; Jan [-75 -2 -38]
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-70 6 -27] ))  ; if nrows=4,  [-70 7 -36] ; Jan  [-70 6 -34]
+            (if shift-up     
+              (key-position column row (map + (wall-locate2  -0.95  0.2) [0 (/ mount-height 2) 2]))
+              ; if not shift-up
+              (if shift-down  
+                (key-position column row (map - (wall-locate2  0 -6) [-1 (/ mount-height 2) 21]))   ; if nrows=4, [-7 (/ mount-height 2) -14]
+                ; else = if neither shift-down or shift-up
+                (if (and shift-left (>= row cornerrow)) 
+                  (map + (left-key-position row 1) (wall-locate2 0 0) [-14.5 14 0])  ; Jan [-9 2 0]
+                  ; else means (if shift-left while not cornerrow, not lastrow), OR (not shift-left with not lastrow)
+                  (if shift-left 
+                    (map + (left-key-position row 1) (wall-locate2 0 0) [0 (/ mount-height 2) 0] [2 4 0])
+                    ; else means either shift-right or neither left or right, while also not lastrow
+                    (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) -14) 1.5 0] ))))))))]  ; if nrows=4, [(+ (/ mount-width 2) 2) 0 -3]
     (->> (screw-insert-shape bottom-radius top-radius height)
          (translate [(first position) (second position) (/ height 2)])
     )))
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
   (union
-   (screw-insert 0 (+ 0.3 (* 0.5 (- nrows 3))) bottom-radius top-radius height)  ; back/top left      => shift-left  ;; rows=4, x=0.8, rows=5, x=1.3
+   (screw-insert 0 (+ 0.1 (* 0.5 (- nrows 3))) bottom-radius top-radius height)  ; back/top left      => shift-left  ;; rows=4, x=0.8, rows=5, x=1.3
    (screw-insert 0 (+ cornerrow 0.4)           bottom-radius top-radius height)  ; front/bottom left  => shift-left
    (screw-insert 2 (+ lastrow 0)               bottom-radius top-radius height)  ; front/bottom right => shift-down
    (screw-insert 2 0                           bottom-radius top-radius height)  ; back/top center    => shift-up
@@ -1178,36 +1186,36 @@
                     thumb
                     thumb-connectors
                     ; case-walls
-                    (union
-                     back-case-wall-if-firstrow
-                     back-case-wall-if-not-firstrow
-                     back-case-wall-middle-finger
-                     corners-case-wall-back-to-right
-                     right-case-wall
-                     left-case-wall
-                     front-case-wall)
-                    ; (difference (union 
-                    ;             ;  case-walls
-                    ;              (union
-                    ;               back-case-wall-if-firstrow
-                    ;               back-case-wall-if-not-firstrow
-                    ;               back-case-wall-middle-finger
-                    ;               corners-case-wall-back-to-right
-                    ;               right-case-wall
-                    ;               left-case-wall
-                    ;               front-case-wall
-                    ;               )
-                    ;              (main-key-cleanup true)
-                    ;              thumb-walls
-                    ;              screw-insert-outers
-                    ;              teensy-holder
-                    ;              usb-holder
-                    ;              )
-                    ;             rj9-space
-                    ;             usb-holder-hole
-                    ;             screw-insert-holes
-                    ;             )
-                    ; rj9-holder
+                    ; (union
+                    ;  back-case-wall-if-firstrow
+                    ;  back-case-wall-if-not-firstrow
+                    ;  back-case-wall-middle-finger
+                    ;  corners-case-wall-back-to-right
+                    ;  right-case-wall
+                    ;  left-case-wall
+                    ;  front-case-wall)
+                    (difference (union 
+                                ;  case-walls
+                                 (union
+                                  back-case-wall-if-firstrow
+                                  back-case-wall-if-not-firstrow
+                                  back-case-wall-middle-finger
+                                  corners-case-wall-back-to-right
+                                  right-case-wall
+                                  left-case-wall
+                                  front-case-wall
+                                  )
+                                 (main-key-cleanup true)
+                                 thumb-walls
+                                 screw-insert-outers
+                                 teensy-holder
+                                 usb-holder
+                                 )
+                                rj9-space
+                                usb-holder-hole
+                                screw-insert-holes
+                                )
+                    rj9-holder
                     ; wire-posts
                     ; thumbcaps
                     ; caps
