@@ -1181,7 +1181,7 @@
                    (union
                     key-holes
                     connectors
-                    (main-key-cleanup true)
+                    ; (main-key-cleanup true)
                     thumb-walls
                     thumb
                     thumb-connectors
@@ -1195,16 +1195,16 @@
                     ;  left-case-wall
                     ;  front-case-wall)
                     (difference (union 
-                                ;  case-walls
-                                 (union
-                                  back-case-wall-if-firstrow
-                                  back-case-wall-if-not-firstrow
-                                  back-case-wall-middle-finger
-                                  corners-case-wall-back-to-right
-                                  right-case-wall
-                                  left-case-wall
-                                  front-case-wall
-                                  )
+                                 case-walls
+                                ;  (union
+                                ;   back-case-wall-if-firstrow
+                                ;   back-case-wall-if-not-firstrow
+                                ;   back-case-wall-middle-finger
+                                ;   corners-case-wall-back-to-right
+                                ;   right-case-wall
+                                ;   left-case-wall
+                                ;   front-case-wall
+                                ;   )
                                  (main-key-cleanup true)
                                  thumb-walls
                                  screw-insert-outers
