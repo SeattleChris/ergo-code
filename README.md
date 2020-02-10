@@ -148,6 +148,8 @@ Firmware goes hand in hand with how you wire the circuit. Some firmware options 
 
 [Keyboard Layout Editor](http://www.keyboard-layout-editor.com) is useful for designing how you want to map your keys.
 
+[Alternate layout](http://www.keyboard-layout-editor.com/#/gists/3d6424e0f58ad46f2020e55a03afcecd)
+
 Currently, [here is my layout](http://www.keyboard-layout-editor.com/#/gists/47ad964ab133479c8171956357e286ae).
 
 ![Layout Image](doc/kb-6col-5row-a.png)
