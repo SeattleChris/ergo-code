@@ -1102,7 +1102,7 @@
           (->> (cube 4 teensy-holder-top-length 4)
                (translate [(+ teensy-pcb-thickness 5) teensy-holder-top-offset (+ 1 (/ teensy-width 2))])))
         (translate [(- teensy-holder-width) 0 0])
-        (translate [-2.4 0 0])  ; Jan [-1.4 0 0]
+        (translate [-4.77 -0.8 0])  ; Jan [-1.4 0 0]
         (translate [(first teensy-top-xy)
                     (- (second teensy-top-xy) 1)
                     (/ (+ 6 teensy-width) 2)])
@@ -1127,10 +1127,10 @@
                 (key-position column row (map - (wall-locate2  0 -6) [-1 (/ mount-height 2) 21]))   ; if nrows=4, [-7 (/ mount-height 2) -14]
                 ; else = if neither shift-down or shift-up
                 (if (and shift-left (>= row cornerrow)) 
-                  (map + (left-key-position row 1) (wall-locate2 0 0) [-14.5 14 0])  ; Jan [-9 2 0]
+                  (map + (left-key-position row 1) (wall-locate2 0 0) [-9.25 2.25 0])  ; Jan [-9 2 0]
                   ; else means (if shift-left while not cornerrow, not lastrow), OR (not shift-left with not lastrow)
                   (if shift-left 
-                    (map + (left-key-position row 1) (wall-locate2 0 0) [0 (/ mount-height 2) 0] [2 4 0])
+                    (map + (left-key-position row 1) (wall-locate2 0 0) [0 (/ mount-height 2) 0] [-1 -1 0])
                     ; else means either shift-right or neither left or right, while also not lastrow
                     (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) -14) 1.5 0] ))))))))]  ; if nrows=4, [(+ (/ mount-width 2) 2) 0 -3]
     (->> (screw-insert-shape bottom-radius top-radius height)
