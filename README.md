@@ -153,7 +153,7 @@ Firmware goes hand in hand with how you wire the circuit. Some firmware options 
 * [Ver 3](http://www.keyboard-layout-editor.com/#/gists/fff42581cb3a5dbfca9aae3a7b00eabf)
 * [Current Layout](http://www.keyboard-layout-editor.com/#/gists/6468df87b3a086a1736b0a34bdbe207f)
 
-![Layout Image](doc/dactyl-motus-6x3-0+3t6.png)
+![Layout Image](doc/dactyl-motus-6x3-0+3t6-b.png)
 
 ## License
 
