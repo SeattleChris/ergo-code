@@ -10,12 +10,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Shape parameters ;;
 ;;;;;;;;;;;;;;;;;;;;;;
-(def nrows 5)
+(def nrows 4)
 (def column-per-finger [2 1 1 2])
 (def ncols (reduce + column-per-finger))
 (def middle-finger-col (get column-per-finger 0))  ; First column is 0, and middle finger comes after the first (pointer) finger. 
 (def has-lastrow       [(- middle-finger-col 0) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2) (+ middle-finger-col 2)])   
-(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2)])
+(def has-firstrow      [(- middle-finger-col 2) (- middle-finger-col 1) middle-finger-col (+ middle-finger-col 1) (+ middle-finger-col 2) (+ middle-finger-col 3)])
 (def is-stretch-column [0 5 6 7])  ; N (or greater) ignored if ncols<N, but is there just in case we add more pinkie columns.
 (def α (deg2rad 34))                    ; curvature of the columns (front to back)- 30 to 36 degrees seems max
 (def β (deg2rad -5))             ; Was 6 ; curvature of the rows (left to right) - adds to tenting
@@ -146,7 +146,7 @@
                         (color [127/255 159/255 127/255 0.7])))
               }
 )
-
+1
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Placement Variables ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -586,8 +586,8 @@
 ;;;;;;;;;;;;;;;;;;;;;
 (def left-wall-x-offset 10)
 (def left-wall-z-offset  3)
-(def thumb-x-connect 2.71)  ; 2.71
-(def thumb-y-connect 0.5 )  ; 0.5
+(def thumb-x-connect 1.63)  ; Jan 2.71
+(def thumb-y-connect 0.5 )  ; Jan 0.5
 (def thumb-lastrow-connect (thumb-tl-place thumb-post-tr))
 ; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate2 thumb-x-connect thumb-y-connect) thumb-post-tr)))
 ; (def thumb-lastrow-connect (key-place lastcol cornerrow (translate (wall-locate3 -2 -1) web-post-bl) ))
@@ -1032,7 +1032,8 @@
       (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl (dec middle-finger-col) 1 -1 back-y-edge web-post-tr)))))
 (def corners-case-wall-back-to-right
   (if (.contains has-firstrow lastcol)
-    (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
+    (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 right-x-edge 0 web-post-tr)
+    ; (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
     (union
      (key-wall-brace lastcol 1 0 back-y-edge web-post-tr lastcol 1 right-x-edge 0 web-post-tr)
      (key-wall-brace (last has-firstrow) 1 right-x-edge 0 web-post-tr (inc (last has-firstrow)) 1 right-x-edge back-y-edge web-post-tl)
@@ -1065,7 +1066,7 @@
                                      (translate [0 0 5] (cube 10.78 13  5))))))  ; add 1mm for y value?
 
 (def usb-holder-position (key-position (+ middle-finger-col 1) 0 (map + (wall-locate2 0 1) [1.25 (/ mount-height 2) 0])))
-(def usb-holder-size [6.5 10.0 13.6])
+(def usb-holder-size [6.5 10.0 13.6])  ; TODO: Change y for depth of holder. May need to adjust placement depth. 
 (def usb-holder-thickness 4)
 (def usb-holder
     (->> (cube (+ (first usb-holder-size) usb-holder-thickness) (second usb-holder-size) (+ (last usb-holder-size) usb-holder-thickness))
@@ -1118,21 +1119,22 @@
         shift-down    (and (not (or shift-right shift-left)) (>= row lastrow)) ; if row is lastrow (or greater), but column is not 0 or lastcol
         shift-thumb   (and (or shift-right shift-left) (>= row lastrow)) ; if row is lastrow (or greater) AND the column IS 0 or lastcol
         position
-        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-80 -4 -36] ))   ; if nrows=4, [-67 0 -38] ; Jan [-75 -2 -38]
-        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-70 6 -27] ))  ; if nrows=4,  [-70 7 -36] ; Jan  [-70 6 -34]
+        (if (and shift-left shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-59  0 -35.5] ))  ; Jan [-75 -2 -38] ; Feb [-80 -4 -36]
+        (if (and shift-right shift-thumb) (key-position column row (map + (wall-locate2 0 0) [-58 6 -29] ))    ; Jan  [-70 6 -34] ; Feb [-70  6 -27]
             (if shift-up     
               (key-position column row (map + (wall-locate2  -0.95  0.2) [0 (/ mount-height 2) 2]))
               ; if not shift-up
               (if shift-down  
-                (key-position column row (map - (wall-locate2  0 -6) [-1 (/ mount-height 2) 21]))   ; if nrows=4, [-7 (/ mount-height 2) -14]
+                (key-position column row (map - (wall-locate2  0 -6) [-3 (/ mount-height 2) 1]))  ; Feb [-1 (/ mount-height 2) 21]
                 ; else = if neither shift-down or shift-up
                 (if (and shift-left (>= row cornerrow)) 
                   (map + (left-key-position row 1) (wall-locate2 0 0) [-9.25 2.25 0])  ; Jan [-9 2 0]
                   ; else means (if shift-left while not cornerrow, not lastrow), OR (not shift-left with not lastrow)
                   (if shift-left 
-                    (map + (left-key-position row 1) (wall-locate2 0 0) [0 (/ mount-height 2) 0] [-1 -1 0])
-                    ; else means either shift-right or neither left or right, while also not lastrow
-                    (key-position column row (map + (wall-locate2  0  1) [(+ (/ mount-width 2) -14) 1.5 0] ))))))))]  ; if nrows=4, [(+ (/ mount-width 2) 2) 0 -3]
+                    (map + (left-key-position row 1) (wall-locate2 0 0) [0 (/ mount-height 2) 0] [-1 -1 0])  ; Feb [-1 -1 0]
+                    ; else means either shift-right (probably) or neither left or right, while also not lastrow
+                    (key-position column row (map + (wall-locate2  0 1) [(+ (/ mount-width 2) 10) 0 0] ))  ; if lastcol does not has-last-row, [(+ (/ mount-width 2) -14) 1.5 0]
+                    ))))))]  
     (->> (screw-insert-shape bottom-radius top-radius height)
          (translate [(first position) (second position) (/ height 2)])
     )))
