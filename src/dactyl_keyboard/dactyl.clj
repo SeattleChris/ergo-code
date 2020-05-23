@@ -1032,7 +1032,8 @@
       (key-wall-brace middle-finger-col 1 0 back-y-edge web-post-tl (dec middle-finger-col) 1 -1 back-y-edge web-post-tr)))))
 (def corners-case-wall-back-to-right
   (if (.contains has-firstrow lastcol)
-    (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
+    (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 right-x-edge 0 web-post-tr)
+    ; (key-wall-brace lastcol 0 0 back-y-edge web-post-tr lastcol 0 1 0 web-post-tr)
     (union
      (key-wall-brace lastcol 1 0 back-y-edge web-post-tr lastcol 1 right-x-edge 0 web-post-tr)
      (key-wall-brace (last has-firstrow) 1 right-x-edge 0 web-post-tr (inc (last has-firstrow)) 1 right-x-edge back-y-edge web-post-tl)
