@@ -586,8 +586,8 @@
 ;;;;;;;;;;;;;;;;;;;;;
 (def left-wall-x-offset 10)
 (def left-wall-z-offset  3)
-(def thumb-x-connect 2.71)  ; 2.71
-(def thumb-y-connect 0.5 )  ; 0.5
+(def thumb-x-connect 1.63)  ; Jan 2.71
+(def thumb-y-connect 0.5 )  ; Jan 0.5
 (def thumb-lastrow-connect (thumb-tl-place thumb-post-tr))
 ; (def thumb-lastrow-connect (thumb-tl-place (translate (wall-locate2 thumb-x-connect thumb-y-connect) thumb-post-tr)))
 ; (def thumb-lastrow-connect (key-place lastcol cornerrow (translate (wall-locate3 -2 -1) web-post-bl) ))
@@ -1125,7 +1125,7 @@
               (key-position column row (map + (wall-locate2  -0.95  0.2) [0 (/ mount-height 2) 2]))
               ; if not shift-up
               (if shift-down  
-                (key-position column row (map - (wall-locate2  0 -6) [-3 (/ mount-height 2) 1]))   ; if nrows=4, [-7 (/ mount-height 2) -14] ; Feb [-1 (/ mount-height 2) 21]
+                (key-position column row (map - (wall-locate2  0 -6) [-3 (/ mount-height 2) 1]))  ; Feb [-1 (/ mount-height 2) 21]
                 ; else = if neither shift-down or shift-up
                 (if (and shift-left (>= row cornerrow)) 
                   (map + (left-key-position row 1) (wall-locate2 0 0) [-9.25 2.25 0])  ; Jan [-9 2 0]
