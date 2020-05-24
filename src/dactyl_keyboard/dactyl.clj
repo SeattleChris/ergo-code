@@ -1038,7 +1038,8 @@
      (key-wall-brace lastcol 1 0 back-y-edge web-post-tr lastcol 1 right-x-edge 0 web-post-tr)
      (key-wall-brace (last has-firstrow) 1 right-x-edge 0 web-post-tr (inc (last has-firstrow)) 1 right-x-edge back-y-edge web-post-tl)
      (key-wall-brace (last has-firstrow) 0 0 back-y-edge web-post-tr (last has-firstrow) 0 right-x-edge 0 web-post-tr))))
-(def front-case-wall
+(defn front-case-wall [thumb]
+  " Deals with lastrow keys formatting that is not automatically managed like other main section keys. "
   (union
    (for [x (range 4 ncols) :when (not (.contains has-lastrow x))] (key-wall-brace x cornerrow 0 -1 web-post-bl x       cornerrow 0 -1 web-post-br))
    (for [x (range 5 ncols) :when (not (.contains has-lastrow x))] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
@@ -1047,11 +1048,14 @@
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-br))
     (key-place (last has-lastrow) lastrow   (translate (wall-locate3 0 0) web-post-tr))
     (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))  ; connects to default front wall of next/last column cornerrow
-    thumb-lastrow-connect
+    (if (= thumb true) thumb-lastrow-connect)
+    ; end hull
     )
-   (bottom-hull  ; front wall of extra keys and final main section.
-    (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
-    thumb-lastrow-connect)  ; end bottom-hull
+   (if (= thumb true)
+     (bottom-hull  ; front wall of extra keys and final main section.
+      (key-place (inc (last has-lastrow)) cornerrow (translate (wall-locate3 0 -1) web-post-bl))
+      thumb-lastrow-connect) ; end bottom-hull
+      )
    ))
 (def case-walls
   (union
@@ -1061,7 +1065,7 @@
    corners-case-wall-back-to-right
    right-case-wall
    left-case-wall
-   front-case-wall
+   (front-case-wall true)
   ;  thumb-walls
    ))
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1206,7 +1210,7 @@
                     ;  corners-case-wall-back-to-right
                     ;  right-case-wall
                     ;  left-case-wall
-                    ;  front-case-wall)
+                    ;  (front-case-wall true))
                     (difference (union 
                                  case-walls
                                 ;  (union
@@ -1216,7 +1220,7 @@
                                 ;   corners-case-wall-back-to-right
                                 ;   right-case-wall
                                 ;   left-case-wall
-                                ;   front-case-wall
+                                ;   (front-case-wall true)
                                 ;   )
                                  (main-key-cleanup true)
                                  thumb-walls
@@ -1271,7 +1275,7 @@
                     (main-key-cleanup false)
                     valley-clearance
                     ; case-walls
-                    front-case-wall
+                    (front-case-wall true)
                     ; (difference (union case-walls
                     ;                    ( main-key-cleanup false)
                     ;                    screw-insert-outers
