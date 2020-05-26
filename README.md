@@ -1,4 +1,4 @@
-# The Dactyl Motus Keyboard
+# The Dactyl ErgoCode Keyboard
 
 This is a fork of the [Tom Short's ManuForm](https://github.com/tshort/dactyl-keyboard) keyboard, which itself is a fork of the [Dactyl](https://github.com/adereth/dactyl-keyboard), a parameterized, split-hand, concave, columnar, ergonomic keyboard. This work builds off of the ideas of the [ManuForm](https://github.com/jeffgran/ManuForm) by Jeff Gran with discussions on ([geekhack](https://geekhack.org/index.php?topic=46015.0)).
 
@@ -30,7 +30,7 @@ Here we are introducing the Thumb Bowl design for the thumb cluster. This code a
 
 The keyboard is parameterized to allow adjusting the following:
 
-* Rows: 4 - 6 (or more)
+* Rows: 4 - 6 (or more, or less)
 * Columns: 4 and up
 * Row curvature - Home columns
 * Row curvature - Reach columns
@@ -45,12 +45,17 @@ The keyboard is parameterized to allow adjusting the following:
 * Thumb cluster positioning & attachment points
   * useful if creating additional thumb cluster designs
 
-The 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short implement the Manuform thumb cluster design. The 40% version has a bit more tenting than the Dactyl. The Heavy Curve model (set as 5x5) is for those who want a deep bowl design for the See the following model files for configurations that may be most common:
+For any given number of "rows" defined for any keyboard size only some of the columns in the main keys section will have that number of rows, so it better to think of the row number as the maximum number of keys a column could have. Frequently the "lastrow" (the row closest to the user) won't actually have a key for every column. For example if a keyboard is defined as having 4 rows, looking at it may seem more like a "keyboard with three rows, but an extra key at the bottom on some columns". Likewise some columns may be set to not have a first row key (at the top, furthest from the user). When describing a board size, the short hand should be in the format of RxC where R is the setting for the number or rows, and C is the setting for the number of columns (eg 4x6 is set to 4 rows and 6 columns, plus the thumb cluster keys, but depending on other settings it may appear to typically be 3 rows with a few bonus keys).
+
+Currently the author is using heavily curved main board and heavily curved thumb clusters with the thumb-bowl design with 6 thumb buttons. On a 4x6 layout, all columns have a first row key, while only three columns (middle finger, ring finger, and home column pinkie) have a last row key. For the 5x6 layout, the settings are the same except there is no first-row-key for the non-home pinkie column (when the pinkie finger has to reach sideways for keys in that column).
+
+* [Current Model](https://github.com/SeattleChris/dactyl-keyboard/blob/master/things/chris/right.stl)
+
+Previously the 40% size (set as 4x5) and the 60% size (set as 5x6) models by Tom Short implement the Manuform thumb cluster design. The 40% version has a bit more tenting than the Dactyl. The Heavy Curve model (set as 5x5) is for those who want a deep bowl design for the See the following model files for configurations that may be most common:
 
 * [40% size, (4x5)](https://github.com/SeattleChris/dactyl-keyboard/blob/master/things/right-4x5.stl)
 * [60% size, (5x6)](https://github.com/SeattleChris/dactyl-keyboard/blob/master/things/right-5x6.stl)
 * [Heavy Curve (5x5)](https://github.com/SeattleChris/dactyl-keyboard/blob/master/things/heavy-curve-5x5.stl)
-* [Current Model](https://github.com/SeattleChris/dactyl-keyboard/blob/master/things/chris/right.stl)
 
 ## Features and Patches currently being worked on
 
@@ -157,6 +162,6 @@ Firmware goes hand in hand with how you wire the circuit. Some firmware options 
 
 ## License
 
-Copyright © 2015-2019 Matthew Adereth, Tom Short, Chris L Chapman
+Copyright © 2015-2020 Matthew Adereth, Tom Short, Chris L Chapman
 
 The source code for generating the models (everything excluding the [things/](things/) and [resources/](resources/) directories is distributed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3](LICENSE).  The generated models and PCB designs are distributed under the [Creative Commons Attribution-NonCommercial-ShareAlike License Version 3.0](LICENSE-models).
